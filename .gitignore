@@ -1,0 +1,31 @@
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# Package Files
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# macOS template
+.DS_Store
+
+# SBT
+dist
+target
+lib_managed
+src_managed
+project/boot/
+project/plugins/project/
+.history
+.cache
+.lib
+
+# IntelliJ
+out
+.idea
