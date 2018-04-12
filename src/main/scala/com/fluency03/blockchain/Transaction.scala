@@ -1,16 +1,17 @@
 package com.fluency03.blockchain
 
-import org.json4s.JObject
-import org.json4s.JsonDSL._
+import com.fluency03.blockchain.Transaction.hashOfTransaction
+import com.fluency03.blockchain.Util.hashOf
+import org.json4s.{Extraction, JValue}
+import org.json4s.native.JsonMethods.{compact, render}
 
 case class Transaction(sender: String, receiver: String, amount: Double) {
 
+  lazy val hash: String = hashOfTransaction(this)
 
+  def toJson: JValue = Extraction.decompose(this)
 
-  def toJson: JObject =
-    ("sender" -> sender) ~
-      ("receiver" -> receiver) ~
-      ("amount" -> amount)
+  override def toString: String = compact(render(toJson))
 
 }
 
@@ -18,7 +19,10 @@ case class Transaction(sender: String, receiver: String, amount: Double) {
 
 object Transaction {
 
+  def hashOfTransaction(tx: Transaction): String =
+    hashOfTransactionFields(tx.sender, tx.receiver, tx.amount)
 
-
+  def hashOfTransactionFields(sender: String, receiver: String, amount: Double): String =
+    hashOf(sender, receiver, amount.toString)
 
 }

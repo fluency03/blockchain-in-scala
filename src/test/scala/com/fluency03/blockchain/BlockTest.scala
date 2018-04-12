@@ -2,10 +2,11 @@ package com.fluency03.blockchain
 
 import org.scalatest.FlatSpec
 
-class TestBlock extends FlatSpec {
+class BlockTest extends FlatSpec {
 
   "Genesis block" should "have index 0" in {
-    val genesis: Block = Block.genesis()
+    val genesis: Block = Block.genesisBlock
+    println(genesis)
     assert(genesis.header.index == 0)
   }
 

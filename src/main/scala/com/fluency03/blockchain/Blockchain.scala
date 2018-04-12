@@ -5,14 +5,11 @@ import com.fluency03.blockchain.BlockHeader.hashOfHeaderFields
 
 import scala.collection.mutable
 
-class Blockchain(difficulty: Int = 4) {
-  val chain: List[Block] = List(Block.genesis())
+case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genesisBlock)) {
   val currentTransactions: mutable.Set[Transaction] = new mutable.HashSet[Transaction]()
 
   def addBlock(newBlockData: String): Blockchain = {
-    mineNextBlock(newBlockData).addTransactions(currentTransactions.toList) :: chain
-    currentTransactions.clear()
-    this
+    Blockchain(difficulty, mineNextBlock(newBlockData).addTransactions(currentTransactions.toList) :: chain)
   }
 
   def addTransaction(t: Transaction): Blockchain = {

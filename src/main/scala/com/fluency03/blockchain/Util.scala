@@ -20,9 +20,9 @@ object Util {
     MessageDigest.getInstance("SHA-256").digest(text.getBytes("UTF-8"))
 
   /**
-   * Return the current timestamp in epoch milliseconds.
+   * Return the current timestamp in Unix Epoch Time.
    */
-  def getCurrentTimestamp: Long = Instant.now.toEpochMilli
+  def getCurrentTimestamp: Long = Instant.now.getEpochSecond
 
   /**
    * Calculate the hash of concatenation a List of Strings.
