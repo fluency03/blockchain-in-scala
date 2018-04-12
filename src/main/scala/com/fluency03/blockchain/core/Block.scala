@@ -1,14 +1,13 @@
-package com.fluency03.blockchain
+package com.fluency03.blockchain.core
 
 import java.time.Instant
 
 import com.fluency03.blockchain.Util._
-import com.fluency03.blockchain.BlockHeader._
-import com.fluency03.blockchain.merkle.MerkleNode
-import org.json4s.{Extraction, JValue, JObject, NoTypeHints}
-import org.json4s.native.Serialization
-import org.json4s.native.JsonMethods.{compact, render}
+import com.fluency03.blockchain.core.BlockHeader._
 import org.json4s.JsonDSL._
+import org.json4s.native.JsonMethods.{compact, render}
+import org.json4s.native.Serialization
+import org.json4s.{Extraction, JObject, JValue, NoTypeHints}
 
 case class BlockHeader(index: Long, previousHash: String, data: String, timestamp: Long, nonce: Int) {
   implicit val formats = Serialization.formats(NoTypeHints)

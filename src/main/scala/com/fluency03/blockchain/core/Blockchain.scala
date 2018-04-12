@@ -1,7 +1,7 @@
-package com.fluency03.blockchain
+package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util._
-import com.fluency03.blockchain.BlockHeader.hashOfHeaderFields
+import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
 
 import scala.collection.mutable
 
@@ -51,7 +51,7 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
 
 object Blockchain {
 
-  def apply(difficulty: Int = 4): Blockchain = new Blockchain(difficulty)
+  def apply(difficulty: Int): Blockchain = new Blockchain(difficulty)
 
 }
 

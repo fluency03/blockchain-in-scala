@@ -2,6 +2,7 @@ package com.fluency03.blockchain
 
 import java.security.MessageDigest
 import java.time.Instant
+import java.util.Base64
 
 object Util {
 
@@ -38,6 +39,13 @@ object Util {
    * Check whether the given hash is with valid difficulty.
    */
   def isWithValidDifficulty(hash: String, difficulty: Int): Boolean = hash startsWith ("0" * difficulty)
+
+
+
+  def toBase64(text: String): String = Base64.getEncoder.encodeToString(text.getBytes())
+
+
+  def fromBase64(base64: String): String = new String(Base64.getDecoder.decode(base64), "ASCII")
 
 
 }

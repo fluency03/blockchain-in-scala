@@ -1,11 +1,12 @@
-package com.fluency03.blockchain
+package com.fluency03.blockchain.core
 
-import com.fluency03.blockchain.Transaction.hashOfTransaction
 import com.fluency03.blockchain.Util.hashOf
-import org.json4s.{Extraction, JValue}
 import org.json4s.native.JsonMethods.{compact, render}
+import org.json4s.native.Serialization
+import org.json4s.{Extraction, JValue, NoTypeHints}
 
 case class Transaction(sender: String, receiver: String, amount: Double) {
+  implicit val formats = Serialization.formats(NoTypeHints)
 
   lazy val hash: String = hashOfTransaction(this)
 

@@ -1,6 +1,5 @@
-package com.fluency03.blockchain.merkle
+package com.fluency03.blockchain.core
 
-import com.fluency03.blockchain.Transaction
 import com.fluency03.blockchain.Util.hashOf
 
 class MerkleNode {

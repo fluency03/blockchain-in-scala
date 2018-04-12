@@ -1,4 +1,4 @@
-package com.fluency03.blockchain
+package com.fluency03.blockchain.core
 
 import org.scalatest.FlatSpec
 
