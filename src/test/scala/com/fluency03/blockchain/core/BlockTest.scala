@@ -30,30 +30,38 @@ class BlockTest extends FlatSpec with Matchers {
         ("transactions" -> JArray.apply(List()))
     genesis.toJson shouldEqual json
     genesis.toString shouldEqual
-      "{\"header\":{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\",\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187852},\"hash\":\"000031bee3fa033f2d69ae7d0d9f565bf3a235452ccf8a5edffb78cfbcdd7137\",\"transactions\":[]}"
+      "{\"header\":{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\"," +
+        "\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187852},\"hash\":" +
+        "\"000031bee3fa033f2d69ae7d0d9f565bf3a235452ccf8a5edffb78cfbcdd7137\",\"transactions\":[]}"
   }
 
-//  "Next trial of Genesis block header" should "equal to Genesis header except nonce+1 ." in {
-//    val genesisHeaderNextTrial: BlockHeader = genesisHeader.nextTrial()
-//    genesisHeaderNextTrial.index shouldEqual 0
-//    genesisHeaderNextTrial.previousHash shouldEqual "0"
-//    genesisHeaderNextTrial.data shouldEqual "Welcome to Blockchain in Scala!"
-//    genesisHeaderNextTrial.merkleHash shouldEqual ""
-//    genesisHeaderNextTrial.timestamp shouldEqual 1523472721
-//    genesisHeaderNextTrial.nonce shouldEqual 187853
-//    val newHash = hashOfBlockHeader(genesisHeaderNextTrial)
-//    genesisHeaderNextTrial.hash shouldEqual newHash
-//    genesisHeaderNextTrial.isValidWith(4) shouldEqual false
-//    val json = ("index" -> 0) ~
-//      ("previousHash" -> "0") ~
-//      ("data" -> "Welcome to Blockchain in Scala!") ~
-//      ("merkleHash" -> "") ~
-//      ("timestamp" -> 1523472721) ~
-//      ("nonce" -> 187853)
-//    genesisHeaderNextTrial.toJson shouldEqual json
-//    genesisHeaderNextTrial.toString shouldEqual
-//      "{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\",\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187853}"
-//  }
+  "Next trial of Genesis block" should "equal to Genesis block except nonce+1 ." in {
+    val genesisNextTrial: Block = genesis.nextTrial()
+    genesisNextTrial.index shouldEqual 0
+    genesisNextTrial.previousHash shouldEqual "0"
+    genesisNextTrial.data shouldEqual "Welcome to Blockchain in Scala!"
+    genesisNextTrial.merkleHash shouldEqual ""
+    genesisNextTrial.timestamp shouldEqual 1523472721
+    genesisNextTrial.nonce shouldEqual 187853
+    val newHash = hashOfBlockHeader(genesisNextTrial.header)
+    genesisNextTrial.hash shouldEqual newHash
+    genesisNextTrial.hasValidHash(4) shouldEqual false
+    val json =
+      ("header" ->
+          ("index" -> 0) ~
+          ("previousHash" -> "0") ~
+          ("data" -> "Welcome to Blockchain in Scala!") ~
+          ("merkleHash" -> "") ~
+          ("timestamp" -> 1523472721) ~
+          ("nonce" -> 187853)) ~
+        ("hash" -> newHash) ~
+        ("transactions" -> JArray.apply(List()))
+    genesisNextTrial.toJson shouldEqual json
+    genesisNextTrial.toString shouldEqual
+      "{\"header\":{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\"," +
+        "\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187853},\"hash\":" +
+        "\"" + newHash + "\",\"transactions\":[]}"
+  }
 
 
 }

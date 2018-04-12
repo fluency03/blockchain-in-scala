@@ -25,7 +25,8 @@ class BlockHeaderTest extends FlatSpec with Matchers  {
         ("nonce" -> 187852)
     genesisHeader.toJson shouldEqual json
     genesisHeader.toString shouldEqual
-        "{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\",\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187852}"
+      "{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\"," +
+        "\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187852}"
   }
 
   "Next trial of Genesis block header" should "equal to Genesis header except nonce+1 ." in {
@@ -47,7 +48,8 @@ class BlockHeaderTest extends FlatSpec with Matchers  {
         ("nonce" -> 187853)
     genesisHeaderNextTrial.toJson shouldEqual json
     genesisHeaderNextTrial.toString shouldEqual
-        "{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\",\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187853}"
+      "{\"index\":0,\"previousHash\":\"0\",\"data\":\"Welcome to Blockchain in Scala!\"," +
+        "\"merkleHash\":\"\",\"timestamp\":1523472721,\"nonce\":187853}"
   }
 
 

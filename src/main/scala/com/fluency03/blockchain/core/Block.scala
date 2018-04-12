@@ -77,7 +77,7 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
 
   lazy val hash: String = header.hash
 
-  def next(): Block = Block(header.nextTrial(), transactions)
+  def nextTrial(): Block = Block(header.nextTrial(), transactions)
 
   def addTransaction(t: Transaction): Block =
     Block(header, t :: transactions)
