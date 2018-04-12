@@ -30,20 +30,15 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
   def mineNextBlock(newBlockData: String): Block = {
     val lastBlockOpt: Option[Block] = this.lastBlock()
     if (lastBlockOpt.isEmpty) throw new NoSuchElementException("Last Block does not exist!")
-
     val lastHeader = lastBlockOpt.get.header
-    val nextIndex = lastHeader.index + 1
-    val prevHash = lastHeader.hash
-    val nextTimestamp = getCurrentTimestamp
-    var nonce = 0
-    var nextHash = ""
-
-    while (!isWithValidDifficulty(nextHash, difficulty)) {
-      nonce += 1
-      nextHash = hashOfHeaderFields(nextIndex, prevHash, newBlockData, nextTimestamp, nonce)
-    }
-
-    Block(nextIndex, prevHash, newBlockData, nextTimestamp, nonce)
+    Block.mineNextBlock(
+      lastHeader.index + 1,
+      lastHeader.hash,
+      newBlockData,
+      MerkleNode.computeRoot(currentTransactions.toList),
+      getCurrentTimestamp,
+      difficulty
+    )
   }
 
 }

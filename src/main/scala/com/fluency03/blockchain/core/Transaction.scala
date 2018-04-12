@@ -1,9 +1,11 @@
 package com.fluency03.blockchain.core
 
+import com.fluency03.blockchain.core.Transaction.hashOfTransaction
 import com.fluency03.blockchain.Util.hashOf
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.native.Serialization
 import org.json4s.{Extraction, JValue, NoTypeHints}
+
 
 case class Transaction(sender: String, receiver: String, amount: Double) {
   implicit val formats = Serialization.formats(NoTypeHints)
@@ -15,7 +17,6 @@ case class Transaction(sender: String, receiver: String, amount: Double) {
   override def toString: String = compact(render(toJson))
 
 }
-
 
 
 object Transaction {

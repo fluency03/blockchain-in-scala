@@ -11,17 +11,28 @@ version := "0.0.1"
 scalaVersion := "2.12.0"
 
 val scalazVersion = "7.2.21"
-val finagleVersion = "0.17.0"
+val akkaHttpVersion = "10.1.1"
+val akkaVersion = "2.5.11"
+val akkaJson4sVersion = "1.20.1"
 val json4sVersion = "3.5.3"
 val scalaTestVersion = "3.0.5"
+
+val httpDependencies = Seq(
+  "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+  "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+  "de.heikoseeberger" %% "akka-http-json4s" % akkaJson4sVersion,
+  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
+  "com.typesafe.akka" %% "akka-stream-testkit"  % akkaVersion % Test
+)
+
+val testDependencies = Seq(
+  "org.scalactic" %% "scalactic" % scalaTestVersion,
+  "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+)
 
 libraryDependencies ++= {
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
-    "org.json4s" %% "json4s-native" % json4sVersion,
-    "com.github.finagle" %% "finch-core" % finagleVersion,
-    "com.github.finagle" %% "finch-json4s" % finagleVersion,
-    "org.scalactic" %% "scalactic" % scalaTestVersion,
-    "org.scalatest" %% "scalatest" % scalaTestVersion % "test"
+    "org.json4s" %% "json4s-native" % json4sVersion
   )
-}
+} ++ httpDependencies ++ testDependencies

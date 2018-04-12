@@ -9,13 +9,20 @@ import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.native.Serialization
 import org.json4s.{Extraction, JObject, JValue, NoTypeHints}
 
-case class BlockHeader(index: Long, previousHash: String, data: String, timestamp: Long, nonce: Int) {
+case class BlockHeader(
+  index: Int,
+  previousHash: String,
+  data: String,
+  merkleHash: String,
+  timestamp: Long,
+  nonce: Int
+) {
   implicit val formats = Serialization.formats(NoTypeHints)
   lazy val hash: String = hashOfBlockHeader(this)
 
   def isValidWith(difficulty: Int): Boolean = isWithValidDifficulty(hash, difficulty)
 
-  def next(): BlockHeader = BlockHeader(index, previousHash, data, timestamp, nonce + 1)
+  def next(): BlockHeader = BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce + 1)
 
   def toJson: JValue = Extraction.decompose(this)
 
@@ -30,21 +37,32 @@ object BlockHeader {
       header.index,
       header.previousHash,
       header.data,
+      header.merkleHash,
       header.timestamp,
       header.nonce
     )
 
-  def hashOfHeaderFields(index: Long, previousHash: String, data: String, timestamp: Long, nonce: Int): String =
-    hashOf(index.toString, previousHash, data, timestamp.toString, nonce.toString)
+  def hashOfHeaderFields(
+    index: Long,
+    previousHash: String,
+    data: String,
+    merkleHash: String,
+    timestamp: Long,
+    nonce: Int
+  ): String = hashOf(index.toString, previousHash, data, merkleHash, timestamp.toString, nonce.toString)
 
 }
 
 
 case class Block(header: BlockHeader, transactions: List[Transaction] = List()) {
-  lazy val hash: String = header.hash
-  def merkleRootHash: String = MerkleNode.computeRoot(transactions)
+  lazy val index: Int = header.index
+  lazy val previousHash: String = header.previousHash
+  lazy val data: String = header.data
+  lazy val merkleHash: String = header.merkleHash
+  lazy val timestamp: Long = header.timestamp
+  lazy val nonce: Int = header.nonce
 
-  def isValidWith(difficulty: Int): Boolean = header.isValidWith(difficulty)
+  lazy val hash: String = header.hash
 
   def next(): Block = Block(header.next(), transactions)
 
@@ -57,7 +75,13 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
   def addTransactions(trans: List[Transaction]): Block =
     Block(header, trans)
 
-  def toJson: JObject =
+  def isValid(difficulty: Int): Boolean = hasValidHash(difficulty) && hasValidMerkleHash
+
+  def hasValidHash(difficulty: Int): Boolean = header.isValidWith(difficulty)
+
+  def hasValidMerkleHash: Boolean = merkleHash == MerkleNode.computeRoot(transactions)
+
+  def toJson: JValue =
     ("header" -> header.toJson) ~
       ("hash" -> hash) ~
       ("transactions" -> transactions.map(_.toJson))
@@ -69,8 +93,8 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
 
 object Block {
 
-  def apply(index: Long, previousHash: String, data: String, timestamp: Long, nonce: Int): Block =
-    new Block(BlockHeader(index, previousHash, data, timestamp, nonce))
+  def apply(index: Int, previousHash: String, data: String, merkleHash: String, timestamp: Long, nonce: Int): Block =
+    new Block(BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce))
 
   // 000031bee3fa033f2d69ae7d0d9f565bf3a235452ccf8a5edffb78cfbcdd7137, 1523472721, 187852
   lazy val genesisBlock: Block = genesis()
@@ -80,20 +104,28 @@ object Block {
       0,
       "0",
       "Welcome to Blockchain in Scala!",
+      "",
       Instant.parse("2018-04-11T18:52:01Z").getEpochSecond,
       4
     )
 
-  def mineNextBlock(nextIndex: Int, prevHash: String, newBlockData: String, timestamp: Long, difficulty: Int): Block = {
+  def mineNextBlock(
+    nextIndex: Int,
+    prevHash: String,
+    newBlockData: String,
+    merkleHash: String,
+    timestamp: Long,
+    difficulty: Int
+  ): Block = {
     var nonce = 0
     var nextHash = ""
 
     while (!isWithValidDifficulty(nextHash, difficulty)) {
       nonce += 1
-      nextHash = hashOfHeaderFields(nextIndex, prevHash, newBlockData, timestamp, nonce)
+      nextHash = hashOfHeaderFields(nextIndex, prevHash, newBlockData, merkleHash, timestamp, nonce)
     }
 
-    Block(nextIndex, prevHash, newBlockData, timestamp, nonce)
+    Block(nextIndex, prevHash, newBlockData, merkleHash, timestamp, nonce)
   }
 
 }
