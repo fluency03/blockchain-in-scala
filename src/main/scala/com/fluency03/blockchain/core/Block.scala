@@ -7,8 +7,7 @@ import com.fluency03.blockchain.core.BlockHeader.{hashOfBlockHeader, hashOfHeade
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.native.Serialization
-import org.json4s.{Extraction, JObject, JValue, NoTypeHints}
-
+import org.json4s.{Extraction, JValue, NoTypeHints}
 
 /**
  * Header of current Block.
@@ -20,19 +19,19 @@ import org.json4s.{Extraction, JObject, JValue, NoTypeHints}
  * @param nonce Nonce of current Block
  */
 case class BlockHeader(
-  index: Int,
-  previousHash: String,
-  data: String,
-  merkleHash: String,
-  timestamp: Long,
-  nonce: Int
-) {
+    index: Int,
+    previousHash: String,
+    data: String,
+    merkleHash: String,
+    timestamp: Long,
+    nonce: Int) {
+
   implicit val formats = Serialization.formats(NoTypeHints)
   lazy val hash: String = hashOfBlockHeader(this)
 
   def isValidWith(difficulty: Int): Boolean = isWithValidDifficulty(hash, difficulty)
 
-  def next(): BlockHeader = BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce + 1)
+  def nextTrial(): BlockHeader = BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce + 1)
 
   def toJson: JValue = Extraction.decompose(this)
 
@@ -44,22 +43,21 @@ object BlockHeader {
 
   def hashOfBlockHeader(header: BlockHeader): String =
     hashOfHeaderFields(
-      header.index,
-      header.previousHash,
-      header.data,
-      header.merkleHash,
-      header.timestamp,
-      header.nonce
-    )
+        header.index,
+        header.previousHash,
+        header.data,
+        header.merkleHash,
+        header.timestamp,
+        header.nonce)
 
   def hashOfHeaderFields(
-    index: Long,
-    previousHash: String,
-    data: String,
-    merkleHash: String,
-    timestamp: Long,
-    nonce: Int
-  ): String = hashOf(index.toString, previousHash, data, merkleHash, timestamp.toString, nonce.toString)
+      index: Long,
+      previousHash: String,
+      data: String,
+      merkleHash: String,
+      timestamp: Long,
+      nonce: Int): String =
+    hashOf(index.toString, previousHash, data, merkleHash, timestamp.toString, nonce.toString)
 
 }
 
@@ -79,7 +77,7 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
 
   lazy val hash: String = header.hash
 
-  def next(): Block = Block(header.next(), transactions)
+  def next(): Block = Block(header.nextTrial(), transactions)
 
   def addTransaction(t: Transaction): Block =
     Block(header, t :: transactions)
@@ -115,22 +113,20 @@ object Block {
 
   def genesis(): Block =
     mineNextBlock(
-      0,
-      "0",
-      "Welcome to Blockchain in Scala!",
-      "",
-      Instant.parse("2018-04-11T18:52:01Z").getEpochSecond,
-      4
-    )
+        0,
+        "0",
+        "Welcome to Blockchain in Scala!",
+        "",
+        Instant.parse("2018-04-11T18:52:01Z").getEpochSecond,
+        4)
 
   def mineNextBlock(
-    nextIndex: Int,
-    prevHash: String,
-    newBlockData: String,
-    merkleHash: String,
-    timestamp: Long,
-    difficulty: Int
-  ): Block = {
+      nextIndex: Int,
+      prevHash: String,
+      newBlockData: String,
+      merkleHash: String,
+      timestamp: Long,
+      difficulty: Int): Block = {
     var nonce = 0
     var nextHash = ""
 
@@ -141,6 +137,15 @@ object Block {
 
     Block(nextIndex, prevHash, newBlockData, merkleHash, timestamp, nonce)
   }
+
+  def mineNextBlock(
+      currentBlock: Block,
+      newBlockData: String,
+      merkleHash: String,
+      timestamp: Long,
+      difficulty: Int): Block =
+    mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, merkleHash, timestamp, difficulty)
+
 
 }
 

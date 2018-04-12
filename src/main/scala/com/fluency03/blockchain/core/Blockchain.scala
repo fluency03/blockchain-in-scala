@@ -6,8 +6,8 @@ import scala.collection.mutable
 
 /**
  * Blockchain with difficulty and the chain of Blocks.
- * @param difficulty
- * @param chain
+ * @param difficulty Difficulty of a Blockchain
+ * @param chain Chain of Blocks
  */
 case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genesisBlock)) {
   val currentTransactions: mutable.Set[Transaction] = new mutable.HashSet[Transaction]()
@@ -36,13 +36,12 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
     if (lastBlockOpt.isEmpty) throw new NoSuchElementException("Last Block does not exist!")
     val lastHeader = lastBlockOpt.get.header
     Block.mineNextBlock(
-      lastHeader.index + 1,
-      lastHeader.hash,
-      newBlockData,
-      MerkleNode.computeRoot(currentTransactions.toList),
-      getCurrentTimestamp,
-      difficulty
-    )
+        lastHeader.index + 1,
+        lastHeader.hash,
+        newBlockData,
+        MerkleNode.computeRoot(currentTransactions.toList),
+        getCurrentTimestamp,
+        difficulty)
   }
 
 }

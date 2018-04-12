@@ -28,7 +28,7 @@ object Util {
   /**
    * Calculate the hash of concatenation a List of Strings.
    */
-  def hashOf(strings: String*): String = sha256HashOf(strings mkString "")
+  def hashOf(strings: String*): String = hashOf(strings mkString "")
 
   /**
    * Calculate the hash of a String.

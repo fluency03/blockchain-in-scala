@@ -16,6 +16,8 @@ val akkaVersion = "2.5.11"
 val akkaJson4sVersion = "1.20.1"
 val json4sVersion = "3.5.3"
 val scalaTestVersion = "3.0.5"
+val scalaMockVersion = "4.1.0"
+
 
 val httpDependencies = Seq(
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
@@ -27,7 +29,8 @@ val httpDependencies = Seq(
 
 val testDependencies = Seq(
   "org.scalactic" %% "scalactic" % scalaTestVersion,
-  "org.scalatest" %% "scalatest" % scalaTestVersion % Test
+  "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+  "org.scalamock" %% "scalamock" % scalaMockVersion % Test
 )
 
 libraryDependencies ++= {
