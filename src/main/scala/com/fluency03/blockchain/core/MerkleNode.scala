@@ -2,14 +2,14 @@ package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util.hashOf
 
+
+/**
+ * Node of Merkle Tree.
+ */
 class MerkleNode {
 
 
-
-
-
 }
-
 
 
 object MerkleNode {

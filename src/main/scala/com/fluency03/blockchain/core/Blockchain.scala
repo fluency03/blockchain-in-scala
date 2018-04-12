@@ -1,10 +1,14 @@
 package com.fluency03.blockchain.core
 
-import com.fluency03.blockchain.Util._
-import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
-
+import com.fluency03.blockchain.Util.getCurrentTimestamp
 import scala.collection.mutable
 
+
+/**
+ * Blockchain with difficulty and the chain of Blocks.
+ * @param difficulty
+ * @param chain
+ */
 case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genesisBlock)) {
   val currentTransactions: mutable.Set[Transaction] = new mutable.HashSet[Transaction]()
 
@@ -42,7 +46,6 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
   }
 
 }
-
 
 object Blockchain {
 

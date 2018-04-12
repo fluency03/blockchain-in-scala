@@ -2,13 +2,23 @@ package com.fluency03.blockchain.core
 
 import java.time.Instant
 
-import com.fluency03.blockchain.Util._
-import com.fluency03.blockchain.core.BlockHeader._
+import com.fluency03.blockchain.Util.{isWithValidDifficulty, hashOf}
+import com.fluency03.blockchain.core.BlockHeader.{hashOfBlockHeader, hashOfHeaderFields}
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.native.Serialization
 import org.json4s.{Extraction, JObject, JValue, NoTypeHints}
 
+
+/**
+ * Header of current Block.
+ * @param index Index of current Block
+ * @param previousHash Hash of previous Block
+ * @param data Data attached to current Block
+ * @param merkleHash Merkle root hash of current Block
+ * @param timestamp Timestamp of current Block
+ * @param nonce Nonce of current Block
+ */
 case class BlockHeader(
   index: Int,
   previousHash: String,
@@ -54,6 +64,11 @@ object BlockHeader {
 }
 
 
+/**
+ * Block on the chain.
+ * @param header Header of current Block
+ * @param transactions List of Transactions included in current Block
+ */
 case class Block(header: BlockHeader, transactions: List[Transaction] = List()) {
   lazy val index: Int = header.index
   lazy val previousHash: String = header.previousHash
@@ -89,7 +104,6 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
   override def toString: String = compact(render(toJson))
 
 }
-
 
 object Block {
 

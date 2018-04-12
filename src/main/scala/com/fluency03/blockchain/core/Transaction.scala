@@ -7,6 +7,12 @@ import org.json4s.native.Serialization
 import org.json4s.{Extraction, JValue, NoTypeHints}
 
 
+/**
+ * Transaction
+ * @param sender Sender of the current Transaction
+ * @param receiver Receiver of the current Transaction
+ * @param amount Amount of the current Transaction
+ */
 case class Transaction(sender: String, receiver: String, amount: Double) {
   implicit val formats = Serialization.formats(NoTypeHints)
 
@@ -17,7 +23,6 @@ case class Transaction(sender: String, receiver: String, amount: Double) {
   override def toString: String = compact(render(toJson))
 
 }
-
 
 object Transaction {
 
