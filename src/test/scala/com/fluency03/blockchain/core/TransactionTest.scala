@@ -1,8 +1,8 @@
 package com.fluency03.blockchain.core
 
-import org.scalatest.FlatSpec
+import org.scalatest.{FlatSpec, Matchers}
 
-class TransactionTest extends FlatSpec {
+class TransactionTest extends FlatSpec with Matchers {
 
 
 

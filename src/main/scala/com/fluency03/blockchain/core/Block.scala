@@ -2,65 +2,11 @@ package com.fluency03.blockchain.core
 
 import java.time.Instant
 
-import com.fluency03.blockchain.Util.{isWithValidDifficulty, hashOf}
-import com.fluency03.blockchain.core.BlockHeader.{hashOfBlockHeader, hashOfHeaderFields}
+import com.fluency03.blockchain.Util.isWithValidDifficulty
+import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
+import org.json4s.JValue
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
-import org.json4s.native.Serialization
-import org.json4s.{Extraction, JValue, NoTypeHints}
-
-/**
- * Header of current Block.
- * @param index Index of current Block
- * @param previousHash Hash of previous Block
- * @param data Data attached to current Block
- * @param merkleHash Merkle root hash of current Block
- * @param timestamp Timestamp of current Block
- * @param nonce Nonce of current Block
- */
-case class BlockHeader(
-    index: Int,
-    previousHash: String,
-    data: String,
-    merkleHash: String,
-    timestamp: Long,
-    nonce: Int) {
-
-  implicit val formats = Serialization.formats(NoTypeHints)
-  lazy val hash: String = hashOfBlockHeader(this)
-
-  def isValidWith(difficulty: Int): Boolean = isWithValidDifficulty(hash, difficulty)
-
-  def nextTrial(): BlockHeader = BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce + 1)
-
-  def toJson: JValue = Extraction.decompose(this)
-
-  override def toString: String = compact(render(toJson))
-
-}
-
-object BlockHeader {
-
-  def hashOfBlockHeader(header: BlockHeader): String =
-    hashOfHeaderFields(
-        header.index,
-        header.previousHash,
-        header.data,
-        header.merkleHash,
-        header.timestamp,
-        header.nonce)
-
-  def hashOfHeaderFields(
-      index: Long,
-      previousHash: String,
-      data: String,
-      merkleHash: String,
-      timestamp: Long,
-      nonce: Int): String =
-    hashOf(index.toString, previousHash, data, merkleHash, timestamp.toString, nonce.toString)
-
-}
-
 
 /**
  * Block on the chain.
@@ -95,7 +41,7 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
   def hasValidMerkleHash: Boolean = merkleHash == MerkleNode.computeRoot(transactions)
 
   def toJson: JValue =
-    ("header" -> header.toJson) ~
+      ("header" -> header.toJson) ~
       ("hash" -> hash) ~
       ("transactions" -> transactions.map(_.toJson))
 
@@ -114,9 +60,9 @@ object Block {
   def genesis(): Block =
     mineNextBlock(
         0,
-        "0",
+        ZERO64,
         "Welcome to Blockchain in Scala!",
-        "",
+        MerkleNode.computeRoot(List(Transaction(ZERO64, ZERO64, 50))),
         Instant.parse("2018-04-11T18:52:01Z").getEpochSecond,
         4)
 
@@ -128,7 +74,7 @@ object Block {
       timestamp: Long,
       difficulty: Int): Block = {
     var nonce = 0
-    var nextHash = ""
+    var nextHash = ZERO64
 
     while (!isWithValidDifficulty(nextHash, difficulty)) {
       nonce += 1

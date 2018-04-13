@@ -1,8 +1,8 @@
 package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util.getCurrentTimestamp
-import scala.collection.mutable
 
+import scala.collection.mutable
 
 /**
  * Blockchain with difficulty and the chain of Blocks.
