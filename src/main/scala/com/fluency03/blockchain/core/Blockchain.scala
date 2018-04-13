@@ -39,7 +39,7 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
         lastHeader.index + 1,
         lastHeader.hash,
         newBlockData,
-        MerkleNode.computeRoot(currentTransactions.toList),
+        currentTransactions.toList,
         getCurrentTimestamp,
         difficulty)
   }
