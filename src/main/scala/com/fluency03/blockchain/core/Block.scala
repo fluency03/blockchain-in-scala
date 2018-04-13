@@ -26,13 +26,13 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
   def nextTrial(): Block = Block(header.nextTrial(), transactions)
 
   def addTransaction(t: Transaction): Block =
-    Block(header, t :: transactions)
+    Block(index, previousHash, data, t :: transactions, timestamp, nonce)
 
   def addTransaction(sender: String, receiver: String, amount: Double): Block =
     addTransaction(Transaction(sender, receiver, amount))
 
   def addTransactions(trans: List[Transaction]): Block =
-    Block(header, trans)
+    Block(index, previousHash, data, trans ++ transactions, timestamp, nonce)
 
   def isValid(difficulty: Int): Boolean = hasValidHash(difficulty) && hasValidMerkleHash
 
