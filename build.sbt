@@ -6,7 +6,7 @@ organization := "com.fluency03"
 
 name := "blockchain-scala"
 
-version := "0.0.1"
+version := "0.0.2"
 
 scalaVersion := "2.12.0"
 
