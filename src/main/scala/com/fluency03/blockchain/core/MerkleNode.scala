@@ -10,7 +10,7 @@ object MerkleNode {
     case 0 => ZERO64
     case 1 => hashes.head
     case n if n % 2 != 0 => computeRootOfHashes(hashes :+ hashes.last) // append last element again
-    case _ => computeRootOfHashes(hashes.grouped(2).map { case a :: b :: Nil => hashOf(a,b) } .toList)
+    case _ => computeRootOfHashes(hashes.grouped(2).map { a => hashOf(a(0), a(1)) } .toList)
   }
 
 }

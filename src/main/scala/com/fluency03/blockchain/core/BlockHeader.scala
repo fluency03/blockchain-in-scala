@@ -21,9 +21,8 @@ case class BlockHeader(
     data: String,
     merkleHash: String,
     timestamp: Long,
-    nonce: Int) {
-
-  lazy val hash: String = hashOfBlockHeader(this)
+    nonce: Int,
+    hash: String) {
 
   def isValidWith(difficulty: Int): Boolean = isWithValidDifficulty(hash, difficulty)
 
@@ -36,6 +35,16 @@ case class BlockHeader(
 }
 
 object BlockHeader {
+
+  def apply(
+      index: Int,
+      previousHash: String,
+      data: String,
+      merkleHash: String,
+      timestamp: Long,
+      nonce: Int): BlockHeader =
+    BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce,
+        hashOfHeaderFields(index, previousHash, data, merkleHash, timestamp, nonce))
 
   def hashOfBlockHeader(header: BlockHeader): String =
     hashOfHeaderFields(
