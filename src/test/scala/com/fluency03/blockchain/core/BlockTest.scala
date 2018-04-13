@@ -15,9 +15,9 @@ class BlockTest extends FlatSpec with Matchers {
         "data":"Welcome to Blockchain in Scala!",
         "merkleHash":"7814a9c43e9015462e5ffec1a3a9a69be024c1aacfa3ec4c879b5cd544761e7e",
         "timestamp":1523472721,
-        "nonce":13860
+        "nonce":13860,
+        "hash":"00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f",
       },
-      "hash":"00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f",
       "transactions":[
         {
           "sender":"0000000000000000000000000000000000000000000000000000000000000000",
@@ -48,8 +48,8 @@ class BlockTest extends FlatSpec with Matchers {
           ("data" -> "Welcome to Blockchain in Scala!") ~
           ("merkleHash" -> genesisTx.hash) ~
           ("timestamp" -> 1523472721) ~
-          ("nonce" -> 13860)) ~
-        ("hash" -> "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f") ~
+          ("nonce" -> 13860) ~
+          ("hash" -> "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f")) ~
         ("transactions" -> List(genesisTx).map(_.toJson))
     genesis.toJson shouldEqual json
     parse(genesis.toString) shouldEqual json
@@ -75,8 +75,8 @@ class BlockTest extends FlatSpec with Matchers {
           ("data" -> "Welcome to Blockchain in Scala!") ~
           ("merkleHash" -> genesisTx.hash) ~
           ("timestamp" -> 1523472721) ~
-          ("nonce" -> (genesis.nonce + 1))) ~
-        ("hash" -> newHash) ~
+          ("nonce" -> (genesis.nonce + 1)) ~
+          ("hash" -> newHash)) ~
         ("transactions" -> List(genesisTx).map(_.toJson))
     genesisNextTrial.toJson shouldEqual json
     parse(genesisNextTrial.toString) shouldEqual json
@@ -105,8 +105,8 @@ class BlockTest extends FlatSpec with Matchers {
           ("data" -> "Welcome to Blockchain in Scala!") ~
           ("merkleHash" -> newMerkleHash) ~
           ("timestamp" -> 1523472721) ~
-          ("nonce" -> genesis.nonce)) ~
-        ("hash" -> newHash) ~
+          ("nonce" -> genesis.nonce) ~
+          ("hash" -> newHash)) ~
         ("transactions" -> (t1 :: genesis.transactions).map(_.toJson))
     newBlock.toJson shouldEqual json
     parse(newBlock.toString) shouldEqual json
@@ -138,8 +138,8 @@ class BlockTest extends FlatSpec with Matchers {
           ("data" -> "Welcome to Blockchain in Scala!") ~
           ("merkleHash" -> newMerkleHash) ~
           ("timestamp" -> 1523472721) ~
-          ("nonce" -> genesis.nonce)) ~
-        ("hash" -> newHash) ~
+          ("nonce" -> genesis.nonce) ~
+          ("hash" -> newHash)) ~
         ("transactions" -> (t1 :: t2 :: t3 :: t4 :: genesis.transactions).map(_.toJson))
     newBlock.toJson shouldEqual json
     parse(newBlock.toString) shouldEqual json

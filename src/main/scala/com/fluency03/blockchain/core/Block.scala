@@ -4,8 +4,7 @@ import java.time.Instant
 
 import com.fluency03.blockchain.Util.isWithValidDifficulty
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
-import org.json4s.JValue
-import org.json4s.JsonDSL._
+import org.json4s.{Extraction, JValue}
 import org.json4s.native.JsonMethods.{compact, render}
 
 /**
@@ -40,10 +39,7 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
 
   def hasValidMerkleHash: Boolean = merkleHash == MerkleNode.computeRoot(transactions)
 
-  def toJson: JValue =
-      ("header" -> header.toJson) ~
-      ("hash" -> hash) ~
-      ("transactions" -> transactions.map(_.toJson))
+  def toJson: JValue = Extraction.decompose(this)
 
   override def toString: String = compact(render(toJson))
 

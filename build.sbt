@@ -18,7 +18,6 @@ val json4sVersion = "3.5.3"
 val scalaTestVersion = "3.0.5"
 val scalaMockVersion = "4.1.0"
 
-
 val httpDependencies = Seq(
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,

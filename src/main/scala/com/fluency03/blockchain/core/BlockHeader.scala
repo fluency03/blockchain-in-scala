@@ -1,7 +1,6 @@
 package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util.{hashOf, isWithValidDifficulty}
-import com.fluency03.blockchain.core.BlockHeader.hashOfBlockHeader
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -14,6 +13,7 @@ import org.json4s.{Extraction, JValue}
  * @param merkleHash Merkle root hash of current Block
  * @param timestamp Timestamp of current Block
  * @param nonce Nonce of current Block
+ * @param hash Hash of current Block
  */
 case class BlockHeader(
     index: Int,

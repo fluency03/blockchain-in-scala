@@ -24,7 +24,8 @@ class BlockHeaderTest extends FlatSpec with Matchers  {
         ("data" -> "Welcome to Blockchain in Scala!") ~
         ("merkleHash" -> genesisTx.hash) ~
         ("timestamp" -> 1523472721) ~
-        ("nonce" -> 13860)
+        ("nonce" -> 13860) ~
+        ("hash" -> "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f")
     genesisHeader.toJson shouldEqual json
     parse(genesisHeader.toString) shouldEqual json
   }
@@ -45,7 +46,8 @@ class BlockHeaderTest extends FlatSpec with Matchers  {
         ("data" -> "Welcome to Blockchain in Scala!") ~
         ("merkleHash" -> genesisTx.hash) ~
         ("timestamp" -> 1523472721) ~
-        ("nonce" -> (genesisHeader.nonce + 1))
+        ("nonce" -> (genesisHeader.nonce + 1)) ~
+        ("hash" -> newHash)
     genesisHeaderNextTrial.toJson shouldEqual json
     parse(genesisHeaderNextTrial.toString) shouldEqual json
   }
