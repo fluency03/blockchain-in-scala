@@ -17,12 +17,9 @@ case class Transaction(sender: String, receiver: String, amount: Double) {
   def toJson: JValue = Extraction.decompose(this)
 
   override def toString: String = compact(render(toJson))
-
 }
 
 object Transaction {
-
-
 
   def hashOfTransaction(tx: Transaction): String =
     hashOfTransactionFields(tx.sender, tx.receiver, tx.amount)
