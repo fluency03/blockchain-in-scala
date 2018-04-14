@@ -39,7 +39,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     trans += t1
     blockchain.currentTransactions shouldEqual trans
 
-    blockchain.addTransaction(ZERO64, ZERO64, 20)
+    blockchain.addTransaction(t2)
     blockchain.addTransaction(t3)
     trans ++= t2 :: t3 :: Nil
     blockchain.currentTransactions shouldEqual trans

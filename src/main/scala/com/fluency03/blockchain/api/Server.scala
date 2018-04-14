@@ -7,7 +7,7 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.fluency03.blockchain.api.actors.{BlockRegistryActor, BlockchainRegistryActor}
+import com.fluency03.blockchain.api.actors.{BlockRegistryActor, BlockchainRegistryActor, TransactionRegistryActor}
 import com.fluency03.blockchain.api.routes.{BlockRoutes, BlockchainRoutes}
 
 import scala.concurrent.{Await, ExecutionContextExecutor, Future}
@@ -18,7 +18,7 @@ object Server extends App with BlockchainRoutes with BlockRoutes {
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 
-  lazy val log = Logging(system, classOf[App])
+  override lazy val log = Logging(system, classOf[App])
 
   val (interface, port) = (args(0), args(1).toInt)
 
@@ -34,7 +34,7 @@ object Server extends App with BlockchainRoutes with BlockRoutes {
     log.error(ex, "Failed to bind to {}:{}!", interface, port)
   }
 
-  println(s"Server online at http://$interface:$port/")
+  log.info("Server online at http://{}:{}/", interface, port)
 
   Await.result(system.whenTerminated, Duration.Inf)
 }

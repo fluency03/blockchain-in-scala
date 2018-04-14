@@ -1,6 +1,6 @@
 package com.fluency03.blockchain.api.actors
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.fluency03.blockchain.core.Blockchain
 
 object BlockchainRegistryActor {
@@ -15,11 +15,12 @@ object BlockchainRegistryActor {
 class BlockchainRegistryActor extends Actor with ActorLogging {
   import BlockchainRegistryActor._
 
+  val blockActor: ActorRef = context.actorOf(BlockRegistryActor.props)
+
   var blockchainOpt: Option[Blockchain] = None
 
   def receive: Receive = {
-    case GetBlockchain =>
-      sender() ! blockchainOpt.get
+    case GetBlockchain => sender() ! blockchainOpt.get
     case CreateBlockchain =>
       blockchainOpt = Some(Blockchain())
       sender() ! ActionPerformed(s"Blockchain created, with difficulty ${blockchainOpt.get.difficulty}.")

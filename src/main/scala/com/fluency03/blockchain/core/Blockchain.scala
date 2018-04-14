@@ -28,6 +28,9 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
   def addTransaction(sender: String, receiver: String, amount: Double): Blockchain =
     addTransaction(Transaction(sender, receiver, amount))
 
+  def addTransaction(sender: String, receiver: String, amount: Double, timestamp: Long): Blockchain =
+    addTransaction(Transaction(sender, receiver, amount, timestamp))
+
   def addTransactions(trans: List[Transaction]): Blockchain = {
     currentTransactions ++= trans
     this
