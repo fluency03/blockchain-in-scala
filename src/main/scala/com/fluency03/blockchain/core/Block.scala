@@ -60,14 +60,14 @@ object Block {
 
   lazy val genesisBlock: Block = genesis()
 
-  def genesis(): Block =
+  def genesis(difficulty: Int = 4): Block =
     mineNextBlock(
         0,
         ZERO64,
         "Welcome to Blockchain in Scala!",
         List(Transaction(ZERO64, ZERO64, 50)),
         Instant.parse("2018-04-11T18:52:01Z").getEpochSecond,
-        4)
+        difficulty)
 
   def mineNextBlock(
       nextIndex: Int,

@@ -2,7 +2,7 @@ package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util.getCurrentTimestamp
 
-import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /**
  * Blockchain with difficulty and the chain of Blocks.
@@ -10,10 +10,14 @@ import scala.collection.mutable
  * @param chain Chain of Blocks
  */
 case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genesisBlock)) {
-  val currentTransactions: mutable.Set[Transaction] = new mutable.HashSet[Transaction]()
+  val currentTransactions: ListBuffer[Transaction] = new ListBuffer[Transaction]()
 
   def addBlock(newBlockData: String): Blockchain = {
     Blockchain(difficulty, mineNextBlock(newBlockData).addTransactions(currentTransactions.toList) :: chain)
+  }
+
+  def addBlock(newBlock: Block): Blockchain = {
+    Blockchain(difficulty, newBlock :: chain)
   }
 
   def addTransaction(t: Transaction): Blockchain = {
@@ -24,7 +28,7 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
   def addTransaction(sender: String, receiver: String, amount: Double): Blockchain =
     addTransaction(Transaction(sender, receiver, amount))
 
-  def addTransaction(trans: Set[Transaction]): Blockchain = {
+  def addTransactions(trans: List[Transaction]): Blockchain = {
     currentTransactions ++= trans
     this
   }
@@ -48,7 +52,7 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
 
 object Blockchain {
 
-  def apply(difficulty: Int): Blockchain = new Blockchain(difficulty)
+  def apply(difficulty: Int): Blockchain = new Blockchain(difficulty, List(Block.genesis(difficulty)))
 
 }
 
