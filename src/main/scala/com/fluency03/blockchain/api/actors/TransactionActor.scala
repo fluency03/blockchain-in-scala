@@ -1,8 +1,6 @@
 package com.fluency03.blockchain.api.actors
 
 import akka.actor.{Actor, ActorLogging, ActorSelection, Props}
-import com.fluency03.blockchain.api.actors.TransactionActor._
-import com.fluency03.blockchain.api.utils.GenericMessage._
 import com.fluency03.blockchain.api.{BLOCKCHAIN_ACTOR_NAME, BLOCK_ACTOR_NAME, PARENT_UP}
 import com.fluency03.blockchain.core.Transaction
 
