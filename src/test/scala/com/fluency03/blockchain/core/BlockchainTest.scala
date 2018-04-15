@@ -2,6 +2,7 @@ package com.fluency03.blockchain.core
 
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 class BlockchainTest extends FlatSpec with Matchers  {
@@ -22,7 +23,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchain.chain shouldEqual List(genesis)
     blockchain.lastBlock().isEmpty shouldEqual false
     blockchain.lastBlock().get shouldEqual genesis
-    blockchain.currentTransactions shouldEqual new ListBuffer[Transaction]()
+    blockchain.currentTransactions shouldEqual mutable.Map.empty[String, Transaction]
   }
 
   "A new Blockchain with different difficulty" should "have all default values but the difficulty." in {
@@ -30,25 +31,28 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainOf5.chain shouldEqual List(genesisOf5)
     blockchainOf5.lastBlock().isEmpty shouldEqual false
     blockchainOf5.lastBlock().get shouldEqual genesisOf5
-    blockchainOf5.currentTransactions shouldEqual new ListBuffer[Transaction]()
+    blockchainOf5.currentTransactions shouldEqual mutable.Map.empty[String, Transaction]
   }
 
   "Add a Transaction to a Blockchain" should "add these Transactions to its currentTransactions collection." in {
-    val trans = new ListBuffer[Transaction]()
+    val trans = mutable.Map.empty[String, Transaction]
     blockchain.addTransaction(t1)
-    trans += t1
+    trans += (t1.hash -> t1)
     blockchain.currentTransactions shouldEqual trans
 
     blockchain.addTransaction(t2)
     blockchain.addTransaction(t3)
-    trans ++= t2 :: t3 :: Nil
+    trans += (t2.hash -> t2)
+    trans += (t3.hash -> t3)
     blockchain.currentTransactions shouldEqual trans
   }
 
   "Add a List of Transaction to a Blockchain" should "add these Transactions to its currentTransactions collection." in {
-    val trans = new ListBuffer[Transaction]()
+    val trans = mutable.Map.empty[String, Transaction]
     blockchainOf5.addTransactions(t2 :: t3 :: t4 :: Nil)
-    trans ++= t2 :: t3 :: t4 :: Nil
+    trans += (t2.hash -> t2)
+    trans += (t3.hash -> t3)
+    trans += (t4.hash -> t4)
     blockchainOf5.currentTransactions shouldEqual trans
   }
 

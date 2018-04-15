@@ -8,7 +8,8 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.actors.BlockchainRegistryActor._
+import com.fluency03.blockchain.api.actors.BlockchainActor._
+import com.fluency03.blockchain.api.utils.GenericMessage.Response
 import com.fluency03.blockchain.core.Blockchain
 import org.json4s.JsonAST.JValue
 
@@ -17,31 +18,29 @@ import scala.concurrent.Future
 trait BlockchainRoutes extends Routes {
   lazy val log = Logging(system, classOf[BlockchainRoutes])
 
-  def blockchainRegistryActor: ActorRef
+  def blockchainActor: ActorRef
 
   lazy val blockchainRoutes: Route =
     pathPrefix("blockchain") {
       pathEnd {
         get {
-          val users: Future[Blockchain] = (blockchainRegistryActor ? GetBlockchain).mapTo[Blockchain]
-          complete(users)
+          val blockchain: Future[Option[Blockchain]] = (blockchainActor ? GetBlockchain).mapTo[Option[Blockchain]]
+          rejectEmptyResponse { complete(blockchain) }
         } ~
         post {
           entity(as[JValue]) { _ =>
-            val blockchainCreated: Future[ActionPerformed] =
-              (blockchainRegistryActor ? CreateBlockchain).mapTo[ActionPerformed]
-            onSuccess(blockchainCreated) { performed =>
-              log.info("Created Blockchain: {}", performed.description)
-              complete((StatusCodes.Created, performed))
+            val blockchainCreated: Future[Response] = (blockchainActor ? CreateBlockchain).mapTo[Response]
+            onSuccess(blockchainCreated) { resp =>
+              log.info("Created Blockchain: {}", resp.message)
+              complete((StatusCodes.Created, resp))
             }
           }
         } ~
         delete {
-          val blockchainDeleted: Future[ActionPerformed] =
-            (blockchainRegistryActor ? DeleteBlockchain).mapTo[ActionPerformed]
-          onSuccess(blockchainDeleted) { performed =>
-            log.info("Deleted Blockchain: {}", performed.description)
-            complete((StatusCodes.OK, performed))
+          val blockchainDeleted: Future[Response] = (blockchainActor ? DeleteBlockchain).mapTo[Response]
+          onSuccess(blockchainDeleted) { resp =>
+            log.info("Deleted Blockchain: {}", resp.message)
+            complete((StatusCodes.OK, resp))
           }
         }
       }

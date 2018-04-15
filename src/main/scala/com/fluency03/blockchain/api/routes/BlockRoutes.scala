@@ -9,7 +9,9 @@ import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.actors.BlockRegistryActor._
+import com.fluency03.blockchain.api.Blocks
+import com.fluency03.blockchain.api.actors.BlockActor._
+import com.fluency03.blockchain.api.utils.GenericMessage.Response
 import com.fluency03.blockchain.core.Block
 
 import scala.concurrent.Future
@@ -17,35 +19,35 @@ import scala.concurrent.Future
 trait BlockRoutes extends Routes {
   lazy val log = Logging(system, classOf[BlockRoutes])
 
-  def blockRegistryActor: ActorRef
+  def blockActor: ActorRef
 
   lazy val blockRoutes: Route =
     pathPrefix("blocks") {
       pathEnd {
         get {
-          val blocks: Future[List[Block]] = (blockRegistryActor ? GetBlocks).mapTo[List[Block]]
+          val blocks: Future[Blocks] = (blockActor ? GetBlocks).mapTo[Blocks]
           complete(blocks)
         } ~
         post {
           entity(as[Block]) { block =>
-            val blockCreated: Future[ActionPerformed] = (blockRegistryActor ? CreateBlock(block)).mapTo[ActionPerformed]
-            onSuccess(blockCreated) { performed =>
-              log.info("Created user [{}]: {}", block.hash, performed.description)
-              complete((StatusCodes.Created, performed))
+            val blockCreated: Future[Response] = (blockActor ? CreateBlock(block)).mapTo[Response]
+            onSuccess(blockCreated) { resp =>
+              log.info("Created block [{}]: {}", block.hash, resp.message)
+              complete((StatusCodes.Created, resp))
             }
           }
         }
       } ~
       path(Segment) { hash =>
         get {
-          val maybeBlock: Future[Option[Block]] = (blockRegistryActor ? GetBlock(hash)).mapTo[Option[Block]]
+          val maybeBlock: Future[Option[Block]] = (blockActor ? GetBlock(hash)).mapTo[Option[Block]]
           rejectEmptyResponse { complete(maybeBlock) }
         } ~
         delete {
-          val blockDeleted: Future[ActionPerformed] = (blockRegistryActor ? DeleteBlock(hash)).mapTo[ActionPerformed]
-          onSuccess(blockDeleted) { performed =>
-            log.info("Deleted block [{}]: {}", hash, performed.description)
-            complete((StatusCodes.OK, performed))
+          val blockDeleted: Future[Response] = (blockActor ? DeleteBlock(hash)).mapTo[Response]
+          onSuccess(blockDeleted) { resp =>
+            log.info("Deleted block [{}]: {}", hash, resp.message)
+            complete((StatusCodes.OK, resp))
           }
         }
       }

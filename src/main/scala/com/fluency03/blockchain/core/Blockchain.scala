@@ -1,8 +1,9 @@
 package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util.getCurrentTimestamp
+import com.fluency03.blockchain.core.Blockchain._
 
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 
 /**
  * Blockchain with difficulty and the chain of Blocks.
@@ -10,18 +11,18 @@ import scala.collection.mutable.ListBuffer
  * @param chain Chain of Blocks
  */
 case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genesisBlock)) {
-  val currentTransactions: ListBuffer[Transaction] = new ListBuffer[Transaction]()
+  val currentTransactions: mutable.Map[String, Transaction] = mutable.Map.empty[String, Transaction]
 
   def addBlock(newBlockData: String): Blockchain = {
-    Blockchain(difficulty, mineNextBlock(newBlockData).addTransactions(currentTransactions.toList) :: chain)
+    Blockchain(difficulty, mineNextBlock(newBlockData).addTransactions(currentTransactions.values.toList) :: chain)
   }
 
   def addBlock(newBlock: Block): Blockchain = {
     Blockchain(difficulty, newBlock :: chain)
   }
 
-  def addTransaction(t: Transaction): Blockchain = {
-    currentTransactions += t
+  def addTransaction(tx: Transaction): Blockchain = {
+    currentTransactions += (tx.hash -> tx)
     this
   }
 
@@ -32,7 +33,7 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
     addTransaction(Transaction(sender, receiver, amount, timestamp))
 
   def addTransactions(trans: List[Transaction]): Blockchain = {
-    currentTransactions ++= trans
+    currentTransactions ++= trans.map(tx => (tx.hash, tx))
     this
   }
 
@@ -46,9 +47,14 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
         lastHeader.index + 1,
         lastHeader.hash,
         newBlockData,
-        currentTransactions.toList,
+        currentTransactions.values.toList,
         getCurrentTimestamp,
         difficulty)
+  }
+
+  def isValid: Boolean = chain match {
+    case Nil => throw new NoSuchElementException("Blockchain is Empty!")
+    case _ => isValidChain(chain, difficulty)
   }
 
 }
@@ -56,6 +62,12 @@ case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genes
 object Blockchain {
 
   def apply(difficulty: Int): Blockchain = new Blockchain(difficulty, List(Block.genesis(difficulty)))
+
+  def isValidChain(chain: List[Block], difficulty: Int): Boolean = chain match {
+    case Nil => true
+    case g :: Nil => g.previousHash == ZERO64 && g.isValid(difficulty)
+    case a :: b :: tail => a.previousHash == b.hash && a.isValid(difficulty) && isValidChain(b :: tail, difficulty)
+  }
 
 }
 
