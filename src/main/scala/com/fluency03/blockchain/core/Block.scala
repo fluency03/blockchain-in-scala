@@ -30,6 +30,9 @@ case class Block(header: BlockHeader, transactions: List[Transaction] = List()) 
   def addTransaction(sender: String, receiver: String, amount: Double): Block =
     addTransaction(Transaction(sender, receiver, amount))
 
+  def addTransaction(sender: String, receiver: String, amount: Double, timestamp: Long): Block =
+    addTransaction(Transaction(sender, receiver, amount, timestamp))
+
   def addTransactions(trans: List[Transaction]): Block =
     Block(index, previousHash, data, trans ++ transactions, timestamp, nonce)
 
@@ -60,14 +63,14 @@ object Block {
 
   lazy val genesisBlock: Block = genesis()
 
-  def genesis(): Block =
+  def genesis(difficulty: Int = 4): Block =
     mineNextBlock(
         0,
         ZERO64,
         "Welcome to Blockchain in Scala!",
-        List(Transaction(ZERO64, ZERO64, 50)),
-        Instant.parse("2018-04-11T18:52:01Z").getEpochSecond,
-        4)
+        List(Transaction(ZERO64, ZERO64, 50, genesisTimestamp)),
+      genesisTimestamp,
+        difficulty)
 
   def mineNextBlock(
       nextIndex: Int,

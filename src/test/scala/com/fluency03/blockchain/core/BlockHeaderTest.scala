@@ -8,24 +8,24 @@ import org.scalatest.{FlatSpec, Matchers}
 class BlockHeaderTest extends FlatSpec with Matchers  {
 
   val genesisHeader: BlockHeader = Block.genesisBlock.header
-  val genesisTx: Transaction = Transaction(ZERO64, ZERO64, 50)
+  val genesisTx: Transaction = Transaction(ZERO64, ZERO64, 50, genesisTimestamp)
 
   "Genesis block header" should "be valid." in {
     genesisHeader.index shouldEqual 0
     genesisHeader.previousHash shouldEqual ZERO64
     genesisHeader.data shouldEqual "Welcome to Blockchain in Scala!"
     genesisHeader.merkleHash shouldEqual genesisTx.hash
-    genesisHeader.timestamp shouldEqual 1523472721
-    genesisHeader.nonce shouldEqual 13860
-    genesisHeader.hash shouldEqual "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f"
+    genesisHeader.timestamp shouldEqual genesisTimestamp
+    genesisHeader.nonce shouldEqual 33660
+    genesisHeader.hash shouldEqual "0000a26af9a70022a6c6d270a0ced7478eb40bcfc4301b5e73c0ed3207a3de0e"
     genesisHeader.isValidWith(4) shouldEqual true
     val json = ("index" -> 0) ~
         ("previousHash" -> ZERO64) ~
         ("data" -> "Welcome to Blockchain in Scala!") ~
         ("merkleHash" -> genesisTx.hash) ~
-        ("timestamp" -> 1523472721) ~
-        ("nonce" -> 13860) ~
-        ("hash" -> "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f")
+        ("timestamp" -> genesisTimestamp) ~
+        ("nonce" -> 33660) ~
+        ("hash" -> "0000a26af9a70022a6c6d270a0ced7478eb40bcfc4301b5e73c0ed3207a3de0e")
     genesisHeader.toJson shouldEqual json
     parse(genesisHeader.toString) shouldEqual json
   }

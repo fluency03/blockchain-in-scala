@@ -7,37 +7,17 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class BlockTest extends FlatSpec with Matchers {
 
-  /*
-    {"header":
-      {
-        "index":0,
-        "previousHash":"0000000000000000000000000000000000000000000000000000000000000000",
-        "data":"Welcome to Blockchain in Scala!",
-        "merkleHash":"7814a9c43e9015462e5ffec1a3a9a69be024c1aacfa3ec4c879b5cd544761e7e",
-        "timestamp":1523472721,
-        "nonce":13860,
-        "hash":"00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f",
-      },
-      "transactions":[
-        {
-          "sender":"0000000000000000000000000000000000000000000000000000000000000000",
-          "receiver":"0000000000000000000000000000000000000000000000000000000000000000",
-          "amount":50.0
-        }
-      ]
-    }
-  */
   val genesis: Block = Block.genesisBlock
-  val genesisTx: Transaction = Transaction(ZERO64, ZERO64, 50)
+  val genesisTx: Transaction = Transaction(ZERO64, ZERO64, 50, genesisTimestamp)
 
   "Genesis block" should "be a valid Genesis block." in {
     genesis.index shouldEqual 0
     genesis.previousHash shouldEqual ZERO64
     genesis.data shouldEqual "Welcome to Blockchain in Scala!"
     genesis.merkleHash shouldEqual genesisTx.hash
-    genesis.timestamp shouldEqual 1523472721
-    genesis.nonce shouldEqual 13860
-    genesis.hash shouldEqual "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f"
+    genesis.timestamp shouldEqual genesisTimestamp
+    genesis.nonce shouldEqual 33660
+    genesis.hash shouldEqual "0000a26af9a70022a6c6d270a0ced7478eb40bcfc4301b5e73c0ed3207a3de0e"
     genesis.hasValidMerkleHash shouldEqual true
     genesis.hasValidHash(4) shouldEqual true
     genesis.isValid(4) shouldEqual true
@@ -47,9 +27,9 @@ class BlockTest extends FlatSpec with Matchers {
           ("previousHash" -> ZERO64) ~
           ("data" -> "Welcome to Blockchain in Scala!") ~
           ("merkleHash" -> genesisTx.hash) ~
-          ("timestamp" -> 1523472721) ~
-          ("nonce" -> 13860) ~
-          ("hash" -> "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f")) ~
+          ("timestamp" -> genesisTimestamp) ~
+          ("nonce" -> 33660) ~
+          ("hash" -> "0000a26af9a70022a6c6d270a0ced7478eb40bcfc4301b5e73c0ed3207a3de0e")) ~
         ("transactions" -> List(genesisTx).map(_.toJson))
     genesis.toJson shouldEqual json
     parse(genesis.toString) shouldEqual json
