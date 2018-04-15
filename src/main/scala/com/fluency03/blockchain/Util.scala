@@ -28,7 +28,7 @@ object Util {
   /**
    * Calculate the hash of concatenation a List of Strings.
    */
-  def hashOf(strings: String*): String = sha256HashOf(strings mkString "")
+  def hashOf(strings: String*): String = hashOf(strings mkString "")
 
   /**
    * Calculate the hash of a String.
@@ -40,11 +40,14 @@ object Util {
    */
   def isWithValidDifficulty(hash: String, difficulty: Int): Boolean = hash startsWith ("0" * difficulty)
 
-
-
+  /**
+   * Encode a String to Base64.
+   */
   def toBase64(text: String): String = Base64.getEncoder.encodeToString(text.getBytes())
 
-
+  /**
+   * Decode a Base64 to String.
+   */
   def fromBase64(base64: String): String = new String(Base64.getDecoder.decode(base64), "ASCII")
 
 
