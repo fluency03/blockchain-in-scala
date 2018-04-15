@@ -10,6 +10,8 @@ version := "0.0.2"
 
 scalaVersion := "2.12.0"
 
+coverageEnabled := true
+
 val scalazVersion = "7.2.21"
 val akkaHttpVersion = "10.1.1"
 val akkaVersion = "2.5.11"
