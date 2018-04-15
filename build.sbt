@@ -4,7 +4,7 @@ resolvers ++= Seq(
 
 organization := "com.fluency03"
 
-name := "blockchain-scala"
+name := "blockchain-in-scala"
 
 version := "0.0.2"
 
