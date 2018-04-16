@@ -24,6 +24,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchain.lastBlock().isEmpty shouldEqual false
     blockchain.lastBlock().get shouldEqual genesis
     blockchain.currentTransactions shouldEqual mutable.Map.empty[String, Transaction]
+    blockchain.isValid shouldEqual true
   }
 
   "A new Blockchain with different difficulty" should "have all default values but the difficulty." in {
@@ -32,6 +33,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainOf5.lastBlock().isEmpty shouldEqual false
     blockchainOf5.lastBlock().get shouldEqual genesisOf5
     blockchainOf5.currentTransactions shouldEqual mutable.Map.empty[String, Transaction]
+    blockchainOf5.isValid shouldEqual true
   }
 
   "Add a Transaction to a Blockchain" should "add these Transactions to its currentTransactions collection." in {
@@ -45,6 +47,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     trans += (t2.hash -> t2)
     trans += (t3.hash -> t3)
     blockchain.currentTransactions shouldEqual trans
+    blockchain.isValid shouldEqual true
   }
 
   "Add a List of Transaction to a Blockchain" should "add these Transactions to its currentTransactions collection." in {
@@ -54,6 +57,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     trans += (t3.hash -> t3)
     trans += (t4.hash -> t4)
     blockchainOf5.currentTransactions shouldEqual trans
+    blockchainOf5.isValid shouldEqual true
   }
 
   "Blockchain" should "be able to mine the next Block." in {
@@ -65,8 +69,10 @@ class BlockchainTest extends FlatSpec with Matchers  {
     actual shouldEqual expected
 
     blockchainToAdd.lastBlock().get shouldEqual genesis
+    blockchainToAdd.isValid shouldEqual true
     val blockchainAdded = blockchainToAdd.addBlock(actual)
     blockchainAdded.lastBlock().get shouldEqual expected
+    blockchainAdded.isValid shouldEqual true
   }
 
 

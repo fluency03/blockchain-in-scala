@@ -6,6 +6,8 @@ import java.util.Base64
 
 object Util {
 
+
+
   /**
    * Generate SHA256 Hash from a input String.
    * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
