@@ -69,7 +69,7 @@ object Block {
         ZERO64,
         "Welcome to Blockchain in Scala!",
         List(Transaction(ZERO64, ZERO64, 50, genesisTimestamp)),
-      genesisTimestamp,
+        genesisTimestamp,
         difficulty)
 
   def mineNextBlock(

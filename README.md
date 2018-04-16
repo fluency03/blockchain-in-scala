@@ -1,4 +1,4 @@
-# blockchain-scala
+# Blockchain in Scala
 
 [![Build Status](https://travis-ci.org/fluency03/blockchain-in-scala.svg?branch=master)](https://travis-ci.org/fluency03/blockchain-in-scala)
 [![Coverage Status](https://coveralls.io/repos/github/fluency03/blockchain-in-scala/badge.svg?branch=master)](https://coveralls.io/github/fluency03/blockchain-in-scala?branch=master)

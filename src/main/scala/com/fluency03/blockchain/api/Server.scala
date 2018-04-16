@@ -7,14 +7,14 @@ import akka.http.scaladsl.Http.ServerBinding
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.fluency03.blockchain.api.actors.{BlockActor, BlockchainActor, TransactionActor}
-import com.fluency03.blockchain.api.routes.{BlockRoutes, BlockchainRoutes, TransactionRoutes}
+import com.fluency03.blockchain.api.actors._
+import com.fluency03.blockchain.api.routes._
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.concurrent.duration.Duration
 
-object Server extends App with BlockchainRoutes with BlockRoutes with TransactionRoutes {
+object Server extends App with BlockchainRoutes with BlockRoutes with TransactionRoutes with GenericRoutes {
   implicit val system: ActorSystem = ActorSystem("blockchain-http-service")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -29,7 +29,7 @@ object Server extends App with BlockchainRoutes with BlockRoutes with Transactio
   val blockActor: ActorRef = system.actorOf(BlockActor.props, BLOCK_ACTOR_NAME)
   val txActor: ActorRef = system.actorOf(TransactionActor.props, TX_ACTOR_NAME)
 
-  lazy val routes: Route = blockchainRoutes ~ blockRoutes ~ txRoutes
+  lazy val routes: Route = blockchainRoutes ~ blockRoutes ~ txRoutes ~ genericRoutes
 
   val bindingFuture: Future[ServerBinding] =
     Http().bindAndHandle(routes, host, port)
