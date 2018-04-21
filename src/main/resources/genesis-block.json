@@ -1,18 +1,1 @@
-{
-  "header": {
-    "index": 0,
-    "previousHash": "0000000000000000000000000000000000000000000000000000000000000000",
-    "data": "Welcome to Blockchain in Scala!",
-    "merkleHash": "7814a9c43e9015462e5ffec1a3a9a69be024c1aacfa3ec4c879b5cd544761e7e",
-    "timestamp": 1523472721,
-    "nonce": 13860,
-    "hash": "00003607219f7a455e216f19ac3a34e3b158cf7282f7fdc624c93d593c2fc61f"
-  },
-  "transactions": [
-    {
-      "sender": "0000000000000000000000000000000000000000000000000000000000000000",
-      "receiver": "0000000000000000000000000000000000000000000000000000000000000000",
-      "amount": 50.0
-    }
-  ]
-}
+{"header":{"index":0,"previousHash":"0000000000000000000000000000000000000000000000000000000000000000","data":"Welcome to Blockchain in Scala!","merkleHash":"e580ae290899b8acc333fdb4e5ce52b6161c0df8f433a96cfcacbc4c211f1dc6","timestamp":1523472721,"difficulty":4,"nonce":289612},"transactions":[{"txIns":[{"previousOut":{"id":"","index":0},"signature":""}],"txOuts":[{"address":"3056301006072a8648ce3d020106052b8104000a034200049671ad288b396bdadf9d2d85640c6c61e14fa4a837b7b335bba21f226ba1525974c1a3f70fa1bc5a55c48ceced51468fe29bbbf67b22afa40383f99b98b841f9","amount":50}],"timestamp":1523472721,"id":"e580ae290899b8acc333fdb4e5ce52b6161c0df8f433a96cfcacbc4c211f1dc6"}],"hash":"0000d691591d3f999dce60c54719bc38b5bc2fb3ac39f76d9343b5ad4c01548b"}

@@ -1,29 +1,36 @@
 package com.fluency03.blockchain.core
 
+import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
+import org.json4s.JValue
+import org.json4s.native.JsonMethods.parse
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
+import scala.io.Source
 
 class BlockchainTest extends FlatSpec with Matchers  {
 
   val blockchain: Blockchain = Blockchain()
   val genesis: Block = Block.genesisBlock
 
+  val expectedBlockJson: JValue = parse(Source.fromResource("genesis-block.json").mkString)
+  val expectedGenesisBlock: Block = expectedBlockJson.extract[Block]
+  val expectedHeader: BlockHeader = expectedGenesisBlock.header
+
   val blockchainOf5: Blockchain = Blockchain(5)
   val genesisOf5: Block = Block.genesis(5)
 
-  val t1: Transaction = Transaction(ZERO64, ZERO64, 10)
-  val t2: Transaction = Transaction(ZERO64, ZERO64, 20)
-  val t3: Transaction = Transaction(ZERO64, ZERO64, 30)
-  val t4: Transaction = Transaction(ZERO64, ZERO64, 40)
+  val t1: Transaction = createCoinbaseTx(1, genesisMiner, genesisTimestamp)
+  val t2: Transaction = createCoinbaseTx(2, genesisMiner, genesisTimestamp)
+  val t3: Transaction = createCoinbaseTx(3, genesisMiner, genesisTimestamp)
+  val t4: Transaction = createCoinbaseTx(4, genesisMiner, genesisTimestamp)
 
   "A new Blockchain" should "have all default values." in {
     blockchain.difficulty shouldEqual 4
-    blockchain.chain shouldEqual List(genesis)
+    blockchain.chain shouldEqual List(expectedGenesisBlock)
     blockchain.lastBlock().isEmpty shouldEqual false
-    blockchain.lastBlock().get shouldEqual genesis
-    blockchain.currentTransactions shouldEqual mutable.Map.empty[String, Transaction]
+    blockchain.lastBlock().get shouldEqual expectedGenesisBlock
     blockchain.isValid shouldEqual true
   }
 
@@ -32,31 +39,6 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainOf5.chain shouldEqual List(genesisOf5)
     blockchainOf5.lastBlock().isEmpty shouldEqual false
     blockchainOf5.lastBlock().get shouldEqual genesisOf5
-    blockchainOf5.currentTransactions shouldEqual mutable.Map.empty[String, Transaction]
-    blockchainOf5.isValid shouldEqual true
-  }
-
-  "Add a Transaction to a Blockchain" should "add these Transactions to its currentTransactions collection." in {
-    val trans = mutable.Map.empty[String, Transaction]
-    blockchain.addTransaction(t1)
-    trans += (t1.hash -> t1)
-    blockchain.currentTransactions shouldEqual trans
-
-    blockchain.addTransaction(t2)
-    blockchain.addTransaction(t3)
-    trans += (t2.hash -> t2)
-    trans += (t3.hash -> t3)
-    blockchain.currentTransactions shouldEqual trans
-    blockchain.isValid shouldEqual true
-  }
-
-  "Add a List of Transaction to a Blockchain" should "add these Transactions to its currentTransactions collection." in {
-    val trans = mutable.Map.empty[String, Transaction]
-    blockchainOf5.addTransactions(t2 :: t3 :: t4 :: Nil)
-    trans += (t2.hash -> t2)
-    trans += (t3.hash -> t3)
-    trans += (t4.hash -> t4)
-    blockchainOf5.currentTransactions shouldEqual trans
     blockchainOf5.isValid shouldEqual true
   }
 
@@ -64,8 +46,8 @@ class BlockchainTest extends FlatSpec with Matchers  {
     val blockchainToAdd: Blockchain = Blockchain()
     val genesis: Block = Block.genesisBlock
 
-    val actual = blockchainToAdd.mineNextBlock("This is next Block!")
-    val expected = Block.mineNextBlock(genesis, "This is next Block!", List(), actual.timestamp, blockchain.difficulty)
+    val actual = blockchainToAdd.mineNextBlock("This is next Block!", Seq(t1, t2))
+    val expected = Block.mineNextBlock(genesis, "This is next Block!", actual.timestamp, blockchain.difficulty, Seq(t1, t2))
     actual shouldEqual expected
 
     blockchainToAdd.lastBlock().get shouldEqual genesis

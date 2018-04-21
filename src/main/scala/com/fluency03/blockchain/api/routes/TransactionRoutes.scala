@@ -22,31 +22,33 @@ trait TransactionRoutes extends Routes {
   def txActor: ActorRef
 
   lazy val txRoutes: Route =
-    pathPrefix("transactions") {
+    path("transactions") {
+      get {
+        val transactions: Future[Transactions] = (txActor ? GetTransactions).mapTo[Transactions]
+        complete(transactions)
+      }
+    } ~
+    pathPrefix("transaction") {
       pathEnd {
-        get {
-          val transactions: Future[Transactions] = (txActor ? GetTransactions).mapTo[Transactions]
-          complete(transactions)
-        } ~
         post {
           entity(as[Transaction]) { tx =>
             val txCreated: Future[Response] = (txActor ? CreateTransaction(tx)).mapTo[Response]
             onSuccess(txCreated) { resp =>
-              log.info("Created transaction [{}]: {}", tx.hash, resp.message)
+              log.info("Created transaction [{}]: {}", tx.id, resp.message)
               complete((StatusCodes.Created, resp))
             }
           }
         }
       } ~
-      path(Segment) { hash =>
+      path(Segment) { id =>
         get {
-          val maybeTx: Future[Option[Transaction]] = (txActor ? GetTransaction(hash)).mapTo[Option[Transaction]]
+          val maybeTx: Future[Option[Transaction]] = (txActor ? GetTransaction(id)).mapTo[Option[Transaction]]
           rejectEmptyResponse { complete(maybeTx) }
         } ~
         delete {
-          val txDeleted: Future[Response] = (txActor ? DeleteTransaction(hash)).mapTo[Response]
+          val txDeleted: Future[Response] = (txActor ? DeleteTransaction(id)).mapTo[Response]
           onSuccess(txDeleted) { resp =>
-            log.info("Deleted transaction [{}]: {}", hash, resp.message)
+            log.info("Deleted transaction [{}]: {}", id, resp.message)
             complete((StatusCodes.OK, resp))
           }
         }

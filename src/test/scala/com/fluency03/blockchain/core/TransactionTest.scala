@@ -3,27 +3,39 @@ package com.fluency03.blockchain.core
 import java.time.Instant
 
 import com.fluency03.blockchain.Util.hashOf
+import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
+import org.json4s.JValue
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.parse
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.io.Source
+
 class TransactionTest extends FlatSpec with Matchers {
 
-  "A Transaction" should "be  valid." in {
-    val time = Instant.parse("2018-04-11T18:52:01Z").getEpochSecond
-    val t = Transaction(ZERO64, ZERO64, 50, time)
+  val genesisTx: Transaction = createCoinbaseTx(0, genesisMiner, genesisTimestamp)
 
-    t.sender shouldEqual ZERO64
-    t.receiver shouldEqual ZERO64
-    t.amount shouldEqual 50
-    t.hash shouldEqual hashOf(t.sender, t.receiver, t.amount.toString, time.toString)
+  val expectedBlockJson: JValue = parse(Source.fromResource("genesis-block.json").mkString)
+  val expectedGenesisBlock: Block = expectedBlockJson.extract[Block]
+  val expectedHeader: BlockHeader = expectedGenesisBlock.header
 
-    val json = ("sender" -> ZERO64) ~
-        ("receiver" -> ZERO64) ~
-        ("amount" -> 50.toDouble) ~
-        ("timestamp" -> time)
-    t.toJson shouldEqual json
-    parse(t.toString) shouldEqual json
+  "A genesis Transaction" should "be valid." in {
+    genesisTx shouldEqual expectedGenesisBlock.transactions.head
+
+    genesisTx.txIns.length shouldEqual 1
+    genesisTx.txIns.head shouldEqual TxIn(Outpoint("", 0), "")
+
+    genesisTx.txOuts.length shouldEqual 1
+    genesisTx.txOuts.head shouldEqual TxOut(genesisMiner, 50)
+
+    val json = expectedGenesisBlock.transactions.head.toJson
+    genesisTx.toJson shouldEqual json
+    parse(genesisTx.toString) shouldEqual json
   }
+
+
+
+
+
 
 }

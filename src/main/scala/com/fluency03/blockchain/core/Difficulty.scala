@@ -2,9 +2,13 @@ package com.fluency03.blockchain.core
 
 object Difficulty {
 
+  // TODO (Chang): this object is not used for now
+  // TODO (Chang): implement difficulty adjustment
+
   lazy val difficultyOneTarget: BigInt = targetOfBits("1d00ffff".hex)
 
   /**
+   * See the cpp source code here:
    * https://github.com/bitcoin/bitcoin/blob/master/src/arith_uint256.cpp#L206
    */
   def decodeCompact(nCompact: Long): (BigInt, Boolean, Boolean) = {
