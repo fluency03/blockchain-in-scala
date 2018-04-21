@@ -6,8 +6,6 @@ import java.util.Base64
 
 object Util {
 
-
-
   /**
    * Generate SHA256 Hash from a input String.
    * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
@@ -28,7 +26,12 @@ object Util {
   def getCurrentTimestamp: Long = Instant.now.getEpochSecond
 
   /**
-   * Calculate the hash of concatenation a List of Strings.
+   *
+   */
+  def epochTimeOf(t: String): Long = Instant.parse(t).getEpochSecond
+
+  /**
+   * Calculate the hash of concatenation a Seq of Strings.
    */
   def hashOf(strings: String*): String = hashOf(strings mkString "")
 
@@ -38,6 +41,11 @@ object Util {
   def hashOf(str: String): String = sha256HashOf(str)
 
   /**
+   * Get binary representation of a hash.
+   */
+  def binaryOfHash(hash: String): String = BigInt(hash, 16).toString(2)
+
+  /**
    * Check whether the given hash is with valid difficulty.
    */
   def isWithValidDifficulty(hash: String, difficulty: Int): Boolean = hash startsWith ("0" * difficulty)
@@ -45,12 +53,16 @@ object Util {
   /**
    * Encode a String to Base64.
    */
-  def toBase64(text: String): String = Base64.getEncoder.encodeToString(text.getBytes())
+  def base64Of(text: String): String = Base64.getEncoder.encodeToString(text.getBytes("UTF-8"))
 
   /**
    * Decode a Base64 to String.
    */
-  def fromBase64(base64: String): String = new String(Base64.getDecoder.decode(base64), "ASCII")
+  def fromBase64(base64: String): String = new String(Base64.getDecoder.decode(base64), "UTF-8")
+
+
+
+
 
 
 }

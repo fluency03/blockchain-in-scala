@@ -34,9 +34,9 @@ class UtilTest extends FlatSpec with Matchers with MockFactory {
   }
 
   "A String" should "be converted to Base64 and converted back." in {
-    toBase64("open sesame") shouldEqual "b3BlbiBzZXNhbWU="
+    base64Of("open sesame") shouldEqual "b3BlbiBzZXNhbWU="
     fromBase64("b3BlbiBzZXNhbWU=") shouldEqual "open sesame"
-    fromBase64(toBase64("aeqfedq.'.[pl12l3[p,5`>}{::>{:")) shouldEqual "aeqfedq.'.[pl12l3[p,5`>}{::>{:"
+    fromBase64(base64Of("aeqfedq.'.[pl12l3[p,5`>}{::>{:")) shouldEqual "aeqfedq.'.[pl12l3[p,5`>}{::>{:"
   }
 
 }

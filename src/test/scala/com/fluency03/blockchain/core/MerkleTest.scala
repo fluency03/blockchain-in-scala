@@ -1,10 +1,11 @@
 package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util.hashOf
-import com.fluency03.blockchain.core.MerkleNode._
+import com.fluency03.blockchain.core.Merkle._
+import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.scalatest.{FlatSpec, Matchers}
 
-class MerkleNodeTest extends FlatSpec with Matchers {
+class MerkleTest extends FlatSpec with Matchers {
 
   "A empty Merkle Tree" should "have Zero 64 as root hash." in {
     computeRootOfHashes(List()) shouldEqual ZERO64
@@ -15,8 +16,8 @@ class MerkleNodeTest extends FlatSpec with Matchers {
     val h = "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
     computeRootOfHashes(List(h)) shouldEqual h
 
-    val t = Transaction(ZERO64, ZERO64, 50)
-    computeRoot(List(t)) shouldEqual t.hash
+    val t: Transaction = createCoinbaseTx(0, genesisMiner, genesisTimestamp)
+    computeRoot(List(t)) shouldEqual t.id
   }
 
   "A Merkle Tree" should "have a valid root hash." in {
@@ -29,13 +30,13 @@ class MerkleNodeTest extends FlatSpec with Matchers {
     val h33 = hashOf(h3, h3)
     computeRootOfHashes(List(h1, h2, h3)) shouldEqual hashOf(h12, h33)
 
-    val t1 = Transaction(ZERO64, ZERO64, 50)
-    val t2 = Transaction(ZERO64, ZERO64, 20)
-    val th12 = hashOf(t1.hash, t2.hash)
+    val t1 = createCoinbaseTx(1, genesisMiner, genesisTimestamp)
+    val t2 = createCoinbaseTx(2, genesisMiner, genesisTimestamp)
+    val th12 = hashOf(t1.id, t2.id)
     computeRoot(List(t1, t2)) shouldEqual th12
 
-    val t3 = Transaction(ZERO64, ZERO64, 10)
-    val th33 = hashOf(t3.hash, t3.hash)
+    val t3 = createCoinbaseTx(3, genesisMiner, genesisTimestamp)
+    val th33 = hashOf(t3.id, t3.id)
     computeRoot(List(t1, t2, t3)) shouldEqual hashOf(th12, th33)
   }
 

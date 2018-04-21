@@ -30,6 +30,7 @@ class BlockActor extends Actor with ActorLogging {
     case CreateBlock(block) => onCreateBlock(block)
     case GetBlock(hash) => onGetBlock(hash)
     case DeleteBlock(hash) => onDeleteBlock(hash)
+    case _ => unhandled _
   }
 
   private[this] def onGetBlocks(): Unit = sender() ! blocks.values.toList

@@ -22,57 +22,29 @@ class BlockchainActor extends Actor with ActorLogging {
   val txActor: ActorSelection = context.actorSelection(PARENT_UP + TX_ACTOR_NAME)
   val blockActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCK_ACTOR_NAME)
 
+  // TODO (Chang): not persistent
   var blockchainOpt: Option[Blockchain] = None
 
   def receive: Receive = {
-    /* ---------- Blockchain actions ---------- */
     case GetBlockchain => onGetBlockchain()
     case CreateBlockchain => onCreateBlockchain()
     case DeleteBlockchain => onDeleteBlockchain()
-    /* ---------- Transaction actions ---------- */
-    case GetTransactions => onGetTransactions()
-    case CreateTransaction(tx) => onCreateTransaction(tx)
-    case GetTransaction(hash) => onGetTransaction(hash)
-    case DeleteTransaction(hash) => onDeleteTransaction(hash)
+    case _ => unhandled _
   }
 
-  /* ---------- Blockchain actions ---------- */
-  private[this] def onGetBlockchain(): Unit = sender() ! blockchainOpt
+  private def onGetBlockchain(): Unit = sender() ! blockchainOpt
 
-  private[this] def onCreateBlockchain(): Unit =
+  private def onCreateBlockchain(): Unit =
     if (blockchainOpt.isDefined) sender() ! Response(s"Blockchain already exists.")
     else {
       blockchainOpt = Some(Blockchain())
       sender() ! Response(s"Blockchain created, with difficulty ${blockchainOpt.get.difficulty}.")
     }
 
-  private[this] def onDeleteBlockchain(): Unit =
+  private def onDeleteBlockchain(): Unit =
     if (blockchainOpt.isDefined) {
       blockchainOpt = None
       sender() ! Response(s"Blockchain deleted.")
-    } else sender() ! Response(s"Blockchain does not exist.")
-
-  /* ---------- Transaction actions ---------- */
-  private[this] def onGetTransactions(): Unit = sender() ! {
-    if (blockchainOpt.isDefined) blockchainOpt.get.currentTransactions.toList
-    else List()
-  }
-
-  private[this] def onCreateTransaction(tx: Transaction): Unit =
-    if (blockchainOpt.isDefined) {
-      blockchainOpt.get.currentTransactions += (tx.hash -> tx)
-      sender() ! Response(s"Transaction ${tx.hash} created.")
-    } else sender() ! Response(s"Blockchain does not exist.")
-
-  private[this] def onGetTransaction(hash: String): Unit = sender() ! {
-    if (blockchainOpt.isDefined) blockchainOpt.get.currentTransactions(hash)
-    else None
-  }
-
-  private[this] def onDeleteTransaction(hash: String): Unit =
-    if (blockchainOpt.isDefined) {
-      blockchainOpt.get.currentTransactions -= hash
-      sender() ! Response(s"Transaction $hash deleted.")
     } else sender() ! Response(s"Blockchain does not exist.")
 
 }

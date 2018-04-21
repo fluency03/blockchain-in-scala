@@ -2,6 +2,7 @@ package com.fluency03.blockchain.core
 
 import com.fluency03.blockchain.Util.getCurrentTimestamp
 import com.fluency03.blockchain.core.Blockchain._
+import com.fluency03.blockchain.core.Block.canBeChained
 
 import scala.collection.mutable
 
@@ -10,64 +11,68 @@ import scala.collection.mutable
  * @param difficulty Difficulty of a Blockchain
  * @param chain Chain of Blocks
  */
-case class Blockchain(difficulty: Int = 4, chain: List[Block] = List(Block.genesisBlock)) {
-  val currentTransactions: mutable.Map[String, Transaction] = mutable.Map.empty[String, Transaction]
+case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesisBlock)) {
 
-  def addBlock(newBlockData: String): Blockchain = {
-    Blockchain(difficulty, mineNextBlock(newBlockData).addTransactions(currentTransactions.values.toList) :: chain)
+  def addBlock(newBlockData: String, transactions: Seq[Transaction]): Blockchain = {
+    Blockchain(difficulty, mineNextBlock(newBlockData, transactions) +: chain)
   }
 
   def addBlock(newBlock: Block): Blockchain = {
-    Blockchain(difficulty, newBlock :: chain)
-  }
-
-  def addTransaction(tx: Transaction): Blockchain = {
-    currentTransactions += (tx.hash -> tx)
-    this
-  }
-
-  def addTransaction(sender: String, receiver: String, amount: Double): Blockchain =
-    addTransaction(Transaction(sender, receiver, amount))
-
-  def addTransaction(sender: String, receiver: String, amount: Double, timestamp: Long): Blockchain =
-    addTransaction(Transaction(sender, receiver, amount, timestamp))
-
-  def addTransactions(trans: List[Transaction]): Blockchain = {
-    currentTransactions ++= trans.map(tx => (tx.hash, tx))
-    this
+    Blockchain(difficulty, newBlock +: chain)
   }
 
   def lastBlock(): Option[Block] = chain.headOption
 
-  def mineNextBlock(newBlockData: String): Block = {
+  def mineNextBlock(newBlockData: String, transactions: Seq[Transaction]): Block = {
     val lastBlockOpt: Option[Block] = this.lastBlock()
     if (lastBlockOpt.isEmpty) throw new NoSuchElementException("Last Block does not exist!")
     val lastHeader = lastBlockOpt.get.header
-    Block.mineNextBlock(
-        lastHeader.index + 1,
-        lastHeader.hash,
-        newBlockData,
-        currentTransactions.values.toList,
-        getCurrentTimestamp,
-        difficulty)
+    Block.mineNextBlock(lastHeader.index + 1, lastHeader.hash, newBlockData, getCurrentTimestamp, difficulty,
+      transactions)
   }
 
   def isValid: Boolean = chain match {
     case Nil => throw new NoSuchElementException("Blockchain is Empty!")
-    case _ => isValidChain(chain, difficulty)
+    case _ => isValidChain(chain)
   }
+
 
 }
 
 object Blockchain {
 
-  def apply(difficulty: Int): Blockchain = new Blockchain(difficulty, List(Block.genesis(difficulty)))
+  def apply(difficulty: Int): Blockchain = new Blockchain(difficulty, Seq(Block.genesis(difficulty)))
 
-  def isValidChain(chain: List[Block], difficulty: Int): Boolean = chain match {
+  def isValidChain(chain: Seq[Block]): Boolean = chain match {
     case Nil => true
-    case g :: Nil => g.previousHash == ZERO64 && g.isValid(difficulty)
-    case a :: b :: tail => a.previousHash == b.hash && a.isValid(difficulty) && isValidChain(b :: tail, difficulty)
+    case g +: Nil => g.previousHash == ZERO64 && g.index == 0 && g.isValid
+    case a +: b +: tail => canBeChained(a, b) && a.isValid && isValidChain(b +: tail)
   }
+
+  def updateUTxOs(
+      transactions: Seq[Transaction],
+      unspentTxOuts: Map[Outpoint, TxOut]
+    ): Map[Outpoint, TxOut] = {
+      val newUnspentTxOuts = getNewUTxOs(transactions)
+      val consumedTxOuts = getConsumedUTxOs(transactions)
+      unspentTxOuts.filterKeys(consumedTxOuts contains) ++ newUnspentTxOuts
+    }
+
+  def getNewUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
+    transactions
+      .map(t => t.txOuts.zipWithIndex.map { case (txOut, index) => Outpoint(t.id, index) -> txOut}.toMap)
+      .reduce { _ ++ _ }
+
+  def getConsumedUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
+    transactions.map(_.txIns)
+      .reduce { _ ++ _ }
+      .map(txIn => Outpoint(txIn.previousOut.id, txIn.previousOut.index) -> TxOut("", 0))
+      .toMap
+
+
+
+
+
 
 }
 

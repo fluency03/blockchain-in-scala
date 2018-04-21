@@ -22,12 +22,14 @@ trait BlockRoutes extends Routes {
   def blockActor: ActorRef
 
   lazy val blockRoutes: Route =
-    pathPrefix("blocks") {
+    path("blocks") {
+      get {
+        val blocks: Future[Blocks] = (blockActor ? GetBlocks).mapTo[Blocks]
+        complete(blocks)
+      }
+    } ~
+    pathPrefix("block") {
       pathEnd {
-        get {
-          val blocks: Future[Blocks] = (blockActor ? GetBlocks).mapTo[Blocks]
-          complete(blocks)
-        } ~
         post {
           entity(as[Block]) { block =>
             val blockCreated: Future[Response] = (blockActor ? CreateBlock(block)).mapTo[Response]

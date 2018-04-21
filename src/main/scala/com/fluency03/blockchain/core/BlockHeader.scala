@@ -1,6 +1,7 @@
 package com.fluency03.blockchain.core
 
-import com.fluency03.blockchain.Util.{hashOf, isWithValidDifficulty}
+import com.fluency03.blockchain.core.BlockHeader.hashOfBlockHeader
+import com.fluency03.blockchain.Util.hashOf
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -12,8 +13,8 @@ import org.json4s.{Extraction, JValue}
  * @param data Data attached to current Block
  * @param merkleHash Merkle root hash of current Block
  * @param timestamp Timestamp of current Block
+ * @param difficulty Difficulty for current Block
  * @param nonce Nonce of current Block
- * @param hash Hash of current Block
  */
 case class BlockHeader(
     index: Int,
@@ -21,12 +22,12 @@ case class BlockHeader(
     data: String,
     merkleHash: String,
     timestamp: Long,
-    nonce: Int,
-    hash: String) {
+    difficulty: Int,
+    nonce: Int) {
 
-  def isValidWith(difficulty: Int): Boolean = isWithValidDifficulty(hash, difficulty)
+  lazy val hash: String = hashOfBlockHeader(this)
 
-  def nextTrial(): BlockHeader = BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce + 1)
+  def nextTrial(): BlockHeader = BlockHeader(index, previousHash, data, merkleHash, timestamp, difficulty, nonce + 1)
 
   def toJson: JValue = Extraction.decompose(this)
 
@@ -36,16 +37,6 @@ case class BlockHeader(
 
 object BlockHeader {
 
-  def apply(
-      index: Int,
-      previousHash: String,
-      data: String,
-      merkleHash: String,
-      timestamp: Long,
-      nonce: Int): BlockHeader =
-    BlockHeader(index, previousHash, data, merkleHash, timestamp, nonce,
-        hashOfHeaderFields(index, previousHash, data, merkleHash, timestamp, nonce))
-
   def hashOfBlockHeader(header: BlockHeader): String =
     hashOfHeaderFields(
         header.index,
@@ -53,15 +44,17 @@ object BlockHeader {
         header.data,
         header.merkleHash,
         header.timestamp,
+        header.difficulty,
         header.nonce)
 
   def hashOfHeaderFields(
-      index: Long,
+      index: Int,
       previousHash: String,
       data: String,
       merkleHash: String,
       timestamp: Long,
+      difficulty: Int,
       nonce: Int): String =
-    hashOf(index.toString, previousHash, data, merkleHash, timestamp.toString, nonce.toString)
+    hashOf(index.toString, previousHash, data, merkleHash, timestamp.toString, difficulty.toString, nonce.toString)
 
 }

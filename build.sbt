@@ -38,6 +38,8 @@ val testDependencies = Seq(
 libraryDependencies ++= {
   Seq(
     "org.scalaz" %% "scalaz-core" % scalazVersion,
-    "org.json4s" %% "json4s-native" % json4sVersion
+    "org.json4s" %% "json4s-native" % json4sVersion,
+    "org.json4s" %% "json4s-jackson" % json4sVersion,
+      "org.bouncycastle" % "bcprov-jdk15on" % "1.59"
   )
 } ++ httpDependencies ++ testDependencies

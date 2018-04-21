@@ -10,6 +10,7 @@ package object api {
   lazy val BLOCK_ACTOR_NAME = "blockActor"
   lazy val BLOCKCHAIN_ACTOR_NAME = "blockchainActor"
   lazy val TX_ACTOR_NAME = "txActor"
+  lazy val PEER_ACTOR_NAME = "peerActor"
 
   lazy val PARENT_UP = "../"
 
