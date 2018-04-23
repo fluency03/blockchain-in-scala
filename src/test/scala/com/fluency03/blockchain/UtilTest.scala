@@ -1,5 +1,7 @@
 package com.fluency03.blockchain
 
+import java.time.format.DateTimeParseException
+
 import com.fluency03.blockchain.Util._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, Matchers}
@@ -35,8 +37,24 @@ class UtilTest extends FlatSpec with Matchers with MockFactory {
 
   "A String" should "be converted to Base64 and converted back." in {
     base64Of("open sesame") shouldEqual "b3BlbiBzZXNhbWU="
+    base64Of("open sesame".toCharArray.map(_.toByte)) shouldEqual "b3BlbiBzZXNhbWU="
     fromBase64("b3BlbiBzZXNhbWU=") shouldEqual "open sesame"
     fromBase64(base64Of("aeqfedq.'.[pl12l3[p,5`>}{::>{:")) shouldEqual "aeqfedq.'.[pl12l3[p,5`>}{::>{:"
+  }
+
+  "epochTimeOf" should "obtain the Unix epoch of a time." in {
+    epochTimeOf("2018-04-11T18:52:01Z") shouldEqual 1523472721
+    epochTimeOf("2017-04-11T18:52:01Z") shouldEqual 1491936721
+    epochTimeOf("2017-04-02T18:52:01Z") shouldEqual 1491159121
+    epochTimeOf("2017-05-02T18:52:01Z") shouldEqual 1493751121
+    epochTimeOf("1970-01-01T00:00:00Z") shouldEqual 0
+    an[DateTimeParseException] should be thrownBy epochTimeOf("1970-01-01T00:00:00")
+  }
+
+  "binaryOfHash" should "convert hex hash to binary." in {
+    binaryOfHash("a") shouldEqual "1010"
+    binaryOfHash("ab") shouldEqual "10101011"
+    an[NumberFormatException] should be thrownBy binaryOfHash("g")
   }
 
 }

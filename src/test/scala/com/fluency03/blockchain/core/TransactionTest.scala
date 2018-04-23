@@ -1,14 +1,15 @@
 package com.fluency03.blockchain.core
 
-import java.time.Instant
+import java.security.KeyPair
 
-import com.fluency03.blockchain.Util.hashOf
-import com.fluency03.blockchain.core.Transaction.{COINBASE_AMOUNT, createCoinbaseTx}
+import com.fluency03.blockchain.Crypto
+import com.fluency03.blockchain.core.Transaction._
+import org.bouncycastle.util.encoders.Hex
 import org.json4s.JValue
-import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.parse
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.collection.mutable
 import scala.io.Source
 
 class TransactionTest extends FlatSpec with Matchers {
@@ -88,8 +89,72 @@ class TransactionTest extends FlatSpec with Matchers {
       TxOut("abc2", 20),
       TxOut("abc4", 40),
       TxOut(genesisMiner, COINBASE_AMOUNT))
-
   }
+
+  "Transaction" should "be able to be signed by key pair." in {
+    val txIn = TxIn(Outpoint("def0", 0), "abc")
+    val pair: KeyPair = Crypto.generateKeyPair()
+    val hash = Hex.decode("ace0")
+
+    val signature = Crypto.sign(hash, pair.getPrivate.getEncoded)
+    Crypto.verify(hash, pair.getPublic.getEncoded, signature) shouldEqual true
+
+    val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    val signedTxIn0 = signTxIn(hash, txIn, pair, unspentTxOuts)
+    signedTxIn0 shouldEqual None
+
+    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(Hex.toHexString(pair.getPublic.getEncoded), 40))
+    unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
+
+    val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)
+    signedTxIn shouldEqual Some(TxIn(Outpoint("def0", 0), signedTxIn.get.signature))
+
+    signedTxIn.get.previousOut shouldEqual Outpoint("def0", 0)
+    Crypto.verify(hash, pair.getPublic.getEncoded, Hex.decode(signedTxIn.get.signature)) shouldEqual true
+  }
+
+  "Transaction" should "have valid TxIns." in {
+    val pair: KeyPair = Crypto.generateKeyPair()
+    val hash = Hex.decode("ace0")
+
+    val signature = Crypto.sign(hash, pair.getPrivate.getEncoded)
+    Crypto.verify(hash, pair.getPublic.getEncoded, signature) shouldEqual true
+
+    val txIn = TxIn(Outpoint("def0", 0), "abc1")
+    val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(Hex.toHexString(pair.getPublic.getEncoded), 40))
+    unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
+
+    val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)
+
+    val unspentTxOuts0: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+
+    validateTxIn(signedTxIn.get, hash, unspentTxOuts0) shouldEqual false
+    validateTxIn(signedTxIn.get, hash, unspentTxOuts) shouldEqual true
+  }
+
+  "Transaction" should "have valid TxOut values." in {
+    val pair: KeyPair = Crypto.generateKeyPair()
+
+    val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 20))
+
+    val tx: Transaction = Transaction(
+      Seq(TxIn(Outpoint("def0", 0), "abc1"), TxIn(Outpoint("def0", 1), "abc1")),
+      Seq(TxOut("abc4", 40)),
+      genesisTimestamp
+    )
+
+    validateTxOutValues(tx, unspentTxOuts) shouldEqual false
+
+    unspentTxOuts += (Outpoint("def0", 0) -> TxOut("abc1", 20))
+    validateTxOutValues(tx, unspentTxOuts) shouldEqual true
+  }
+
+  "Transaction" should "have be validatable." in {
+    // validateTransaction
+  }
+
 
 
 }

@@ -2,7 +2,7 @@ package com.fluency03.blockchain
 
 import java.security.MessageDigest
 import java.time.Instant
-import java.util.Base64
+import org.bouncycastle.util.encoders.Base64
 
 object Util {
 
@@ -53,15 +53,17 @@ object Util {
   /**
    * Encode a String to Base64.
    */
-  def base64Of(text: String): String = Base64.getEncoder.encodeToString(text.getBytes("UTF-8"))
+  def base64Of(text: String): String = Base64.toBase64String(text.getBytes("UTF-8"))
+
+  /**
+   * Encode an Array of Bytes String to Base64.
+   */
+  def base64Of(data: Array[Byte]): String = Base64.toBase64String(data)
 
   /**
    * Decode a Base64 to String.
    */
-  def fromBase64(base64: String): String = new String(Base64.getDecoder.decode(base64), "UTF-8")
-
-
-
+  def fromBase64(base64: String): String = new String(Base64.decode(base64), "UTF-8")
 
 
 
