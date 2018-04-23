@@ -10,5 +10,3 @@ trait JsonSupport extends Json4sSupport {
   implicit val naiveSerialization: Serialization = Serialization
 
 }
-
-object JsonSupport extends JsonSupport

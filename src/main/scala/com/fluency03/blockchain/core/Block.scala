@@ -26,11 +26,14 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction] = Seq()) {
 
   def nextTrial(): Block = Block(header.nextTrial(), transactions)
 
-  def addTransaction(t: Transaction): Block =
-    Block(index, previousHash, data, timestamp, difficulty, nonce, t +: transactions)
+  def addTransaction(tx: Transaction): Block =
+    Block(index, previousHash, data, timestamp, difficulty, nonce, tx +: transactions)
 
   def addTransactions(trans: Seq[Transaction]): Block =
     Block(index, previousHash, data, timestamp, difficulty, nonce, trans ++ transactions)
+
+  def removeTransaction(tx: Transaction): Block =
+    Block(index, previousHash, data, timestamp, difficulty, nonce, transactions.filter(_ != tx))
 
   def isValid: Boolean = isWithValidDifficulty(hash, difficulty) && hasValidMerkleHash
 

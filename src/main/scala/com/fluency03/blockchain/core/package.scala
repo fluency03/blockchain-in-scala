@@ -15,7 +15,9 @@ package object core {
 
   val ZERO64: String = "0000000000000000000000000000000000000000000000000000000000000000"
 
-  lazy val genesisTimestamp: Long = Instant.parse("2018-04-11T18:52:01Z").getEpochSecond
+  lazy val genesisTimestamp: Long = Instant.parse(genesisTime).getEpochSecond
+
+  val genesisTime: String = "2018-04-11T18:52:01Z"
 
   val genesisMiner: String = Source.fromResource("public-key").getLines.mkString
 

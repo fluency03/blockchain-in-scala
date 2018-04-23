@@ -5,6 +5,7 @@ import java.security.KeyPair
 import com.fluency03.blockchain.Crypto
 import com.fluency03.blockchain.Util.hashOf
 import com.fluency03.blockchain.core.Transaction.hashOfTransaction
+import org.bouncycastle.util.encoders.Hex
 import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
@@ -53,38 +54,41 @@ object Transaction {
       tx.txOuts.map(tx => tx.address + tx.amount).mkString, tx.timestamp.toString)
 
   def signTxIn(
-      transactionHash: Array[Byte],
+      txId: Array[Byte],
       txIn: TxIn,
       keyPair: KeyPair,
       unspentTxOuts: mutable.Map[Outpoint, TxOut]
   ): Option[TxIn] = unspentTxOuts.get(txIn.previousOut) match {
     case Some(uTxO) =>
-      if (keyPair.getPublic.getEncoded.mkString != uTxO.address) None
-      else Some(TxIn(txIn.previousOut, Crypto.sign(transactionHash, keyPair.getPrivate.getEncoded).mkString))
+      if (Hex.toHexString(keyPair.getPublic.getEncoded) != uTxO.address) None
+      else Some(TxIn(txIn.previousOut, Hex.toHexString(Crypto.sign(txId, keyPair.getPrivate.getEncoded))))
     case None => None
   }
 
-  def validateTxIn(txIn: TxIn, transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
+  def validateTxIn(txIn: TxIn, txId: Array[Byte], unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
     unspentTxOuts.get(txIn.previousOut) match {
-      case Some(txOut) =>
-        Crypto.verify(transaction.id.getBytes(defaultCharset),
-          txOut.address.getBytes(defaultCharset),
-          txIn.signature.getBytes(defaultCharset))
+      case Some(txOut) => Crypto.verify(txId, Hex.decode(txOut.address), Hex.decode(txIn.signature))
       case None => false
     }
 
-  def validateTxOutValues(transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean = {
-    val totalTxInValues: Long = transaction.txIns
+  def validateTxOutValues(transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
+    validateTxOutValues(transaction.txIns, transaction.txOuts, unspentTxOuts)
+
+  def validateTxOutValues(txIns: Seq[TxIn], txOuts: Seq[TxOut], unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean = {
+    val totalTxInValues: Long = txIns
       .map(txIn => unspentTxOuts.get(txIn.previousOut) match {
         case Some(txOut) => txOut.amount
         case None => 0
       }).sum
 
-    val totalTxOutValues: Long = transaction.txOuts.map( _.amount).sum
+    val totalTxOutValues: Long = txOuts.map( _.amount).sum
 
     totalTxInValues == totalTxOutValues
   }
 
+  def validateTransaction(transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
+    transaction.txIns.forall(txIn => validateTxIn(txIn, Hex.decode(transaction.id), unspentTxOuts)) &&
+      validateTxOutValues(transaction, unspentTxOuts)
 
 
 }

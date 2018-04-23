@@ -32,6 +32,24 @@ class BlockTest extends FlatSpec with Matchers {
     genesis.isValid shouldEqual true
     genesis.toJson shouldEqual expectedBlockJson
     parse(genesis.toString) shouldEqual expectedBlockJson
+
+    genesis shouldEqual Block(
+      expectedHeader.index,
+      expectedHeader.previousHash,
+      expectedHeader.data,
+      expectedHeader.timestamp,
+      expectedHeader.difficulty,
+      expectedHeader.nonce,
+      expectedGenesisBlock.transactions)
+
+    genesis.removeTransaction(genesisTx) shouldEqual Block(
+      expectedHeader.index,
+      expectedHeader.previousHash,
+      expectedHeader.data,
+      ZERO64,
+      expectedHeader.timestamp,
+      expectedHeader.difficulty,
+      expectedHeader.nonce)
   }
 
   "Next trial of Genesis block" should "equal to Genesis block except nonce+1 ." in {
@@ -122,7 +140,6 @@ class BlockTest extends FlatSpec with Matchers {
     newBlock.toJson shouldEqual json
     parse(newBlock.toString) shouldEqual json
   }
-
 
 
 }
