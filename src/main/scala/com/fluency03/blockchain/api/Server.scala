@@ -16,6 +16,7 @@ import scala.concurrent.duration.Duration
 
 object Server extends App
     with BlockchainRoutes with BlockRoutes with TransactionRoutes with NetworkRoutes with GenericRoutes {
+  // we leave these abstract, since they will be provided by the App
   implicit val system: ActorSystem = ActorSystem("blockchain-http-service")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
