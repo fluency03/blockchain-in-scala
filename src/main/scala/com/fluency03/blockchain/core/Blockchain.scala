@@ -56,7 +56,9 @@ object Blockchain {
     ): Map[Outpoint, TxOut] = {
       val newUnspentTxOuts = getNewUTxOs(transactions)
       val consumedTxOuts = getConsumedUTxOs(transactions)
-      unspentTxOuts.filterKeys(consumedTxOuts contains) ++ newUnspentTxOuts
+      unspentTxOuts.filterNot {
+        case (i, _) => consumedTxOuts.contains(i)
+      } ++ newUnspentTxOuts
     }
 
   def getNewUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
