@@ -64,7 +64,7 @@ object Transaction {
   )
 
   def signTxIn(
-      txId: Array[Byte],
+      txId: Bytes,
       txIn: TxIn,
       keyPair: KeyPair,
       unspentTxOuts: mutable.Map[Outpoint, TxOut]
@@ -78,7 +78,7 @@ object Transaction {
   def validateTxIn(txIn: TxIn, txId: String, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
     validateTxIn(txIn, txId.hex2Bytes, unspentTxOuts)
 
-  def validateTxIn(txIn: TxIn, txId: Array[Byte], unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
+  def validateTxIn(txIn: TxIn, txId: Bytes, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
     unspentTxOuts.get(txIn.previousOut) match {
       case Some(txOut) => Crypto.verify(txId, txOut.address.hex2Bytes, txIn.signature.hex2Bytes)
       case None => false

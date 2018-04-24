@@ -57,4 +57,22 @@ class UtilTest extends FlatSpec with Matchers with MockFactory {
     an[NumberFormatException] should be thrownBy binaryOfHex("g")
   }
 
+  "StringImplicit" should "convert String to corresponding type." in {
+    fromBase64("open sesame".toBase64) shouldEqual "open sesame"
+    "open sesame".toSha256 shouldEqual "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
+    "".toSha256 shouldEqual "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "a".hex2Binary shouldEqual "1010"
+    "ab".hex2Binary shouldEqual "10101011"
+  }
+
+  "BytesImplicit" should "convert Array of Byte to corresponding type." in {
+    val bytes: Bytes = Array(192.toByte, 168.toByte, 1, 9)
+    bytes.toHex shouldEqual "c0a80109"
+    bytes.toBase64 shouldEqual "wKgBCQ=="
+  }
+
+  "genesisTimestamp" should "be the Epoch time of 2018-04-11T18:52:01Z ." in {
+    genesisTimestamp shouldEqual 1523472721
+  }
+
 }

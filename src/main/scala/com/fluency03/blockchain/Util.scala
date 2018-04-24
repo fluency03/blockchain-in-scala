@@ -17,7 +17,7 @@ object Util {
    * Generate digest from a input String.
    * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
    */
-  def digestOf(text: String): Array[Byte] =
+  def digestOf(text: String): Bytes =
     MessageDigest.getInstance("SHA-256").digest(text.getBytes("UTF-8"))
 
   /**
@@ -53,7 +53,7 @@ object Util {
   /**
    * Encode an Array of Bytes String to Base64.
    */
-  def base64Of(data: Array[Byte]): String = Base64.toBase64String(data)
+  def base64Of(data: Bytes): String = Base64.toBase64String(data)
 
   /**
    * Decode a Base64 to String.

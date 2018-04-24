@@ -17,7 +17,7 @@ object Crypto {
 
   val ecSpec: ECParameterSpec = ECNamedCurveTable.getParameterSpec(SPECP256K1)
 
-  def sign(data: Array[Byte], privateKey: Array[Byte]): Array[Byte] = {
+  def sign(data: Bytes, privateKey: Bytes): Bytes = {
     val keySpec: PKCS8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKey)
     val keyFactory: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM)
     val key: PrivateKey = keyFactory.generatePrivate(keySpec)
@@ -28,7 +28,7 @@ object Crypto {
     sig.sign()
   }
 
-  def verify(data: Array[Byte], publicKey: Array[Byte], signature: Array[Byte]): Boolean =  {
+  def verify(data: Bytes, publicKey: Bytes, signature: Bytes): Boolean =  {
     val keySpec: X509EncodedKeySpec = new X509EncodedKeySpec(publicKey)
     val keyFactory: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM)
     val key: PublicKey = keyFactory.generatePublic(keySpec)
