@@ -1,11 +1,12 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 object Difficulty {
 
   // TODO (Chang): this object is not used for now
   // TODO (Chang): implement difficulty adjustment
 
-  lazy val difficultyOneTarget: BigInt = targetOfBits("1d00ffff".hex)
+  lazy val difficultyOneTarget: BigInt = targetOfBits("1d00ffff".hex2Long)
 
   /**
    * See the cpp source code here:

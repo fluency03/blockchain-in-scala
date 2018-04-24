@@ -33,17 +33,12 @@ object Util {
   /**
    * Calculate the hash of concatenation a Seq of Strings.
    */
-  def hashOf(strings: String*): String = hashOf(strings mkString "")
-
-  /**
-   * Calculate the hash of a String.
-   */
-  def hashOf(str: String): String = sha256HashOf(str)
+  def sha256Of(strings: String*): String = sha256HashOf(strings mkString "")
 
   /**
    * Get binary representation of a hash.
    */
-  def binaryOfHash(hash: String): String = BigInt(hash, 16).toString(2)
+  def binaryOfHex(hash: String): String = BigInt(hash, 16).toString(2)
 
   /**
    * Check whether the given hash is with valid difficulty.

@@ -1,4 +1,5 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.json4s.JValue
@@ -56,6 +57,17 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainAdded.lastBlock().get shouldEqual expected
     blockchainAdded.isValid shouldEqual true
   }
+
+  "updateUTxOs" should "update the UTXOs from a latest Seq of transactions." in {
+
+
+
+  }
+
+
+
+
+
 
 
 }

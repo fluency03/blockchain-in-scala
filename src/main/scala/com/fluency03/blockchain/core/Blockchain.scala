@@ -1,4 +1,5 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 import com.fluency03.blockchain.Util.getCurrentTimestamp
 import com.fluency03.blockchain.core.Blockchain._
@@ -60,7 +61,9 @@ object Blockchain {
 
   def getNewUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
     transactions
-      .map(t => t.txOuts.zipWithIndex.map { case (txOut, index) => Outpoint(t.id, index) -> txOut}.toMap)
+      .map(t => t.txOuts.zipWithIndex.map {
+        case (txOut, index) => Outpoint(t.id, index) -> txOut
+      }.toMap)
       .reduce { _ ++ _ }
 
   def getConsumedUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =

@@ -1,4 +1,5 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 import java.security.KeyPair
 
@@ -94,7 +95,7 @@ class TransactionTest extends FlatSpec with Matchers {
   "Transaction" should "be able to be signed by key pair." in {
     val txIn = TxIn(Outpoint("def0", 0), "abc")
     val pair: KeyPair = Crypto.generateKeyPair()
-    val hash = Hex.decode("ace0")
+    val hash = "ace0".hex2Bytes
 
     val signature = Crypto.sign(hash, pair.getPrivate.getEncoded)
     Crypto.verify(hash, pair.getPublic.getEncoded, signature) shouldEqual true
@@ -103,26 +104,26 @@ class TransactionTest extends FlatSpec with Matchers {
     val signedTxIn0 = signTxIn(hash, txIn, pair, unspentTxOuts)
     signedTxIn0 shouldEqual None
 
-    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(Hex.toHexString(pair.getPublic.getEncoded), 40))
+    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.getEncoded.toHex, 40))
     unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
 
     val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)
     signedTxIn shouldEqual Some(TxIn(Outpoint("def0", 0), signedTxIn.get.signature))
 
     signedTxIn.get.previousOut shouldEqual Outpoint("def0", 0)
-    Crypto.verify(hash, pair.getPublic.getEncoded, Hex.decode(signedTxIn.get.signature)) shouldEqual true
+    Crypto.verify(hash, pair.getPublic.getEncoded, signedTxIn.get.signature.hex2Bytes) shouldEqual true
   }
 
   "Transaction" should "have valid TxIns." in {
     val pair: KeyPair = Crypto.generateKeyPair()
-    val hash = Hex.decode("ace0")
+    val hash = "ace0".hex2Bytes
 
     val signature = Crypto.sign(hash, pair.getPrivate.getEncoded)
     Crypto.verify(hash, pair.getPublic.getEncoded, signature) shouldEqual true
 
     val txIn = TxIn(Outpoint("def0", 0), "abc1")
     val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
-    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(Hex.toHexString(pair.getPublic.getEncoded), 40))
+    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.getEncoded.toHex, 40))
     unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
 
     val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)
