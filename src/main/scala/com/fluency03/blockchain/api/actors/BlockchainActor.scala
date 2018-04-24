@@ -14,7 +14,7 @@ object BlockchainActor {
   def props: Props = Props[BlockchainActor]
 }
 
-class BlockchainActor extends Actor with ActorLogging {
+class BlockchainActor extends Actors {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 

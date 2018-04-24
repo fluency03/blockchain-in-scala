@@ -18,7 +18,7 @@ object NetworkActor {
   def props: Props = Props[NetworkActor]
 }
 
-class NetworkActor extends Actor with ActorLogging {
+class NetworkActor extends Actors {
   import context.dispatcher
 
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)

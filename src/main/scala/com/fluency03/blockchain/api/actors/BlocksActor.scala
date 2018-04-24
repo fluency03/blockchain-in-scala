@@ -17,7 +17,7 @@ object BlocksActor {
   def props: Props = Props[BlocksActor]
 }
 
-class BlocksActor extends Actor with ActorLogging {
+class BlocksActor extends Actors {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 

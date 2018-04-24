@@ -17,7 +17,7 @@ object TransactionsActor {
   def props: Props = Props[TransactionsActor]
 }
 
-class TransactionsActor extends Actor with ActorLogging {
+class TransactionsActor extends Actors {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
