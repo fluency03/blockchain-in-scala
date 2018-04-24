@@ -26,7 +26,7 @@ object Util {
   def getCurrentTimestamp: Long = Instant.now.getEpochSecond
 
   /**
-   *
+   * Parse a time format string to its Epoch time in seconds.
    */
   def epochTimeOf(t: String): Long = Instant.parse(t).getEpochSecond
 
@@ -59,7 +59,5 @@ object Util {
    * Decode a Base64 to String.
    */
   def fromBase64(base64: String): String = new String(Base64.decode(base64), "UTF-8")
-
-
 
 }

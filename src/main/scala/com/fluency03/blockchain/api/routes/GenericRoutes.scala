@@ -15,6 +15,8 @@ import com.fluency03.blockchain.api.utils.GenericMessage.Input
 trait GenericRoutes extends Routes {
   lazy val log = Logging(system, classOf[GenericRoutes])
 
+
+
   lazy val genericRoutes: Route =
     pathSingleSlash {
       get {
@@ -22,17 +24,17 @@ trait GenericRoutes extends Routes {
       }
     } ~
       pathPrefix("generic") {
-        path("hash-of-string") {
+        path("toSha256") {
           post {
             entity(as[Input]) { in => complete((StatusCodes.Created, in.data.toSha256)) }
           }
         } ~
-        path("base64-of-string") {
+        path("toBase64") {
           post {
             entity(as[Input]) { in => complete((StatusCodes.Created, in.data.toBase64)) }
           }
         } ~
-        path("string-of-base64") {
+        path("fromBase64") {
           post {
             entity(as[Input]) { in => complete((StatusCodes.Created, fromBase64(in.data))) }
           }
@@ -42,7 +44,7 @@ trait GenericRoutes extends Routes {
             entity(as[Input]) { in => complete((StatusCodes.Created, epochTimeOf(in.data))) }
           }
         } ~
-        path("time-from-epoch") {
+        path("time-of-epoch") {
           post {
             entity(as[Input]) { in => complete((StatusCodes.Created, Instant.ofEpochSecond(in.data.toLong))) }
           }

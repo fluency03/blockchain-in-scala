@@ -1,28 +1,31 @@
 package com.fluency03.blockchain.api.actors
 
 import akka.actor.{Actor, ActorLogging, ActorSelection, Props}
-import com.fluency03.blockchain.api.actors.BlockActor._
+import com.fluency03.blockchain.api.actors.BlocksActor._
 import com.fluency03.blockchain.api.utils.GenericMessage._
-import com.fluency03.blockchain.api.{BLOCKCHAIN_ACTOR_NAME, PARENT_UP, TX_ACTOR_NAME}
+import com.fluency03.blockchain.api.{BLOCKCHAIN_ACTOR_NAME, NETWORK_ACTOR_NAME, PARENT_UP, TRANS_ACTOR_NAME}
 import com.fluency03.blockchain.core.Block
+
 import scala.collection.mutable
 
-object BlockActor {
+object BlocksActor {
   final case object GetBlocks
   final case class CreateBlock(block: Block)
   final case class GetBlock(hash: String)
   final case class DeleteBlock(hash: String)
 
-  def props: Props = Props[BlockActor]
+  def props: Props = Props[BlocksActor]
 }
 
-class BlockActor extends Actor with ActorLogging {
+class BlocksActor extends Actor with ActorLogging {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
   val blockchainActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKCHAIN_ACTOR_NAME)
-  val txActor: ActorSelection = context.actorSelection(PARENT_UP + TX_ACTOR_NAME)
+  val networkActor: ActorSelection = context.actorSelection(PARENT_UP + NETWORK_ACTOR_NAME)
+  val txActor: ActorSelection = context.actorSelection(PARENT_UP + TRANS_ACTOR_NAME)
 
+  // TODO (Chang): not persistent
   var blocks = mutable.Map.empty[String, Block]
 
   def receive: Receive = {
@@ -33,7 +36,7 @@ class BlockActor extends Actor with ActorLogging {
     case _ => unhandled _
   }
 
-  private[this] def onGetBlocks(): Unit = sender() ! blocks.values.toList
+  private[this] def onGetBlocks(): Unit = sender() ! blocks.values.toSeq
 
   private[this] def onCreateBlock(block: Block): Unit = {
     blocks += (block.hash -> block)

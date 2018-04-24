@@ -1,5 +1,6 @@
 package com.fluency03.blockchain
 package core
+
 import com.fluency03.blockchain.core.Blockchain.updateUTxOs
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.json4s.JValue
@@ -7,7 +8,6 @@ import org.json4s.native.JsonMethods.parse
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 class BlockchainTest extends FlatSpec with Matchers  {

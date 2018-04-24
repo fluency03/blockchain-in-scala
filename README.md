@@ -5,6 +5,8 @@
 
 Simple Blockchain Implementation in Scala.
 
+*This project is still under development.*
+
 Inspired by:
 - [Daniel van Flymen](http://www.dvf.nyc/)'s blog [Learn Blockchains by Building One](https://hackernoon.com/learn-blockchains-by-building-one-117428612f46)
 - [Naivecoin](https://github.com/lhartikk/naivecoin) of [@lhartikk](https://github.com/lhartikk)
