@@ -1,11 +1,12 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 import com.fluency03.blockchain.core.Difficulty._
 import org.scalatest.{FlatSpec, Matchers}
 
 class DifficultyTest extends FlatSpec with Matchers {
 
-  val (t1, n1, o1) = decodeCompact("1d00ffff".hex)
+  val (t1, n1, o1) = decodeCompact("1d00ffff".hex2Long)
   val (t2, n2, o2) = decodeCompact("453062093".toLong)
   val (t3, n3, o3) = decodeCompact("-453062093".toLong)
 
@@ -13,12 +14,12 @@ class DifficultyTest extends FlatSpec with Matchers {
     difficultyOneTarget shouldEqual t1
     t1.toString(16) shouldEqual "ffff0000000000000000000000000000000000000000000000000000"
     t2.toString(16) shouldEqual "12dcd000000000000000000000000000000000000000000000000"
-    targetOfBits("01003456".hex) shouldEqual "00".hex
-    targetOfBits("01123456".hex) shouldEqual "12".hex
-    targetOfBits("02008000".hex) shouldEqual "80".hex
-    targetOfBits("05009234".hex) shouldEqual "92340000".hex
-    targetOfBits("04923456".hex) shouldEqual - "12345600".hex
-    targetOfBits("04123456".hex) shouldEqual "12345600".hex
+    targetOfBits("01003456".hex2Long) shouldEqual "00".hex2Long
+    targetOfBits("01123456".hex2Long) shouldEqual "12".hex2Long
+    targetOfBits("02008000".hex2Long) shouldEqual "80".hex2Long
+    targetOfBits("05009234".hex2Long) shouldEqual "92340000".hex2Long
+    targetOfBits("04923456".hex2Long) shouldEqual - "12345600".hex2Long
+    targetOfBits("04123456".hex2Long) shouldEqual "12345600".hex2Long
 //    println("1d00ffff".hex)
 //    println(bitsOfTarget(t1, n1))
 //    println(n1, o1)

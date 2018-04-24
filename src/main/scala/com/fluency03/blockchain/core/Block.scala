@@ -1,4 +1,5 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 import com.fluency03.blockchain.Util.isWithValidDifficulty
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields

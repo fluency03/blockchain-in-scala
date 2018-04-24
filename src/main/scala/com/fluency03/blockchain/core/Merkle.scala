@@ -1,6 +1,7 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
-import com.fluency03.blockchain.Util.hashOf
+import com.fluency03.blockchain.Util.sha256Of
 
 object Merkle {
   def computeRoot(trans: Seq[Transaction]): String =
@@ -10,7 +11,7 @@ object Merkle {
     case 0 => ZERO64
     case 1 => hashes.head
     case n if n % 2 != 0 => computeRootOfHashes(hashes :+ hashes.last) // append last element again
-    case _ => computeRootOfHashes(hashes.grouped(2).map { a => hashOf(a(0), a(1)) } .toList)
+    case _ => computeRootOfHashes(hashes.grouped(2).map { a => sha256Of(a(0), a(1)) } .toList)
   }
 
 }

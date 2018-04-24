@@ -1,7 +1,8 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 import com.fluency03.blockchain.core.BlockHeader.hashOfBlockHeader
-import com.fluency03.blockchain.Util.hashOf
+import com.fluency03.blockchain.Util.sha256Of
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -55,6 +56,6 @@ object BlockHeader {
       timestamp: Long,
       difficulty: Int,
       nonce: Int): String =
-    hashOf(index.toString, previousHash, data, merkleHash, timestamp.toString, difficulty.toString, nonce.toString)
+    sha256Of(index.toString, previousHash, data, merkleHash, timestamp.toString, difficulty.toString, nonce.toString)
 
 }

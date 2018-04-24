@@ -1,4 +1,5 @@
-package com.fluency03.blockchain.api.routes
+package com.fluency03.blockchain
+package api.routes
 
 import java.time.Instant
 
@@ -23,12 +24,12 @@ trait GenericRoutes extends Routes {
       pathPrefix("generic") {
         path("hash-of-string") {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, hashOf(in.data))) }
+            entity(as[Input]) { in => complete((StatusCodes.Created, in.data.toSha256)) }
           }
         } ~
         path("base64-of-string") {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, base64Of(in.data))) }
+            entity(as[Input]) { in => complete((StatusCodes.Created, in.data.toBase64)) }
           }
         } ~
         path("string-of-base64") {

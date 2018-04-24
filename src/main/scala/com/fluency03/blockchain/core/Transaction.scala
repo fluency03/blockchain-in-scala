@@ -1,9 +1,10 @@
-package com.fluency03.blockchain.core
+package com.fluency03.blockchain
+package core
 
 import java.security.KeyPair
 
 import com.fluency03.blockchain.Crypto
-import com.fluency03.blockchain.Util.hashOf
+import com.fluency03.blockchain.Util.sha256Of
 import com.fluency03.blockchain.core.Transaction.hashOfTransaction
 import org.bouncycastle.util.encoders.Hex
 import org.json4s.JsonAST.JObject
@@ -50,24 +51,36 @@ object Transaction {
   }
 
   def hashOfTransaction(tx: Transaction): String =
-    hashOf(tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
+    sha256Of(tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
       tx.txOuts.map(tx => tx.address + tx.amount).mkString, tx.timestamp.toString)
 
   def signTxIn(
-      txId: Array[Byte],
+    txId: String,
+    txIn: TxIn,
+    keyPair: KeyPair,
+    unspentTxOuts: mutable.Map[Outpoint, TxOut]
+  ): Option[TxIn] = signTxIn(
+    txId.hex2Bytes, txIn, keyPair, unspentTxOuts
+  )
+
+  def signTxIn(
+      txId: Bytes,
       txIn: TxIn,
       keyPair: KeyPair,
       unspentTxOuts: mutable.Map[Outpoint, TxOut]
   ): Option[TxIn] = unspentTxOuts.get(txIn.previousOut) match {
     case Some(uTxO) =>
-      if (Hex.toHexString(keyPair.getPublic.getEncoded) != uTxO.address) None
-      else Some(TxIn(txIn.previousOut, Hex.toHexString(Crypto.sign(txId, keyPair.getPrivate.getEncoded))))
+      if (keyPair.getPublic.getEncoded.toHex != uTxO.address) None
+      else Some(TxIn(txIn.previousOut, Crypto.sign(txId, keyPair.getPrivate.getEncoded).toHex))
     case None => None
   }
 
-  def validateTxIn(txIn: TxIn, txId: Array[Byte], unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
+  def validateTxIn(txIn: TxIn, txId: String, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
+    validateTxIn(txIn, txId.hex2Bytes, unspentTxOuts)
+
+  def validateTxIn(txIn: TxIn, txId: Bytes, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
     unspentTxOuts.get(txIn.previousOut) match {
-      case Some(txOut) => Crypto.verify(txId, Hex.decode(txOut.address), Hex.decode(txIn.signature))
+      case Some(txOut) => Crypto.verify(txId, txOut.address.hex2Bytes, txIn.signature.hex2Bytes)
       case None => false
     }
 
@@ -87,7 +100,7 @@ object Transaction {
   }
 
   def validateTransaction(transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
-    transaction.txIns.forall(txIn => validateTxIn(txIn, Hex.decode(transaction.id), unspentTxOuts)) &&
+    transaction.txIns.forall(txIn => validateTxIn(txIn, transaction.id.hex2Bytes, unspentTxOuts)) &&
       validateTxOutValues(transaction, unspentTxOuts)
 
 

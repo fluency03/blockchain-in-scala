@@ -1,5 +1,6 @@
-package com.fluency03.blockchain.core
-
+package com.fluency03.blockchain
+package core
+import com.fluency03.blockchain.core.Blockchain.updateUTxOs
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.json4s.JValue
 import org.json4s.native.JsonMethods.parse
@@ -56,6 +57,30 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainAdded.lastBlock().get shouldEqual expected
     blockchainAdded.isValid shouldEqual true
   }
+
+  "updateUTxOs" should "update the UTXOs from a latest Seq of transactions." in {
+    val tx: Transaction = Transaction(
+      Seq(TxIn(Outpoint("def0", 0), "abc1"),
+        TxIn(Outpoint("def0", 1), "abc1")),
+      Seq(TxOut("abc4", 40)),
+      genesisTimestamp
+    )
+
+    val unspentTxOuts1: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    unspentTxOuts1 += (Outpoint("def0", 0) -> TxOut("abc4", 20))
+    unspentTxOuts1 += (Outpoint("def0", 1) -> TxOut("abc4", 20))
+
+    val unspentTxOuts2: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    updateUTxOs(Seq(tx), unspentTxOuts1.toMap) should not equal unspentTxOuts2
+
+    unspentTxOuts2 += (Outpoint(tx.id, 0) -> TxOut("abc4", 40))
+    updateUTxOs(Seq(tx), unspentTxOuts1.toMap) shouldEqual unspentTxOuts2
+  }
+
+
+
+
+
 
 
 }
