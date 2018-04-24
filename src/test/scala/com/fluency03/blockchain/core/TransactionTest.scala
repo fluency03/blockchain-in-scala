@@ -95,10 +95,10 @@ class TransactionTest extends FlatSpec with Matchers {
   "Transaction" should "be able to be signed by key pair." in {
     val txIn = TxIn(Outpoint("def0", 0), "abc")
     val pair: KeyPair = Crypto.generateKeyPair()
-    val hash = "ace0".hex2Bytes
+    val hash = "ace0"
 
-    val signature = Crypto.sign(hash, pair.getPrivate.getEncoded)
-    Crypto.verify(hash, pair.getPublic.getEncoded, signature) shouldEqual true
+    val signature = Crypto.sign(hash.hex2Bytes, pair.getPrivate.getEncoded)
+    Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
 
     val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
     val signedTxIn0 = signTxIn(hash, txIn, pair, unspentTxOuts)
@@ -111,15 +111,15 @@ class TransactionTest extends FlatSpec with Matchers {
     signedTxIn shouldEqual Some(TxIn(Outpoint("def0", 0), signedTxIn.get.signature))
 
     signedTxIn.get.previousOut shouldEqual Outpoint("def0", 0)
-    Crypto.verify(hash, pair.getPublic.getEncoded, signedTxIn.get.signature.hex2Bytes) shouldEqual true
+    Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signedTxIn.get.signature.hex2Bytes) shouldEqual true
   }
 
   "Transaction" should "have valid TxIns." in {
     val pair: KeyPair = Crypto.generateKeyPair()
-    val hash = "ace0".hex2Bytes
+    val hash = "ace0"
 
-    val signature = Crypto.sign(hash, pair.getPrivate.getEncoded)
-    Crypto.verify(hash, pair.getPublic.getEncoded, signature) shouldEqual true
+    val signature = Crypto.sign(hash.hex2Bytes, pair.getPrivate.getEncoded)
+    Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
 
     val txIn = TxIn(Outpoint("def0", 0), "abc1")
     val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]

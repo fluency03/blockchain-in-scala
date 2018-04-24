@@ -14,13 +14,11 @@ import scala.collection.mutable
  */
 case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesisBlock)) {
 
-  def addBlock(newBlockData: String, transactions: Seq[Transaction]): Blockchain = {
+  def addBlock(newBlockData: String, transactions: Seq[Transaction]): Blockchain =
     Blockchain(difficulty, mineNextBlock(newBlockData, transactions) +: chain)
-  }
 
-  def addBlock(newBlock: Block): Blockchain = {
+  def addBlock(newBlock: Block): Blockchain =
     Blockchain(difficulty, newBlock +: chain)
-  }
 
   def lastBlock(): Option[Block] = chain.headOption
 
@@ -50,16 +48,13 @@ object Blockchain {
     case a +: b +: tail => canBeChained(a, b) && a.isValid && isValidChain(b +: tail)
   }
 
-  def updateUTxOs(
-      transactions: Seq[Transaction],
-      unspentTxOuts: Map[Outpoint, TxOut]
-    ): Map[Outpoint, TxOut] = {
-      val newUnspentTxOuts = getNewUTxOs(transactions)
-      val consumedTxOuts = getConsumedUTxOs(transactions)
-      unspentTxOuts.filterNot {
-        case (i, _) => consumedTxOuts.contains(i)
-      } ++ newUnspentTxOuts
-    }
+  def updateUTxOs(transactions: Seq[Transaction], unspentTxOuts: Map[Outpoint, TxOut]): Map[Outpoint, TxOut] = {
+    val newUnspentTxOuts = getNewUTxOs(transactions)
+    val consumedTxOuts = getConsumedUTxOs(transactions)
+    unspentTxOuts.filterNot {
+      case (i, _) => consumedTxOuts.contains(i)
+    } ++ newUnspentTxOuts
+  }
 
   def getNewUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
     transactions

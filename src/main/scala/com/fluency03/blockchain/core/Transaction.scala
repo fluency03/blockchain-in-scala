@@ -54,26 +54,16 @@ object Transaction {
     sha256Of(tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
       tx.txOuts.map(tx => tx.address + tx.amount).mkString, tx.timestamp.toString)
 
-  def signTxIn(
-    txId: String,
-    txIn: TxIn,
-    keyPair: KeyPair,
-    unspentTxOuts: mutable.Map[Outpoint, TxOut]
-  ): Option[TxIn] = signTxIn(
-    txId.hex2Bytes, txIn, keyPair, unspentTxOuts
-  )
+  def signTxIn(txId: String, txIn: TxIn, keyPair: KeyPair, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
+    signTxIn(txId.hex2Bytes, txIn, keyPair, unspentTxOuts)
 
-  def signTxIn(
-      txId: Bytes,
-      txIn: TxIn,
-      keyPair: KeyPair,
-      unspentTxOuts: mutable.Map[Outpoint, TxOut]
-  ): Option[TxIn] = unspentTxOuts.get(txIn.previousOut) match {
-    case Some(uTxO) =>
-      if (keyPair.getPublic.getEncoded.toHex != uTxO.address) None
-      else Some(TxIn(txIn.previousOut, Crypto.sign(txId, keyPair.getPrivate.getEncoded).toHex))
-    case None => None
-  }
+  def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
+    unspentTxOuts.get(txIn.previousOut) match {
+      case Some(uTxO) =>
+        if (keyPair.getPublic.getEncoded.toHex != uTxO.address) None
+        else Some(TxIn(txIn.previousOut, Crypto.sign(txId, keyPair.getPrivate.getEncoded).toHex))
+      case None => None
+    }
 
   def validateTxIn(txIn: TxIn, txId: String, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
     validateTxIn(txIn, txId.hex2Bytes, unspentTxOuts)
@@ -100,7 +90,7 @@ object Transaction {
   }
 
   def validateTransaction(transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
-    transaction.txIns.forall(txIn => validateTxIn(txIn, transaction.id.hex2Bytes, unspentTxOuts)) &&
+    transaction.txIns.forall(txIn => validateTxIn(txIn, transaction.id, unspentTxOuts)) &&
       validateTxOutValues(transaction, unspentTxOuts)
 
 

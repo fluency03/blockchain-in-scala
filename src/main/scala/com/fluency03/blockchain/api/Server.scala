@@ -14,7 +14,9 @@ import com.typesafe.config.ConfigFactory
 import scala.concurrent.{Await, ExecutionContextExecutor, Future}
 import scala.concurrent.duration.Duration
 
-object Server extends App with BlockchainRoutes with BlockRoutes with TransactionRoutes with GenericRoutes {
+object Server extends App
+    with BlockchainRoutes with BlockRoutes with TransactionRoutes with NetworkRoutes with GenericRoutes {
+  // we leave these abstract, since they will be provided by the App
   implicit val system: ActorSystem = ActorSystem("blockchain-http-service")
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
@@ -26,10 +28,11 @@ object Server extends App with BlockchainRoutes with BlockRoutes with Transactio
   val (host, port) = (httpConfig.getString("host"), httpConfig.getInt("port"))
 
   val blockchainActor: ActorRef = system.actorOf(BlockchainActor.props, BLOCKCHAIN_ACTOR_NAME)
-  val blockActor: ActorRef = system.actorOf(BlockActor.props, BLOCK_ACTOR_NAME)
-  val txActor: ActorRef = system.actorOf(TransactionActor.props, TX_ACTOR_NAME)
+  val blocksActor: ActorRef = system.actorOf(BlocksActor.props, BLOCKS_ACTOR_NAME)
+  val transActor: ActorRef = system.actorOf(TransactionsActor.props, TRANS_ACTOR_NAME)
+  val networkActor: ActorRef = system.actorOf(NetworkActor.props, NETWORK_ACTOR_NAME)
 
-  lazy val routes: Route = blockchainRoutes ~ blockRoutes ~ txRoutes ~ genericRoutes
+  lazy val routes: Route = blockchainRoutes ~ blockRoutes ~ transRoutes ~ networkRoutes ~ genericRoutes
 
   val bindingFuture: Future[ServerBinding] =
     Http().bindAndHandle(routes, host, port)

@@ -2,7 +2,6 @@ package com.fluency03.blockchain
 
 import java.security.KeyPair
 
-import org.bouncycastle.util.encoders.Hex
 import org.scalatest.{FlatSpec, Matchers}
 
 class CryptoTest extends FlatSpec with Matchers {
