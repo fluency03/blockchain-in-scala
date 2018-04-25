@@ -2,8 +2,8 @@ package com.fluency03.blockchain.api.actors
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
+import com.fluency03.blockchain.api.actors.BlocksActor._
 import com.fluency03.blockchain.api.{FailureMsg, SuccessMsg}
-import com.fluency03.blockchain.api.actors.BlocksActor.{CreateBlock, DeleteBlock, GetBlock, GetBlocks}
 import com.fluency03.blockchain.core.Block
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
