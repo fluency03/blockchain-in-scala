@@ -2,7 +2,7 @@ package com.fluency03.blockchain.api.routes
 
 import akka.actor.ActorSystem
 import akka.util.Timeout
-import com.fluency03.blockchain.api.utils.JsonSupport
+import com.fluency03.blockchain.api.JsonSupport
 
 import scala.concurrent.duration._
 

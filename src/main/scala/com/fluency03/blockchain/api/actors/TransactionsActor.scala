@@ -1,9 +1,8 @@
 package com.fluency03.blockchain.api.actors
 
-import akka.actor.{Actor, ActorLogging, ActorSelection, Props}
+import akka.actor.{ActorSelection, Props}
 import com.fluency03.blockchain.api.actors.TransactionsActor._
-import com.fluency03.blockchain.api.utils.GenericMessage.Response
-import com.fluency03.blockchain.api.{BLOCKCHAIN_ACTOR_NAME, NETWORK_ACTOR_NAME, BLOCKS_ACTOR_NAME, PARENT_UP}
+import com.fluency03.blockchain.api._
 import com.fluency03.blockchain.core.{Outpoint, Transaction, TxOut}
 
 import scala.collection.mutable
@@ -21,7 +20,7 @@ class TransactionsActor extends Actors {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
-  // TODO (Chang): not persistent
+  // TODO (Chang): need persistence
   val currentTransactions: mutable.Map[String, Transaction] = mutable.Map.empty[String, Transaction]
   val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
 
@@ -39,17 +38,23 @@ class TransactionsActor extends Actors {
 
   private def onGetTransactions(): Unit = sender() ! currentTransactions.values.toSeq
 
-  private def onCreateTransaction(tx: Transaction): Unit ={
-    currentTransactions += (tx.id -> tx)
-    sender() ! Response(s"Transaction ${tx.id} created.")
+  private def onCreateTransaction(tx: Transaction): Unit = {
+    if (currentTransactions.contains(tx.id)) sender() ! Fail(s"Transaction ${tx.id} already exists.")
+    else {
+      currentTransactions += (tx.id -> tx)
+      sender() ! Success(s"Transaction ${tx.id} created.")
+    }
   }
 
-  private def onGetTransaction(hash: String): Unit = sender() ! currentTransactions.get(hash)
+  private def onGetTransaction(id: String): Unit = sender() ! currentTransactions.get(id)
 
-  private def onDeleteTransaction(hash: String): Unit =
-    if (currentTransactions contains hash) {
-      currentTransactions -= hash
-      sender() ! Response(s"Transaction $hash deleted.")
-    } else sender() ! Response(s"Blockchain does not exist.")
+  private def onDeleteTransaction(id: String): Unit =
+    if (currentTransactions contains id) {
+      currentTransactions -= id
+      sender() ! Success(s"Transaction $id deleted.")
+    } else sender() ! Fail(s"Transaction $id does not exist.")
+
+  // TODO (Chang): APIs for selecting transactions based on Seq of ids
+
 
 }

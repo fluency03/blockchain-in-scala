@@ -1,10 +1,11 @@
 package com.fluency03.blockchain
 package api.actors
 
-import java.security.{KeyPair, PublicKey}
+import java.security.KeyPair
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.Props
 import com.fluency03.blockchain.api.actors.PeerActor._
+import com.fluency03.blockchain.core.Peer
 
 import scala.collection.mutable
 
@@ -17,18 +18,19 @@ class PeerActor extends Actors {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
-  // TODO (Chang): not persistent
+
+  // TODO (Chang): need persistence
   val wallets = mutable.Map.empty[String, KeyPair]
   wallets += {
     val pair: KeyPair = Crypto.generateKeyPair()
     (pair.getPublic.getEncoded.toHex, pair)
   }
-  val peerPublicKeys = mutable.Map.empty[String, PublicKey]
+
+  val others = mutable.Map.empty[String, Peer]
 
   def receive: Receive = {
-    case GetPublicKeys => sender() ! wallets.values.map(_.getPublic.getEncoded.toHex).toSeq
+    case GetPublicKeys => sender() ! wallets.values.map(_.getPublic.getEncoded.toHex).toSet
     case _ => unhandled _
   }
-
 
 }

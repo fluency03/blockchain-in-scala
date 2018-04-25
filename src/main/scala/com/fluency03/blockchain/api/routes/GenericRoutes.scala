@@ -10,7 +10,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.post
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import com.fluency03.blockchain.Util._
-import com.fluency03.blockchain.api.utils.GenericMessage.Input
+import com.fluency03.blockchain.api.Input
 
 trait GenericRoutes extends Routes {
   lazy val log = Logging(system, classOf[GenericRoutes])
@@ -26,27 +26,27 @@ trait GenericRoutes extends Routes {
       pathPrefix("generic") {
         path("toSha256") {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, in.data.toSha256)) }
+            entity(as[Input]) { in => complete((StatusCodes.Created, in.content.toSha256)) }
           }
         } ~
         path("toBase64") {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, in.data.toBase64)) }
+            entity(as[Input]) { in => complete((StatusCodes.Created, in.content.toBase64)) }
           }
         } ~
         path("fromBase64") {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, fromBase64(in.data))) }
+            entity(as[Input]) { in => complete((StatusCodes.Created, fromBase64(in.content))) }
           }
         } ~
         path("epoch-time") {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, epochTimeOf(in.data))) }
+            entity(as[Input]) { in => complete((StatusCodes.Created, epochTimeOf(in.content))) }
           }
         } ~
         path("time-of-epoch") {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, Instant.ofEpochSecond(in.data.toLong))) }
+            entity(as[Input]) { in => complete((StatusCodes.Created, Instant.ofEpochSecond(in.content.toLong))) }
           }
         }
       }

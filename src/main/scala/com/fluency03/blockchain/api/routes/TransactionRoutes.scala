@@ -9,9 +9,8 @@ import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.Transactions
+import com.fluency03.blockchain.api.{Fail, Message, Success, Transactions}
 import com.fluency03.blockchain.api.actors.TransactionsActor._
-import com.fluency03.blockchain.api.utils.GenericMessage.Response
 import com.fluency03.blockchain.core.Transaction
 
 import scala.concurrent.Future
@@ -32,10 +31,10 @@ trait TransactionRoutes extends Routes {
       pathEnd {
         post {
           entity(as[Transaction]) { tx =>
-            val txCreated: Future[Response] = (transActor ? CreateTransaction(tx)).mapTo[Response]
-            onSuccess(txCreated) { resp =>
-              log.info("Created transaction [{}]: {}", tx.id, resp.message)
-              complete((StatusCodes.Created, resp))
+            val txCreated: Future[Message] = (transActor ? CreateTransaction(tx)).mapTo[Message]
+            onSuccess(txCreated) {
+              case Success(content) => complete((StatusCodes.Created, content))
+              case Fail(content) => complete((StatusCodes.Conflict, content))
             }
           }
         }
@@ -46,10 +45,10 @@ trait TransactionRoutes extends Routes {
           rejectEmptyResponse { complete(maybeTx) }
         } ~
         delete {
-          val txDeleted: Future[Response] = (transActor ? DeleteTransaction(id)).mapTo[Response]
-          onSuccess(txDeleted) { resp =>
-            log.info("Deleted transaction [{}]: {}", id, resp.message)
-            complete((StatusCodes.OK, resp))
+          val txDeleted: Future[Message] = (transActor ? DeleteTransaction(id)).mapTo[Message]
+          onSuccess(txDeleted) {
+            case Success(content) => complete((StatusCodes.OK, content))
+            case Fail(content) => complete((StatusCodes.NotFound, content))
           }
         }
       }
