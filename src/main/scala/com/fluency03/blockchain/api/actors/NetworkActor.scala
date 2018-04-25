@@ -1,8 +1,7 @@
 package com.fluency03.blockchain.api.actors
 
-import scala.util.{Failure, Success}
 import akka.actor.{ActorSelection, Props}
-import akka.pattern.ask
+import akka.pattern.{ask, pipe}
 import com.fluency03.blockchain.api._
 import com.fluency03.blockchain.api.actors.NetworkActor._
 import com.fluency03.blockchain.api.actors.PeerActor.GetPublicKeys
@@ -48,10 +47,10 @@ class NetworkActor extends Actors {
 
   private def onGetPeer(name: String): Unit =
     if (context.child(name).isDefined) {
-      (context.child(name).get ? GetPublicKeys).mapTo[Set[String]] onComplete {
-        case Success(result) => sender() ! Some(Peer(name, result))
-        case Failure(_) => sender() ! Some(Peer(name, Set()))
-      }
+      (context.child(name).get ? GetPublicKeys)
+        .mapTo[Set[String]]
+        .map(keys => Some(Peer(name, keys)))
+        .pipeTo(sender())
     } else sender() ! None
 
   private def onDeletePeer(name: String): Unit =
