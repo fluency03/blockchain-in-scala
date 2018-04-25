@@ -12,7 +12,7 @@ import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import com.fluency03.blockchain.Util._
 import com.fluency03.blockchain.api.Input
 
-trait GenericRoutes extends Routes {
+trait GenericRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[GenericRoutes])
 
 

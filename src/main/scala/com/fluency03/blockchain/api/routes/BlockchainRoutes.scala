@@ -15,7 +15,7 @@ import org.json4s.JsonAST.JValue
 
 import scala.concurrent.Future
 
-trait BlockchainRoutes extends Routes {
+trait BlockchainRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[BlockchainRoutes])
 
   def blockchainActor: ActorRef

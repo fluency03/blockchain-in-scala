@@ -15,7 +15,7 @@ import com.fluency03.blockchain.core.Block
 
 import scala.concurrent.Future
 
-trait BlockRoutes extends Routes {
+trait BlockRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[BlockRoutes])
 
   def blocksActor: ActorRef

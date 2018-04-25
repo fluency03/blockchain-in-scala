@@ -15,7 +15,7 @@ import com.fluency03.blockchain.core.{Peer, PeerSimple}
 
 import scala.concurrent.Future
 
-trait NetworkRoutes extends Routes {
+trait NetworkRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[NetworkRoutes])
 
   def networkActor: ActorRef

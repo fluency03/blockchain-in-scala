@@ -15,7 +15,7 @@ import com.fluency03.blockchain.core.Transaction
 
 import scala.concurrent.Future
 
-trait TransactionRoutes extends Routes {
+trait TransactionRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[TransactionRoutes])
 
   def transActor: ActorRef
