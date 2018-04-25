@@ -1,7 +1,7 @@
 # Blockchain in Scala
 
-[![Build Status](https://travis-ci.org/fluency03/blockchain-in-scala.svg?branch=master)](https://travis-ci.org/fluency03/blockchain-in-scala)
-[![Coverage Status](https://coveralls.io/repos/github/fluency03/blockchain-in-scala/badge.svg?branch=master)](https://coveralls.io/github/fluency03/blockchain-in-scala?branch=master)
+[![Travis branch](https://img.shields.io/travis/fluency03/blockchain-in-scala/master.svg)](https://travis-ci.org/fluency03/blockchain-in-scala)
+[![Coveralls github branch](https://img.shields.io/coveralls/github/fluency03/blockchain-in-scala/master.svg)](https://coveralls.io/github/fluency03/blockchain-in-scala)
 
 Simple Blockchain Implementation in Scala.
 
