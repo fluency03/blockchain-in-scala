@@ -5,8 +5,8 @@ import org.scalatest.{FlatSpec, Matchers}
 class MessageTest extends FlatSpec with Matchers {
 
   "A Message" should "contain valid content." in {
-    Success("Response test.") shouldBe a[Message]
-    Success("Response test.").content shouldEqual "Response test."
+    SuccessMsg("Response test.") shouldBe a[Message]
+    SuccessMsg("Response test.").content shouldEqual "Response test."
   }
 
   "A Input" should "contain valid content." in {
@@ -14,8 +14,8 @@ class MessageTest extends FlatSpec with Matchers {
   }
 
   "A Fail" should "contain valid content." in {
-    Fail("Error") shouldBe a[Message]
-    Fail("Error").content shouldEqual "Error"
+    FailureMsg("Error") shouldBe a[Message]
+    FailureMsg("Error").content shouldEqual "Error"
   }
 
 }

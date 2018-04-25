@@ -39,10 +39,10 @@ class NetworkActor extends Actors {
   private def onGetPeers(): Unit = context.children.map(_.path.name).toSeq
 
   private def onCreatePeer(name: String): Unit =
-    if (context.child(name).isDefined) sender() ! Fail(s"Peer $name has been created.")
+    if (context.child(name).isDefined) sender() ! FailureMsg(s"Peer $name has been created.")
     else {
       val _ = context.actorOf(Props[PeerActor], name)
-      sender() ! Success(s"Peer $name created.")
+      sender() ! SuccessMsg(s"Peer $name created.")
     }
 
   private def onGetPeer(name: String): Unit =
@@ -56,8 +56,8 @@ class NetworkActor extends Actors {
   private def onDeletePeer(name: String): Unit =
     if (context.child(name).isDefined) {
       context stop context.child(name).get
-      sender() ! Success(s"Peer $name deleted.")
-    } else sender() ! Fail(s"Peer $name does not exist.")
+      sender() ! SuccessMsg(s"Peer $name deleted.")
+    } else sender() ! FailureMsg(s"Peer $name does not exist.")
 
   // TODO (Chang): APIs for selecting Peers based on Seq of ids
 

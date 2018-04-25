@@ -38,10 +38,10 @@ class BlocksActor extends Actors {
   private[this] def onGetBlocks(): Unit = sender() ! blocks.values.toSeq
 
   private[this] def onCreateBlock(block: Block): Unit = {
-    if (blocks.contains(block.hash)) sender() ! Fail(s"Block ${block.hash} already exists.")
+    if (blocks.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists.")
     else {
       blocks += (block.hash -> block)
-      sender() ! Success(s"Block ${block.hash} created.")
+      sender() ! SuccessMsg(s"Block ${block.hash} created.")
     }
   }
 
@@ -50,8 +50,8 @@ class BlocksActor extends Actors {
   private[this] def onDeleteBlock(hash: String): Unit = {
     if (blocks.contains(hash)) {
       blocks -= hash
-      sender() ! Success(s"Block $hash deleted.")
-    } else sender() ! Fail(s"Block $hash does not exist.")
+      sender() ! SuccessMsg(s"Block $hash deleted.")
+    } else sender() ! FailureMsg(s"Block $hash does not exist.")
   }
 
 

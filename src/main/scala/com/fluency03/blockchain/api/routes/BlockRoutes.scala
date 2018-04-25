@@ -9,7 +9,7 @@ import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.{Blocks, Fail, Message, Success}
+import com.fluency03.blockchain.api.{Blocks, FailureMsg, Message, SuccessMsg}
 import com.fluency03.blockchain.api.actors.BlocksActor._
 import com.fluency03.blockchain.core.Block
 
@@ -33,8 +33,8 @@ trait BlockRoutes extends Routes {
           entity(as[Block]) { block =>
             val blockCreated: Future[Message] = (blocksActor ? CreateBlock(block)).mapTo[Message]
             onSuccess(blockCreated) {
-              case Success(content) => complete((StatusCodes.Created, content))
-              case Fail(content) => complete((StatusCodes.Conflict, content))
+              case SuccessMsg(content) => complete((StatusCodes.Created, content))
+              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
             }
           }
         }
@@ -47,8 +47,8 @@ trait BlockRoutes extends Routes {
         delete {
           val blockDeleted: Future[Message] = (blocksActor ? DeleteBlock(hash)).mapTo[Message]
           onSuccess(blockDeleted) {
-            case Success(content) => complete((StatusCodes.OK, content))
-            case Fail(content) => complete((StatusCodes.NotFound, content))
+            case SuccessMsg(content) => complete((StatusCodes.OK, content))
+            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
           }
         }
       }

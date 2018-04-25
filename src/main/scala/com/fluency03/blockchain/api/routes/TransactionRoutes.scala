@@ -9,7 +9,7 @@ import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.{Fail, Message, Success, Transactions}
+import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg, Transactions}
 import com.fluency03.blockchain.api.actors.TransactionsActor._
 import com.fluency03.blockchain.core.Transaction
 
@@ -33,8 +33,8 @@ trait TransactionRoutes extends Routes {
           entity(as[Transaction]) { tx =>
             val txCreated: Future[Message] = (transActor ? CreateTransaction(tx)).mapTo[Message]
             onSuccess(txCreated) {
-              case Success(content) => complete((StatusCodes.Created, content))
-              case Fail(content) => complete((StatusCodes.Conflict, content))
+              case SuccessMsg(content) => complete((StatusCodes.Created, content))
+              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
             }
           }
         }
@@ -47,8 +47,8 @@ trait TransactionRoutes extends Routes {
         delete {
           val txDeleted: Future[Message] = (transActor ? DeleteTransaction(id)).mapTo[Message]
           onSuccess(txDeleted) {
-            case Success(content) => complete((StatusCodes.OK, content))
-            case Fail(content) => complete((StatusCodes.NotFound, content))
+            case SuccessMsg(content) => complete((StatusCodes.OK, content))
+            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
           }
         }
       }

@@ -39,10 +39,10 @@ class TransactionsActor extends Actors {
   private def onGetTransactions(): Unit = sender() ! currentTransactions.values.toSeq
 
   private def onCreateTransaction(tx: Transaction): Unit = {
-    if (currentTransactions.contains(tx.id)) sender() ! Fail(s"Transaction ${tx.id} already exists.")
+    if (currentTransactions.contains(tx.id)) sender() ! FailureMsg(s"Transaction ${tx.id} already exists.")
     else {
       currentTransactions += (tx.id -> tx)
-      sender() ! Success(s"Transaction ${tx.id} created.")
+      sender() ! SuccessMsg(s"Transaction ${tx.id} created.")
     }
   }
 
@@ -51,8 +51,8 @@ class TransactionsActor extends Actors {
   private def onDeleteTransaction(id: String): Unit =
     if (currentTransactions contains id) {
       currentTransactions -= id
-      sender() ! Success(s"Transaction $id deleted.")
-    } else sender() ! Fail(s"Transaction $id does not exist.")
+      sender() ! SuccessMsg(s"Transaction $id deleted.")
+    } else sender() ! FailureMsg(s"Transaction $id does not exist.")
 
   // TODO (Chang): APIs for selecting transactions based on Seq of ids
 

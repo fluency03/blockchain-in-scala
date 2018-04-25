@@ -34,17 +34,17 @@ class BlockchainActor extends Actors {
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt
 
   private def onCreateBlockchain(): Unit =
-    if (blockchainOpt.isDefined) sender() ! Fail(s"Blockchain already exists.")
+    if (blockchainOpt.isDefined) sender() ! FailureMsg(s"Blockchain already exists.")
     else {
       blockchainOpt = Some(Blockchain())
-      sender() ! Success(s"Blockchain created, with difficulty ${blockchainOpt.get.difficulty}.")
+      sender() ! SuccessMsg(s"Blockchain created, with difficulty ${blockchainOpt.get.difficulty}.")
     }
 
   private def onDeleteBlockchain(): Unit =
     if (blockchainOpt.isDefined) {
       blockchainOpt = None
-      sender() ! Success(s"Blockchain deleted.")
-    } else sender() ! Fail(s"Blockchain does not exist.")
+      sender() ! SuccessMsg(s"Blockchain deleted.")
+    } else sender() ! FailureMsg(s"Blockchain does not exist.")
 
   // TODO (Chang): APIs for adding new Block on the chain
 

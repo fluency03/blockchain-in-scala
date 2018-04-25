@@ -8,7 +8,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.{Fail, Message, Success}
+import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg}
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.core.Blockchain
 import org.json4s.JsonAST.JValue
@@ -31,16 +31,16 @@ trait BlockchainRoutes extends Routes {
           entity(as[JValue]) { _ =>
             val blockchainCreated: Future[Message] = (blockchainActor ? CreateBlockchain).mapTo[Message]
             onSuccess(blockchainCreated) {
-              case Success(content) => complete((StatusCodes.Created, content))
-              case Fail(content) => complete((StatusCodes.Conflict, content))
+              case SuccessMsg(content) => complete((StatusCodes.Created, content))
+              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
             }
           }
         } ~
         delete {
           val blockchainDeleted: Future[Message] = (blockchainActor ? DeleteBlockchain).mapTo[Message]
           onSuccess(blockchainDeleted) {
-            case Success(content) => complete((StatusCodes.OK, content))
-            case Fail(content) => complete((StatusCodes.NotFound, content))
+            case SuccessMsg(content) => complete((StatusCodes.OK, content))
+            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
           }
         }
       }
