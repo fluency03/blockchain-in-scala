@@ -18,6 +18,8 @@ class BlocksActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Impli
 
   "A BlocksActor" should {
     "Respond with a Seq of Blocks." in {
+      BlocksActor.props shouldEqual Props[BlocksActor]
+
       blocksActor ! GetBlocks
       expectMsg(Seq.empty[Block])
 

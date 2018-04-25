@@ -10,7 +10,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import scala.concurrent.duration._
 
 class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) with DefaultTimeout with ImplicitSender
-  with WordSpecLike with Matchers with BeforeAndAfterAll  {
+  with WordSpecLike with Matchers with BeforeAndAfterAll {
 
   override def afterAll: Unit = {
     shutdown()
@@ -20,6 +20,8 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
 
   "A BlockchainActor" should {
     "Respond with a Blockchain." in {
+      BlockchainActor.props shouldEqual Props[BlockchainActor]
+
       blockchainActor ! GetBlockchain
       expectMsg(None)
 

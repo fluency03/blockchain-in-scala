@@ -18,7 +18,6 @@ class PeerActor extends ActorSupport {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
-
   // TODO (Chang): need persistence
   val wallets = mutable.Map.empty[String, KeyPair]
   wallets += {
