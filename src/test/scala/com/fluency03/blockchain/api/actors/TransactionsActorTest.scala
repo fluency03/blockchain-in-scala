@@ -10,7 +10,7 @@ import com.fluency03.blockchain.{genesisMiner, genesisTimestamp}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class TransactionsActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with ImplicitSender
-  with WordSpecLike with Matchers with BeforeAndAfterAll  {
+  with WordSpecLike with Matchers with BeforeAndAfterAll {
 
   override def afterAll: Unit = {
     shutdown()
@@ -20,6 +20,8 @@ class TransactionsActorTest extends TestKit(ActorSystem("TransactionsActorTest")
 
   "A TransactionsActor" should {
     "Respond with a Seq of Transactions." in {
+      TransactionsActor.props shouldEqual Props[TransactionsActor]
+
       transActor ! GetTransactions
       expectMsg(Seq.empty[Transaction])
 

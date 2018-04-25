@@ -23,7 +23,7 @@ trait NetworkRoutes extends RoutesSupport {
   lazy val networkRoutes: Route =
     path("peers") {
       get {
-        val peers: Future[Seq[String]] = (networkActor ? GetPeers).mapTo[Seq[String]]
+        val peers: Future[Set[String]] = (networkActor ? GetPeers).mapTo[Set[String]]
         complete(peers)
       }
     } ~
