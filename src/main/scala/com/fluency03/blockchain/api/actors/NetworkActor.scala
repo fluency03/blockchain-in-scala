@@ -36,7 +36,7 @@ class NetworkActor extends ActorSupport {
     case _ => unhandled _
   }
 
-  private def onGetPeers(): Unit = context.children.map(_.path.name).toSeq
+  private def onGetPeers(): Unit = sender() ! context.children.map(_.path.name).toSet
 
   private def onCreatePeer(name: String): Unit =
     if (context.child(name).isDefined) sender() ! FailureMsg(s"Peer $name has been created.")
