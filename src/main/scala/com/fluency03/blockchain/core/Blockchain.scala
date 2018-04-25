@@ -48,27 +48,6 @@ object Blockchain {
     case a +: b +: tail => canBeChained(a, b) && a.isValid && isValidChain(b +: tail)
   }
 
-  def updateUTxOs(transactions: Seq[Transaction], unspentTxOuts: Map[Outpoint, TxOut]): Map[Outpoint, TxOut] = {
-    val newUnspentTxOuts = getNewUTxOs(transactions)
-    val consumedTxOuts = getConsumedUTxOs(transactions)
-    unspentTxOuts.filterNot {
-      case (i, _) => consumedTxOuts.contains(i)
-    } ++ newUnspentTxOuts
-  }
-
-  def getNewUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
-    transactions
-      .map(t => t.txOuts.zipWithIndex.map {
-        case (txOut, index) => Outpoint(t.id, index) -> txOut
-      }.toMap)
-      .reduce { _ ++ _ }
-
-  def getConsumedUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
-    transactions.map(_.txIns)
-      .reduce { _ ++ _ }
-      .map(txIn => Outpoint(txIn.previousOut.id, txIn.previousOut.index) -> TxOut("", 0))
-      .toMap
-
 
 
 

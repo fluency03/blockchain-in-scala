@@ -1,4 +1,4 @@
-package com.fluency03.blockchain.api.utils
+package com.fluency03.blockchain.api
 
 import de.heikoseeberger.akkahttpjson4s.Json4sSupport
 import org.json4s.native.Serialization

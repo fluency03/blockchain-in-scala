@@ -9,14 +9,13 @@ import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.Blocks
+import com.fluency03.blockchain.api.{Blocks, FailureMsg, Message, SuccessMsg}
 import com.fluency03.blockchain.api.actors.BlocksActor._
-import com.fluency03.blockchain.api.utils.GenericMessage.Response
 import com.fluency03.blockchain.core.Block
 
 import scala.concurrent.Future
 
-trait BlockRoutes extends Routes {
+trait BlockRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[BlockRoutes])
 
   def blocksActor: ActorRef
@@ -32,10 +31,10 @@ trait BlockRoutes extends Routes {
       pathEnd {
         post {
           entity(as[Block]) { block =>
-            val blockCreated: Future[Response] = (blocksActor ? CreateBlock(block)).mapTo[Response]
-            onSuccess(blockCreated) { resp =>
-              log.info("Created block [{}]: {}", block.hash, resp.message)
-              complete((StatusCodes.Created, resp))
+            val blockCreated: Future[Message] = (blocksActor ? CreateBlock(block)).mapTo[Message]
+            onSuccess(blockCreated) {
+              case SuccessMsg(content) => complete((StatusCodes.Created, content))
+              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
             }
           }
         }
@@ -46,10 +45,10 @@ trait BlockRoutes extends Routes {
           rejectEmptyResponse { complete(maybeBlock) }
         } ~
         delete {
-          val blockDeleted: Future[Response] = (blocksActor ? DeleteBlock(hash)).mapTo[Response]
-          onSuccess(blockDeleted) { resp =>
-            log.info("Deleted block [{}]: {}", hash, resp.message)
-            complete((StatusCodes.OK, resp))
+          val blockDeleted: Future[Message] = (blocksActor ? DeleteBlock(hash)).mapTo[Message]
+          onSuccess(blockDeleted) {
+            case SuccessMsg(content) => complete((StatusCodes.OK, content))
+            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
           }
         }
       }

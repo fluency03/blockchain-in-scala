@@ -8,14 +8,14 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
+import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg}
 import com.fluency03.blockchain.api.actors.BlockchainActor._
-import com.fluency03.blockchain.api.utils.GenericMessage.Response
 import com.fluency03.blockchain.core.Blockchain
 import org.json4s.JsonAST.JValue
 
 import scala.concurrent.Future
 
-trait BlockchainRoutes extends Routes {
+trait BlockchainRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[BlockchainRoutes])
 
   def blockchainActor: ActorRef
@@ -29,18 +29,18 @@ trait BlockchainRoutes extends Routes {
         } ~
         post {
           entity(as[JValue]) { _ =>
-            val blockchainCreated: Future[Response] = (blockchainActor ? CreateBlockchain).mapTo[Response]
-            onSuccess(blockchainCreated) { resp =>
-              log.info("Created Blockchain: {}", resp.message)
-              complete((StatusCodes.Created, resp))
+            val blockchainCreated: Future[Message] = (blockchainActor ? CreateBlockchain).mapTo[Message]
+            onSuccess(blockchainCreated) {
+              case SuccessMsg(content) => complete((StatusCodes.Created, content))
+              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
             }
           }
         } ~
         delete {
-          val blockchainDeleted: Future[Response] = (blockchainActor ? DeleteBlockchain).mapTo[Response]
-          onSuccess(blockchainDeleted) { resp =>
-            log.info("Deleted Blockchain: {}", resp.message)
-            complete((StatusCodes.OK, resp))
+          val blockchainDeleted: Future[Message] = (blockchainActor ? DeleteBlockchain).mapTo[Message]
+          onSuccess(blockchainDeleted) {
+            case SuccessMsg(content) => complete((StatusCodes.OK, content))
+            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
           }
         }
       }

@@ -3,9 +3,7 @@ package core
 
 import java.security.KeyPair
 
-import com.fluency03.blockchain.Crypto
 import com.fluency03.blockchain.core.Transaction._
-import org.bouncycastle.util.encoders.Hex
 import org.json4s.JValue
 import org.json4s.native.JsonMethods.parse
 import org.scalatest.{FlatSpec, Matchers}
@@ -152,8 +150,29 @@ class TransactionTest extends FlatSpec with Matchers {
     validateTxOutValues(tx, unspentTxOuts) shouldEqual true
   }
 
+
+  "updateUTxOs" should "update the UTXOs from a latest Seq of transactions." in {
+    val tx: Transaction = Transaction(
+      Seq(TxIn(Outpoint("def0", 0), "abc1"),
+        TxIn(Outpoint("def0", 1), "abc1")),
+      Seq(TxOut("abc4", 40)),
+      genesisTimestamp
+    )
+
+    val unspentTxOuts1: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    unspentTxOuts1 += (Outpoint("def0", 0) -> TxOut("abc4", 20))
+    unspentTxOuts1 += (Outpoint("def0", 1) -> TxOut("abc4", 20))
+
+    val unspentTxOuts2: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    updateUTxOs(Seq(tx), unspentTxOuts1.toMap) should not equal unspentTxOuts2
+
+    unspentTxOuts2 += (Outpoint(tx.id, 0) -> TxOut("abc4", 40))
+    updateUTxOs(Seq(tx), unspentTxOuts1.toMap) shouldEqual unspentTxOuts2
+  }
+
+
   "Transaction" should "have be validatable." in {
-    // validateTransaction
+    // TODO (Chang): validateTransaction
   }
 
 
