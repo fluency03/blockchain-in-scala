@@ -11,7 +11,7 @@ import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
 import com.fluency03.blockchain.api.actors.NetworkActor.{CreatePeer, DeletePeer, GetPeer, GetPeers}
 import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg}
-import com.fluency03.blockchain.core.{Peer, PeerInput}
+import com.fluency03.blockchain.core.{Peer, PeerSimple}
 
 import scala.concurrent.Future
 
@@ -30,9 +30,9 @@ trait NetworkRoutes extends Routes {
     pathPrefix("peer") {
       pathEnd {
         post {
-          entity(as[PeerInput]) { peerInput =>
-            val blockchainCreated: Future[Message] = (networkActor ? CreatePeer(peerInput.name)).mapTo[Message]
-            onSuccess(blockchainCreated) {
+          entity(as[PeerSimple]) { peer =>
+            val peerCreated: Future[Message] = (networkActor ? CreatePeer(peer.name)).mapTo[Message]
+            onSuccess(peerCreated) {
               case SuccessMsg(content) => complete((StatusCodes.Created, content))
               case FailureMsg(content) => complete((StatusCodes.Conflict, content))
             }

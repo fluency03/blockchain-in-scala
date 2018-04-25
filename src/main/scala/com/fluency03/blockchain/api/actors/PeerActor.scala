@@ -14,7 +14,7 @@ object PeerActor {
   def props: Props = Props[PeerActor]
 }
 
-class PeerActor extends Actors {
+class PeerActor extends ActorSupport {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 

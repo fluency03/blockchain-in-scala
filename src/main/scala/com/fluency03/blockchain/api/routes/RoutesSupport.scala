@@ -6,7 +6,7 @@ import com.fluency03.blockchain.api.JsonSupport
 
 import scala.concurrent.duration._
 
-trait Routes extends JsonSupport {
+trait RoutesSupport extends JsonSupport {
   // we leave these abstract, since they will be provided by the App
   implicit def system: ActorSystem
 
