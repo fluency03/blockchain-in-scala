@@ -3,11 +3,7 @@ package core
 
 import java.security.KeyPair
 
-import com.fluency03.blockchain.Crypto
 import com.fluency03.blockchain.core.Transaction.hashOfTransaction
-import org.bouncycastle.util.encoders.Hex
-import org.json4s.JsonAST.JObject
-import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 

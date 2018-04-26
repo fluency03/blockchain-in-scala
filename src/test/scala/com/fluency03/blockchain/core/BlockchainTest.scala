@@ -33,6 +33,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchain.lastBlock().isEmpty shouldEqual false
     blockchain.lastBlock().get shouldEqual expectedGenesisBlock
     blockchain.isValid shouldEqual true
+    blockchain.length shouldEqual 1
     val json = ("difficulty" -> blockchain.difficulty) ~ ("chain" -> JArray(List(expectedBlockJson)))
     blockchain.toJson shouldEqual json
     parse(blockchain.toString) shouldEqual json
@@ -46,6 +47,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainOf5.lastBlock().isEmpty shouldEqual false
     blockchainOf5.lastBlock().get shouldEqual genesisOf5
     blockchainOf5.isValid shouldEqual true
+    blockchainOf5.length shouldEqual 1
   }
 
   "Blockchain" should "be able to mine the next Block." in {
@@ -61,6 +63,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     val blockchainAdded = blockchainToAdd.addBlock(actual)
     blockchainAdded.lastBlock().get shouldEqual expected
     blockchainAdded.isValid shouldEqual true
+    blockchainToAdd.length shouldEqual 2
   }
 
   "Blockchain" should "have be validatable." in {

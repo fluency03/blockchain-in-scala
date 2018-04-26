@@ -1,11 +1,10 @@
 package com.fluency03.blockchain
 package core
 
-import com.fluency03.blockchain.core.Blockchain._
 import com.fluency03.blockchain.core.Block.canBeChained
-import org.json4s.JsonDSL._
-import org.json4s.{Extraction, JValue}
+import com.fluency03.blockchain.core.Blockchain._
 import org.json4s.native.JsonMethods.{compact, render}
+import org.json4s.{Extraction, JValue}
 
 /**
  * Blockchain with difficulty and the chain of Blocks.
@@ -13,6 +12,7 @@ import org.json4s.native.JsonMethods.{compact, render}
  * @param chain Chain of Blocks
  */
 case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesisBlock)) {
+
 
   def addBlock(newBlockData: String, transactions: Seq[Transaction]): Blockchain =
     Blockchain(difficulty, mineNextBlock(newBlockData, transactions) +: chain)
@@ -34,6 +34,8 @@ case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesis
     case Nil => throw new NoSuchElementException("Blockchain is Empty!")
     case _ => isValidChain(chain)
   }
+
+  def length: Int = chain.length
 
   def toJson: JValue = Extraction.decompose(this)
 
