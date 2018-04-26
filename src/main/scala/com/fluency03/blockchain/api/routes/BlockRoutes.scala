@@ -21,20 +21,20 @@ trait BlockRoutes extends RoutesSupport {
   def blocksActor: ActorRef
 
   lazy val blockRoutes: Route =
-    path("blocks") {
+    path(BLOCKS) {
       get {
         val blocks: Future[Blocks] = (blocksActor ? GetBlocks).mapTo[Blocks]
         complete(blocks)
       }
     } ~
-    pathPrefix("block") {
+    pathPrefix(BLOCK) {
       pathEnd {
         post {
           entity(as[Block]) { block =>
             val blockCreated: Future[Message] = (blocksActor ? CreateBlock(block)).mapTo[Message]
             onSuccess(blockCreated) {
-              case SuccessMsg(content) => complete((StatusCodes.Created, content))
-              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
+              case s: SuccessMsg => complete((StatusCodes.Created, s))
+              case f: FailureMsg => complete((StatusCodes.Conflict, f))
             }
           }
         }
@@ -47,8 +47,8 @@ trait BlockRoutes extends RoutesSupport {
         delete {
           val blockDeleted: Future[Message] = (blocksActor ? DeleteBlock(hash)).mapTo[Message]
           onSuccess(blockDeleted) {
-            case SuccessMsg(content) => complete((StatusCodes.OK, content))
-            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
+            case s: SuccessMsg => complete((StatusCodes.OK, s))
+            case f: FailureMsg => complete((StatusCodes.NotFound, f))
           }
         }
       }

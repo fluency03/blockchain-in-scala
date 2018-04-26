@@ -2,7 +2,6 @@ package com.fluency03.blockchain
 
 import java.time.format.DateTimeParseException
 
-import com.fluency03.blockchain.Util._
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.{FlatSpec, Matchers}
 

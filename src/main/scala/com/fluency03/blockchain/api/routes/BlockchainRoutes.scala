@@ -21,7 +21,7 @@ trait BlockchainRoutes extends RoutesSupport {
   def blockchainActor: ActorRef
 
   lazy val blockchainRoutes: Route =
-    pathPrefix("blockchain") {
+    pathPrefix(BLOCKCHAIN) {
       pathEnd {
         get {
           val blockchain: Future[Option[Blockchain]] = (blockchainActor ? GetBlockchain).mapTo[Option[Blockchain]]
@@ -31,16 +31,16 @@ trait BlockchainRoutes extends RoutesSupport {
           entity(as[JValue]) { _ =>
             val blockchainCreated: Future[Message] = (blockchainActor ? CreateBlockchain).mapTo[Message]
             onSuccess(blockchainCreated) {
-              case SuccessMsg(content) => complete((StatusCodes.Created, content))
-              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
+              case s: SuccessMsg => complete((StatusCodes.Created, s))
+              case f: FailureMsg => complete((StatusCodes.Conflict, f))
             }
           }
         } ~
         delete {
           val blockchainDeleted: Future[Message] = (blockchainActor ? DeleteBlockchain).mapTo[Message]
           onSuccess(blockchainDeleted) {
-            case SuccessMsg(content) => complete((StatusCodes.OK, content))
-            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
+            case s: SuccessMsg => complete((StatusCodes.OK, s))
+            case f: FailureMsg => complete((StatusCodes.NotFound, f))
           }
         }
       }

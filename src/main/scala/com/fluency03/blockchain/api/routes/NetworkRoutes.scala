@@ -21,20 +21,20 @@ trait NetworkRoutes extends RoutesSupport {
   def networkActor: ActorRef
 
   lazy val networkRoutes: Route =
-    path("peers") {
+    path(PEERS) {
       get {
         val peers: Future[Set[String]] = (networkActor ? GetPeers).mapTo[Set[String]]
         complete(peers)
       }
     } ~
-    pathPrefix("peer") {
+    pathPrefix(PEER) {
       pathEnd {
         post {
           entity(as[PeerSimple]) { peer =>
             val peerCreated: Future[Message] = (networkActor ? CreatePeer(peer.name)).mapTo[Message]
             onSuccess(peerCreated) {
-              case SuccessMsg(content) => complete((StatusCodes.Created, content))
-              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
+              case s: SuccessMsg => complete((StatusCodes.Created, s))
+              case f: FailureMsg => complete((StatusCodes.Conflict, f))
             }
           }
         }
@@ -47,8 +47,8 @@ trait NetworkRoutes extends RoutesSupport {
           delete {
             val peerDeleted: Future[Message] = (networkActor ? DeletePeer(name)).mapTo[Message]
             onSuccess(peerDeleted) {
-              case SuccessMsg(content) => complete((StatusCodes.OK, content))
-              case FailureMsg(content) => complete((StatusCodes.NotFound, content))
+              case s: SuccessMsg => complete((StatusCodes.OK, s))
+              case f: FailureMsg => complete((StatusCodes.NotFound, f))
             }
           }
       }

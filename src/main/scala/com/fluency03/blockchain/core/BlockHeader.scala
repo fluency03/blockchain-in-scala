@@ -2,7 +2,6 @@ package com.fluency03.blockchain
 package core
 
 import com.fluency03.blockchain.core.BlockHeader.hashOfBlockHeader
-import com.fluency03.blockchain.Util.sha256Of
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 

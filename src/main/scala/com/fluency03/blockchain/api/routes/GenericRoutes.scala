@@ -4,49 +4,45 @@ package api.routes
 import java.time.Instant
 
 import akka.event.Logging
-import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.post
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
-import com.fluency03.blockchain.Util._
-import com.fluency03.blockchain.api.Input
+import com.fluency03.blockchain.api.{Input, SuccessMsg}
 
 trait GenericRoutes extends RoutesSupport {
   lazy val log = Logging(system, classOf[GenericRoutes])
 
-
-
   lazy val genericRoutes: Route =
     pathSingleSlash {
       get {
-        complete("Welcome to Blockchain in Scala!")
+        complete(SuccessMsg(SLOGAN))
       }
     } ~
-      pathPrefix("generic") {
-        path("toSha256") {
+      pathPrefix(GENERIC) {
+        path(TO_SHA256) {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, in.content.toSha256)) }
+            entity(as[Input]) { in => complete( failsafeResp { in.content.toSha256 } ) }
           }
         } ~
-        path("toBase64") {
+        path(TO_BASE64) {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, in.content.toBase64)) }
+            entity(as[Input]) { in => complete( failsafeResp { in.content.toBase64 } ) }
           }
         } ~
-        path("fromBase64") {
+        path(FROM_BASE64) {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, fromBase64(in.content))) }
+            entity(as[Input]) { in => complete( failsafeResp { fromBase64(in.content) } ) }
           }
         } ~
-        path("epoch-time") {
+        path(TO_EPOCH_TIME) {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, epochTimeOf(in.content))) }
+            entity(as[Input]) { in => complete( failsafeResp { epochTimeOf(in.content).toString } ) }
           }
         } ~
-        path("time-of-epoch") {
+        path(TIME_FROM_EPOCH) {
           post {
-            entity(as[Input]) { in => complete((StatusCodes.Created, Instant.ofEpochSecond(in.content.toLong))) }
+            entity(as[Input]) { in => complete( failsafeResp { Instant.ofEpochSecond(in.content.toLong).toString } ) }
           }
         }
       }

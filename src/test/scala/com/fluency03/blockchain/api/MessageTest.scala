@@ -6,7 +6,7 @@ class MessageTest extends FlatSpec with Matchers {
 
   "A Message" should "contain valid content." in {
     SuccessMsg("Response test.") shouldBe a[Message]
-    SuccessMsg("Response test.").content shouldEqual "Response test."
+    SuccessMsg("Response test.").message shouldEqual "Response test."
   }
 
   "A Input" should "contain valid content." in {
@@ -15,7 +15,7 @@ class MessageTest extends FlatSpec with Matchers {
 
   "A Fail" should "contain valid content." in {
     FailureMsg("Error") shouldBe a[Message]
-    FailureMsg("Error").content shouldEqual "Error"
+    FailureMsg("Error").error shouldEqual "Error"
   }
 
 }

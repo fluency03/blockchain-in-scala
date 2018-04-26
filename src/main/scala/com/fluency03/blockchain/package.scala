@@ -1,9 +1,9 @@
 package com.fluency03
 
 import java.nio.charset.Charset
+import java.security.MessageDigest
 import java.time.Instant
 
-import com.fluency03.blockchain.Util.{sha256HashOf, base64Of, binaryOfHex}
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.{Formats, NoTypeHints}
 import org.json4s.native.Serialization
@@ -40,5 +40,62 @@ package object blockchain {
     def toHex: String = Hex.toHexString(bytes)
     def toBase64: String = base64Of(bytes)
   }
+
+
+  /**
+   * Generate SHA256 Hash from a input String.
+   * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
+   */
+  def sha256HashOf(text: String) : String = String.format("%064x",
+    new java.math.BigInteger(1, digestOf(text)))
+
+  /**
+   * Generate digest from a input String.
+   * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
+   */
+  def digestOf(text: String): Bytes =
+    MessageDigest.getInstance("SHA-256").digest(text.getBytes("UTF-8"))
+
+  /**
+   * Calculate the hash of concatenation a Seq of Strings.
+   */
+  def sha256Of(strings: String*): String = sha256HashOf(strings mkString "")
+
+  /**
+   * Return the current timestamp in Unix Epoch Time.
+   */
+  def getCurrentTimestamp: Long = Instant.now.getEpochSecond
+
+  /**
+   * Parse a time format string to its Epoch time in seconds.
+   */
+  def epochTimeOf(t: String): Long = Instant.parse(t).getEpochSecond
+
+  /**
+   * Get binary representation of a hash.
+   */
+  def binaryOfHex(hash: String): String = BigInt(hash, 16).toString(2)
+
+  /**
+   * Check whether the given hash is with valid difficulty.
+   */
+  def isWithValidDifficulty(hash: String, difficulty: Int): Boolean = hash startsWith ("0" * difficulty)
+
+  /**
+   * Encode a String to Base64.
+   */
+  def base64Of(text: String): String = Base64.toBase64String(text.getBytes("UTF-8"))
+
+  /**
+   * Encode an Array of Bytes String to Base64.
+   */
+  def base64Of(data: Bytes): String = Base64.toBase64String(data)
+
+  /**
+   * Decode a Base64 to String.
+   */
+  def fromBase64(base64: String): String = new String(Base64.decode(base64), "UTF-8")
+
+
 
 }

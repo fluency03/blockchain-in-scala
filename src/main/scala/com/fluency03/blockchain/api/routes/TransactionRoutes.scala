@@ -21,20 +21,20 @@ trait TransactionRoutes extends RoutesSupport {
   def transActor: ActorRef
 
   lazy val transRoutes: Route =
-    path("transactions") {
+    path(TRANSACTIONS) {
       get {
         val transactions: Future[Transactions] = (transActor ? GetTransactions).mapTo[Transactions]
         complete(transactions)
       }
     } ~
-    pathPrefix("transaction") {
+    pathPrefix(TRANSACTION) {
       pathEnd {
         post {
           entity(as[Transaction]) { tx =>
             val txCreated: Future[Message] = (transActor ? CreateTransaction(tx)).mapTo[Message]
             onSuccess(txCreated) {
-              case SuccessMsg(content) => complete((StatusCodes.Created, content))
-              case FailureMsg(content) => complete((StatusCodes.Conflict, content))
+              case s: SuccessMsg => complete((StatusCodes.Created, s))
+              case f: FailureMsg => complete((StatusCodes.Conflict, f))
             }
           }
         }
@@ -47,8 +47,8 @@ trait TransactionRoutes extends RoutesSupport {
         delete {
           val txDeleted: Future[Message] = (transActor ? DeleteTransaction(id)).mapTo[Message]
           onSuccess(txDeleted) {
-            case SuccessMsg(content) => complete((StatusCodes.OK, content))
-            case FailureMsg(content) => complete((StatusCodes.NotFound, content))
+            case s: SuccessMsg => complete((StatusCodes.OK, s))
+            case f: FailureMsg => complete((StatusCodes.NotFound, f))
           }
         }
       }
