@@ -1,5 +1,8 @@
 package com.fluency03.blockchain.api.routes
 
-class TransactionRoutesTest {
+import akka.http.scaladsl.testkit.ScalatestRouteTest
+import org.scalatest.{Matchers, WordSpec}
+
+class TransactionRoutesTest extends WordSpec with Matchers with ScalatestRouteTest {
 
 }

@@ -2,6 +2,9 @@ package com.fluency03.blockchain
 
 import java.security.MessageDigest
 import java.time.Instant
+
+import akka.http.scaladsl.model.{StatusCode, StatusCodes}
+import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg}
 import org.bouncycastle.util.encoders.Base64
 
 object Util {
@@ -59,5 +62,23 @@ object Util {
    * Decode a Base64 to String.
    */
   def fromBase64(base64: String): String = new String(Base64.decode(base64), "UTF-8")
+
+  /**
+   * Return either SuccessMsg (if fun successfully returned a String) or FailureMsg (if fun failed).
+   */
+  def failsafeMsg(fun: => String): Message =
+    try { SuccessMsg(fun) }
+    catch {
+      case e: Exception => FailureMsg(e.getMessage)
+    }
+
+  /**
+   * Return either SuccessMsg (if fun successfully returned a String) or FailureMsg (if fun failed).
+   */
+  def failsafeResp(fun: => String): (StatusCode, Message) =
+    try { (StatusCodes.OK, SuccessMsg(fun)) }
+    catch {
+      case e: Exception => (StatusCodes.InternalServerError, FailureMsg(e.getMessage))
+    }
 
 }
