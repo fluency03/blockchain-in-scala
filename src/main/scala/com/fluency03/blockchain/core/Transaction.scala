@@ -18,7 +18,6 @@ case class TxIn(previousOut: Outpoint, signature: String)
 case class TxOut(address: String, amount: Long)
 
 case class Transaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long, id: String) {
-//  lazy val id: String = hashOfTransaction(this)
 
   def addTxIn(in: TxIn): Transaction = Transaction(in +: txIns, txOuts, timestamp)
 
@@ -31,6 +30,8 @@ case class Transaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long, id
   def removeTxIn(txIn: TxIn): Transaction = Transaction(txIns.filter(_ != txIn), txOuts, timestamp)
 
   def removeTxOut(txOut: TxOut): Transaction = Transaction(txIns, txOuts.filter(_ != txOut), timestamp)
+
+  def hasValidId: Boolean = id == hashOfTransaction(this)
 
   def toJson: JValue = Extraction.decompose(this)
 

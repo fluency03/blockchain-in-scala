@@ -21,8 +21,6 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: Stri
   lazy val difficulty: Int = header.difficulty
   lazy val nonce: Int = header.nonce
 
-//  lazy val hash: String = header.hash
-
   def nextTrial(): Block = Block(header.nextTrial(), transactions)
 
   def addTransaction(tx: Transaction): Block =
@@ -34,9 +32,11 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: Stri
   def removeTransaction(tx: Transaction): Block =
     Block(index, previousHash, data, timestamp, difficulty, nonce, transactions.filter(_ != tx))
 
-  def isValid: Boolean = isWithValidDifficulty(hash, difficulty) && hasValidMerkleHash
+  def hasValidHash: Boolean = hasValidHeaderHash && isWithValidDifficulty(hash, difficulty) && hasValidMerkleHash
 
   def hasValidMerkleHash: Boolean = merkleHash == Merkle.computeRoot(transactions)
+
+  def hasValidHeaderHash: Boolean = hash == header.hash
 
   def toJson: JValue = Extraction.decompose(this)
 

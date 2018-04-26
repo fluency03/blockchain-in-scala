@@ -2,8 +2,10 @@ package com.fluency03.blockchain
 package core
 
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
+import org.json4s.JsonDSL._
 import org.json4s.JValue
-import org.json4s.native.JsonMethods.parse
+import org.json4s.JsonAST.JArray
+import org.json4s.native.JsonMethods.{compact, parse, render}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
@@ -31,6 +33,11 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchain.lastBlock().isEmpty shouldEqual false
     blockchain.lastBlock().get shouldEqual expectedGenesisBlock
     blockchain.isValid shouldEqual true
+    val json = ("difficulty" -> blockchain.difficulty) ~ ("chain" -> JArray(List(expectedBlockJson)))
+    blockchain.toJson shouldEqual json
+    parse(blockchain.toString) shouldEqual json
+
+    a[NoSuchElementException] should be thrownBy Blockchain(4, Seq.empty[Block]).isValid
   }
 
   "A new Blockchain with different difficulty" should "have all default values but the difficulty." in {

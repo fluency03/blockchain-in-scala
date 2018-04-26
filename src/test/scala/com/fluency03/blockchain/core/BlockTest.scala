@@ -30,7 +30,7 @@ class BlockTest extends FlatSpec with Matchers {
     genesis.timestamp shouldEqual expectedHeader.timestamp
     genesis.nonce shouldEqual expectedHeader.nonce
     genesis.hash shouldEqual expectedHeader.hash
-    genesis.isValid shouldEqual true
+    genesis.hasValidHash shouldEqual true
     genesis.toJson shouldEqual expectedBlockJson
     parse(genesis.toString) shouldEqual expectedBlockJson
 
@@ -68,7 +68,7 @@ class BlockTest extends FlatSpec with Matchers {
     genesisNextTrial.hash shouldEqual newHash
     genesisNextTrial.hash shouldEqual newExpectedHeader.hash
     genesisNextTrial.hasValidMerkleHash shouldEqual true
-    genesisNextTrial.isValid shouldEqual false
+    genesisNextTrial.hasValidHash shouldEqual false
     val headerJson = expectedHeader.toJson.transformField {
       case ("nonce", JInt(x)) => ("nonce", JInt(x+1))
     }
@@ -95,7 +95,7 @@ class BlockTest extends FlatSpec with Matchers {
     val newHash = hashOfBlockHeader(newBlock.header)
     newBlock.hash shouldEqual newHash
     newBlock.hasValidMerkleHash shouldEqual true
-    newBlock.isValid shouldEqual false
+    newBlock.hasValidHash shouldEqual false
     val headerJson = expectedHeader.toJson.transformField {
       case ("merkleHash", JString(_)) => ("merkleHash", newMerkleHash)
     }
@@ -127,7 +127,7 @@ class BlockTest extends FlatSpec with Matchers {
     val newHash = hashOfBlockHeader(newBlock.header)
     newBlock.hash shouldEqual newHash
     newBlock.hasValidMerkleHash shouldEqual true
-    newBlock.isValid shouldEqual false
+    newBlock.hasValidHash shouldEqual false
     val headerJson = expectedHeader.toJson.transformField {
       case ("merkleHash", JString(_)) => ("merkleHash", newMerkleHash)
     }

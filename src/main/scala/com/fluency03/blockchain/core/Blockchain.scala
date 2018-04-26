@@ -47,8 +47,8 @@ object Blockchain {
 
   def isValidChain(chain: Seq[Block]): Boolean = chain match {
     case Nil => true
-    case g +: Nil => g.previousHash == ZERO64 && g.index == 0 && g.isValid
-    case a +: b +: tail => canBeChained(a, b) && a.isValid && isValidChain(b +: tail)
+    case g +: Nil => g.previousHash == ZERO64 && g.index == 0 && g.hasValidHash
+    case a +: b +: tail => canBeChained(a, b) && a.hasValidHash && isValidChain(b +: tail)
   }
 
 
