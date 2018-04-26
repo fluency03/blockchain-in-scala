@@ -17,8 +17,8 @@ case class Outpoint(id: String, index: Int)
 case class TxIn(previousOut: Outpoint, signature: String)
 case class TxOut(address: String, amount: Long)
 
-case class Transaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long) {
-  lazy val id: String = hashOfTransaction(this)
+case class Transaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long, id: String) {
+//  lazy val id: String = hashOfTransaction(this)
 
   def addTxIn(in: TxIn): Transaction = Transaction(in +: txIns, txOuts, timestamp)
 
@@ -32,12 +32,15 @@ case class Transaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long) {
 
   def removeTxOut(txOut: TxOut): Transaction = Transaction(txIns, txOuts.filter(_ != txOut), timestamp)
 
-  def toJson: JValue = Extraction.decompose(this).asInstanceOf[JObject] ~ ("id" -> id)
+  def toJson: JValue = Extraction.decompose(this)
 
   override def toString: String = compact(render(toJson))
 }
 
 object Transaction {
+
+  def apply(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): Transaction =
+    Transaction(txIns, txOuts, timestamp, hashOfTransaction(txIns, txOuts, timestamp))
 
   lazy val COINBASE_AMOUNT: Int = 50
 
@@ -52,6 +55,10 @@ object Transaction {
   def hashOfTransaction(tx: Transaction): String =
     sha256Of(tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
       tx.txOuts.map(tx => tx.address + tx.amount).mkString, tx.timestamp.toString)
+
+  def hashOfTransaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): String =
+    sha256Of(txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
+      txOuts.map(tx => tx.address + tx.amount).mkString, timestamp.toString)
 
   def signTxIn(txId: String, txIn: TxIn, keyPair: KeyPair, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
     signTxIn(txId.hex2Bytes, txIn, keyPair, unspentTxOuts)

@@ -3,6 +3,9 @@ package core
 
 import com.fluency03.blockchain.core.Blockchain._
 import com.fluency03.blockchain.core.Block.canBeChained
+import org.json4s.JsonDSL._
+import org.json4s.{Extraction, JValue}
+import org.json4s.native.JsonMethods.{compact, render}
 
 /**
  * Blockchain with difficulty and the chain of Blocks.
@@ -32,6 +35,9 @@ case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesis
     case _ => isValidChain(chain)
   }
 
+  def toJson: JValue = Extraction.decompose(this)
+
+  override def toString: String = compact(render(toJson))
 
 }
 

@@ -32,10 +32,7 @@ trait TransactionRoutes extends RoutesSupport {
         post {
           entity(as[Transaction]) { tx =>
             val txCreated: Future[Message] = (transActor ? CreateTransaction(tx)).mapTo[Message]
-            onSuccess(txCreated) {
-              case s: SuccessMsg => complete((StatusCodes.Created, s))
-              case f: FailureMsg => complete((StatusCodes.Conflict, f))
-            }
+            onSuccess(txCreated) { respondOnCreation }
           }
         }
       } ~
@@ -46,10 +43,7 @@ trait TransactionRoutes extends RoutesSupport {
         } ~
         delete {
           val txDeleted: Future[Message] = (transActor ? DeleteTransaction(id)).mapTo[Message]
-          onSuccess(txDeleted) {
-            case s: SuccessMsg => complete((StatusCodes.OK, s))
-            case f: FailureMsg => complete((StatusCodes.NotFound, f))
-          }
+          onSuccess(txDeleted) { respondOnDeletion }
         }
       }
     }

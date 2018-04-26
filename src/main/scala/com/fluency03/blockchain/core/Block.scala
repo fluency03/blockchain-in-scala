@@ -3,7 +3,6 @@ package core
 
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
-import org.json4s.JsonAST.JObject
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
@@ -13,7 +12,7 @@ import org.json4s.{Extraction, JValue}
  * @param header Header of current Block
  * @param transactions Seq of Transactions included in current Block
  */
-case class Block(header: BlockHeader, transactions: Seq[Transaction] = Seq()) {
+case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: String) {
   lazy val index: Int = header.index
   lazy val previousHash: String = header.previousHash
   lazy val data: String = header.data
@@ -22,7 +21,7 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction] = Seq()) {
   lazy val difficulty: Int = header.difficulty
   lazy val nonce: Int = header.nonce
 
-  lazy val hash: String = header.hash
+//  lazy val hash: String = header.hash
 
   def nextTrial(): Block = Block(header.nextTrial(), transactions)
 
@@ -39,12 +38,15 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction] = Seq()) {
 
   def hasValidMerkleHash: Boolean = merkleHash == Merkle.computeRoot(transactions)
 
-  def toJson: JValue = ("header" -> header.toJson) ~ ("transactions" -> transactions.map(_.toJson)) ~ ("hash" -> hash)
+  def toJson: JValue = Extraction.decompose(this)
 
   override def toString: String = compact(render(toJson))
 }
 
 object Block {
+
+  def apply(header: BlockHeader, transactions: Seq[Transaction] = Seq()): Block =
+    Block(header, transactions, header.hash)
 
   def apply(
       index: Int,
