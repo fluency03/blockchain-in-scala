@@ -1,11 +1,8 @@
 package com.fluency03.blockchain
 package core
 
-import com.fluency03.blockchain.Util.getCurrentTimestamp
 import com.fluency03.blockchain.core.Blockchain._
 import com.fluency03.blockchain.core.Block.canBeChained
-
-import scala.collection.mutable
 
 /**
  * Blockchain with difficulty and the chain of Blocks.

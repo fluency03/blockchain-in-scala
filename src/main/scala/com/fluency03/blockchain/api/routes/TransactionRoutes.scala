@@ -21,13 +21,13 @@ trait TransactionRoutes extends RoutesSupport {
   def transActor: ActorRef
 
   lazy val transRoutes: Route =
-    path("transactions") {
+    path(TRANSACTIONS) {
       get {
         val transactions: Future[Transactions] = (transActor ? GetTransactions).mapTo[Transactions]
         complete(transactions)
       }
     } ~
-    pathPrefix("transaction") {
+    pathPrefix(TRANSACTION) {
       pathEnd {
         post {
           entity(as[Transaction]) { tx =>

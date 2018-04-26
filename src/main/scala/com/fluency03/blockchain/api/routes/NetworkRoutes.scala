@@ -21,13 +21,13 @@ trait NetworkRoutes extends RoutesSupport {
   def networkActor: ActorRef
 
   lazy val networkRoutes: Route =
-    path("peers") {
+    path(PEERS) {
       get {
         val peers: Future[Set[String]] = (networkActor ? GetPeers).mapTo[Set[String]]
         complete(peers)
       }
     } ~
-    pathPrefix("peer") {
+    pathPrefix(PEER) {
       pathEnd {
         post {
           entity(as[PeerSimple]) { peer =>

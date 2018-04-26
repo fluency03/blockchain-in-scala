@@ -1,5 +1,6 @@
 package com.fluency03.blockchain
 
+import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import com.fluency03.blockchain.core.{Block, Peer, Transaction}
 
 package object api {
@@ -15,8 +16,6 @@ package object api {
   val TRANS_ACTOR_NAME = "transActor"
 
   val PARENT_UP = "../"
-
-
 
 
 }

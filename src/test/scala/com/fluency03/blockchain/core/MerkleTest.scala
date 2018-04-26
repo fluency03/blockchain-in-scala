@@ -1,7 +1,6 @@
 package com.fluency03.blockchain
 package core
 
-import com.fluency03.blockchain.Util.sha256Of
 import com.fluency03.blockchain.core.Merkle._
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.scalatest.{FlatSpec, Matchers}

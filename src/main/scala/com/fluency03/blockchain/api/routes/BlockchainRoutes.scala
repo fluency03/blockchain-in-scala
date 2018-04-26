@@ -21,7 +21,7 @@ trait BlockchainRoutes extends RoutesSupport {
   def blockchainActor: ActorRef
 
   lazy val blockchainRoutes: Route =
-    pathPrefix("blockchain") {
+    pathPrefix(BLOCKCHAIN) {
       pathEnd {
         get {
           val blockchain: Future[Option[Blockchain]] = (blockchainActor ? GetBlockchain).mapTo[Option[Blockchain]]

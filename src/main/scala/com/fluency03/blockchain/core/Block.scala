@@ -1,7 +1,6 @@
 package com.fluency03.blockchain
 package core
 
-import com.fluency03.blockchain.Util.isWithValidDifficulty
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.json4s.JsonAST.JObject

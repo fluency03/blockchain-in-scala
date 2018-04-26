@@ -1,8 +1,6 @@
 package com.fluency03.blockchain
 package core
 
-import com.fluency03.blockchain.Util.sha256Of
-
 object Merkle {
   def computeRoot(trans: Seq[Transaction]): String =
     computeRootOfHashes(trans.map(_.id))

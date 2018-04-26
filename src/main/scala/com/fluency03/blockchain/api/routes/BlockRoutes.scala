@@ -21,13 +21,13 @@ trait BlockRoutes extends RoutesSupport {
   def blocksActor: ActorRef
 
   lazy val blockRoutes: Route =
-    path("blocks") {
+    path(BLOCKS) {
       get {
         val blocks: Future[Blocks] = (blocksActor ? GetBlocks).mapTo[Blocks]
         complete(blocks)
       }
     } ~
-    pathPrefix("block") {
+    pathPrefix(BLOCK) {
       pathEnd {
         post {
           entity(as[Block]) { block =>
