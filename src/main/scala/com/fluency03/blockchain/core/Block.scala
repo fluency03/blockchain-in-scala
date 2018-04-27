@@ -1,6 +1,7 @@
 package com.fluency03.blockchain
 package core
 
+import com.fluency03.blockchain.core.Block.allTransValidOf
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
 import com.fluency03.blockchain.core.Transaction.{createCoinbaseTx, validateCoinbaseTx, noDuplicateTxInOf}
 import org.json4s.native.JsonMethods.{compact, render}
@@ -39,10 +40,11 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: Stri
 
   def hasValidHeaderHash: Boolean = hash == header.hash
 
-  def allTransactionsValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = transactions match {
-    case Nil => false
-    case init :+ last => validateCoinbaseTx(last, index) && init.forall(tx => tx.isValid(uTxOs))
-  }
+  def allTransAreValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = allTransValidOf(transactions, index, uTxOs)
+//    transactions match {
+//    case Nil => false
+//    case init :+ last => validateCoinbaseTx(last, index) && init.forall(tx => tx.isValid(uTxOs))
+//  }
 
   def noDuplicateTxIn(): Boolean = noDuplicateTxInOf(transactions)
 
@@ -121,10 +123,31 @@ object Block {
       transactions: Seq[Transaction]): Block =
     mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty, transactions)
 
-  // TODO (Chang): Check transactions in the new block?
-  def canBeChained(newBlock: Block, previousBlock: Block): Boolean =
-    previousBlock.index + 1 == newBlock.index && previousBlock.hash == newBlock.previousHash && newBlock.hasValidHash
+  /**
+   * Check whether transactions of a Block are valid:
+   * 1. Coinbase transaction is valid
+   * 2. Rest of the transactions are valid
+   * 3. if the Seq is empty, then it is not valid, because it has to at least contain one coinbase transaction
+   */
+  def allTransValidOf(
+      transactions: Seq[Transaction],
+      blockIndex: Int,
+      uTxOs: mutable.Map[Outpoint, TxOut])
+    : Boolean = transactions match {
+    case Nil => false
+    case init :+ last => validateCoinbaseTx(last, blockIndex) && init.forall(tx => tx.isValid(uTxOs))
+  }
 
+  /**
+   * Check whether a new Block can be chained to the last Block of a Blockchain (previousBlock of newBlock):
+   * 1. New Block's index should be the previous index plus one
+   * 2. New Block's previousHash should be the hash of previous Block
+   * 3. New Block should have valid hash (that means, valid header hash and merkle hash)
+   */
+  def validLinkBetween(newBlock: Block, previousBlock: Block): Boolean =
+    previousBlock.index + 1 == newBlock.index &&
+      previousBlock.hash == newBlock.previousHash &&
+      newBlock.hasValidHash
 
 
 }
