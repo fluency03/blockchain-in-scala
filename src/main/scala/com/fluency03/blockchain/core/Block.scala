@@ -81,9 +81,9 @@ object Block {
 
   lazy val genesisBlock: Block = genesis()
 
-  def genesis(difficulty: Int = 4): Block =
-    mineNextBlock(0, ZERO64, "Welcome to Blockchain in Scala!", genesisTimestamp, difficulty,
-      Seq(createCoinbaseTx(0, genesisMiner, genesisTimestamp)))
+  def genesis(difficulty: Int = 4): Block = mineNextBlock(
+    0, ZERO64, "Welcome to Blockchain in Scala!", genesisTimestamp, difficulty,
+    Seq(createCoinbaseTx(0, genesisMiner, genesisTimestamp)))
 
   def mineNextBlock(
       nextIndex: Int,

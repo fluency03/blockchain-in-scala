@@ -39,13 +39,13 @@ object BlockHeader {
 
   def hashOfBlockHeader(header: BlockHeader): String =
     hashOfHeaderFields(
-        header.index,
-        header.previousHash,
-        header.data,
-        header.merkleHash,
-        header.timestamp,
-        header.difficulty,
-        header.nonce)
+      header.index,
+      header.previousHash,
+      header.data,
+      header.merkleHash,
+      header.timestamp,
+      header.difficulty,
+      header.nonce)
 
   def hashOfHeaderFields(
       index: Int,

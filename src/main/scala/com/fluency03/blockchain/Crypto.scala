@@ -65,7 +65,4 @@ object Crypto {
   def privateKeyToHex(privateKey: PrivateKey): String =
     privateKey.asInstanceOf[ECPrivateKey].getD.toString(16)
 
-
-
-
 }

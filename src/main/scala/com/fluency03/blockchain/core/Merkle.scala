@@ -2,8 +2,7 @@ package com.fluency03.blockchain
 package core
 
 object Merkle {
-  def computeRoot(trans: Seq[Transaction]): String =
-    computeRootOfHashes(trans.map(_.id))
+  def computeRoot(trans: Seq[Transaction]): String = computeRootOfHashes(trans.map(_.id))
 
   def computeRootOfHashes(hashes: Seq[String]): String = hashes.length match {
     case 0 => ZERO64

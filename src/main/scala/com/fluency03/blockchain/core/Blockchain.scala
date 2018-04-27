@@ -16,8 +16,7 @@ case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesis
   def addBlock(newBlockData: String, transactions: Seq[Transaction]): Blockchain =
     Blockchain(difficulty, mineNextBlock(newBlockData, transactions) +: chain)
 
-  def addBlock(newBlock: Block): Blockchain =
-    Blockchain(difficulty, newBlock +: chain)
+  def addBlock(newBlock: Block): Blockchain = Blockchain(difficulty, newBlock +: chain)
 
   def lastBlock(): Option[Block] = chain.headOption
 

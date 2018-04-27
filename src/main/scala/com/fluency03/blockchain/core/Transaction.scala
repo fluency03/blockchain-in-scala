@@ -4,7 +4,7 @@ package core
 import java.security.KeyPair
 
 import com.fluency03.blockchain.Crypto.recoverPublicKey
-import com.fluency03.blockchain.core.Transaction.hashOfTransaction
+import com.fluency03.blockchain.core.Transaction.{hashOfTransaction, validateTransaction}
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -30,6 +30,9 @@ case class Transaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long, id
 
   def hasValidId: Boolean = id == hashOfTransaction(this)
 
+  def isValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+    hasValidId && validateTransaction(this, uTxOs)
+
   def toJson: JValue = Extraction.decompose(this)
 
   override def toString: String = compact(render(toJson))
@@ -40,69 +43,81 @@ object Transaction {
   def apply(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): Transaction =
     Transaction(txIns, txOuts, timestamp, hashOfTransaction(txIns, txOuts, timestamp))
 
-  lazy val COINBASE_AMOUNT: Int = 50
+  // coinbase
+  final val COINBASE_AMOUNT: Int = 50
 
   def createCoinbase(blockIndex: Int): TxIn = TxIn(Outpoint("", blockIndex), "")
 
-  def createCoinbaseTx(blockIndex: Int, miner: String, timestamp: Long): Transaction = {
-    val txIn = createCoinbase(blockIndex)
-    val txOut = TxOut(miner, COINBASE_AMOUNT)
-    Transaction(Seq(txIn), Seq(txOut), timestamp)
-  }
+  def createCoinbaseTx(blockIndex: Int, miner: String, timestamp: Long): Transaction =
+    Transaction(Seq(createCoinbase(blockIndex)), Seq(TxOut(miner, COINBASE_AMOUNT)), timestamp)
 
-  def hashOfTransaction(tx: Transaction): String =
-    sha256Of(tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
-      tx.txOuts.map(tx => tx.address + tx.amount).mkString, tx.timestamp.toString)
+  // hash of transaction
+  def hashOfTransaction(tx: Transaction): String = sha256Of(
+    tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
+    tx.txOuts.map(tx => tx.address + tx.amount).mkString,
+    tx.timestamp.toString)
 
-  def hashOfTransaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): String =
-    sha256Of(txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
-      txOuts.map(tx => tx.address + tx.amount).mkString, timestamp.toString)
+  def hashOfTransaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): String = sha256Of(
+    txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
+    txOuts.map(tx => tx.address + tx.amount).mkString,
+    timestamp.toString)
 
-  def signTxIn(txId: String, txIn: TxIn, keyPair: KeyPair, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
-    signTxIn(txId.hex2Bytes, txIn, keyPair, unspentTxOuts)
+  // sign TxIn
+  def signTxIn(txId: String, txIn: TxIn, keyPair: KeyPair, uTxOs: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
+    signTxIn(txId.hex2Bytes, txIn, keyPair, uTxOs)
 
-  def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
-    unspentTxOuts.get(txIn.previousOut) match {
-      case Some(uTxO) =>
-        if (keyPair.getPublic.toHex != uTxO.address) None
-        else Some(TxIn(txIn.previousOut, Crypto.sign(txId, keyPair.getPrivate.getEncoded).toHex))
+  def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, uTxOs: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
+    uTxOs.get(txIn.previousOut) match {
+      case Some(uTxO) => signTxIn(txId, txIn, keyPair, uTxO)
       case None => None
     }
 
-  def validateTxIn(txIn: TxIn, txId: String, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
-    validateTxIn(txIn, txId.hex2Bytes, unspentTxOuts)
+  def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, uTxO: TxOut): Option[TxIn] =
+    if (keyPair.getPublic.toHex != uTxO.address) None
+    else Some(TxIn(txIn.previousOut, Crypto.sign(txId, keyPair.getPrivate.getEncoded).toHex))
 
-  def validateTxIn(txIn: TxIn, txId: Bytes, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
-    unspentTxOuts.get(txIn.previousOut) match {
-      case Some(txOut) => Crypto.verify(txId, recoverPublicKey(txOut.address).getEncoded, txIn.signature.hex2Bytes)
+  // validate TxIn's signature
+  def validateTxIn(txIn: TxIn, txId: String, uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+    validateTxIn(txIn, txId.hex2Bytes, uTxOs)
+
+  def validateTxIn(txIn: TxIn, txId: Bytes, uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+    uTxOs.get(txIn.previousOut) match {
+      case Some(txOut) => validateTxIn(txId, txOut, txIn)
       case None => false
     }
 
-  def validateTxOutValues(transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
-    validateTxOutValues(transaction.txIns, transaction.txOuts, unspentTxOuts)
+  def validateTxIn(txId: Bytes, txOut: TxOut, txIn: TxIn): Boolean =
+    Crypto.verify(txId, recoverPublicKey(txOut.address).getEncoded, txIn.signature.hex2Bytes)
 
-  def validateTxOutValues(txIns: Seq[TxIn], txOuts: Seq[TxOut], unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean = {
-    val totalTxInValues: Long = txIns
-      .map(txIn => unspentTxOuts.get(txIn.previousOut) match {
-        case Some(txOut) => txOut.amount
-        case None => 0
-      }).sum
+  // validate TxOut: Sum of TxOuts is equal to the sum of TxIns
+  def validateTxOutValues(transaction: Transaction, uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+    validateTxOutValues(transaction.txIns, transaction.txOuts, uTxOs)
 
-    val totalTxOutValues: Long = txOuts.map( _.amount).sum
+  def validateTxOutValues(txIns: Seq[TxIn], txOuts: Seq[TxOut], uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+    txIns.map(txIn => uTxOs.get(txIn.previousOut) match {
+      case Some(txOut) => txOut.amount
+      case None => 0
+    }).sum == txOuts.map( _.amount).sum
 
-    totalTxInValues == totalTxOutValues
-  }
+  /**
+   * Validate Transaction:
+   *  1. All TxIns are valid, i.e., has valid signature
+   *  2. Sum of TxOuts is equal to the sum of TxIns
+   */
+  def validateTransaction(transaction: Transaction, uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+    transaction.txIns.forall(txIn => validateTxIn(txIn, transaction.id, uTxOs)) &&
+      validateTxOutValues(transaction, uTxOs)
 
-  def validateTransaction(transaction: Transaction, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
-    transaction.txIns.forall(txIn => validateTxIn(txIn, transaction.id, unspentTxOuts)) &&
-      validateTxOutValues(transaction, unspentTxOuts)
-
-  def updateUTxOs(transactions: Seq[Transaction], unspentTxOuts: Map[Outpoint, TxOut]): Map[Outpoint, TxOut] = {
-    val newUnspentTxOuts = getNewUTxOs(transactions)
+  /**
+   * Update UTXOs:
+   *  1. Remove all consumed unspent transaction outputs
+   *  2. Append all new unspent transaction outputs
+   */
+  def updateUTxOs(transactions: Seq[Transaction], uTxOs: Map[Outpoint, TxOut]): Map[Outpoint, TxOut] = {
     val consumedTxOuts = getConsumedUTxOs(transactions)
-    unspentTxOuts.filterNot {
+    uTxOs.filterNot {
       case (i, _) => consumedTxOuts.contains(i)
-    } ++ newUnspentTxOuts
+    } ++ getNewUTxOs(transactions)
   }
 
   def getNewUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
