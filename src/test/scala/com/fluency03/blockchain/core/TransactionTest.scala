@@ -31,6 +31,8 @@ class TransactionTest extends FlatSpec with Matchers {
     val json = expectedGenesisBlock.transactions.head.toJson
     genesisTx.toJson shouldEqual json
     parse(genesisTx.toString) shouldEqual json
+
+    validateCoinbaseTx(genesisTx, 0)
   }
 
   "A Transaction" should "be able to add TxIn(s) and keep immutability." in {
