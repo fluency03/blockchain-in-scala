@@ -41,10 +41,6 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: Stri
   def hasValidHeaderHash: Boolean = hash == header.hash
 
   def allTransAreValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = allTransValidOf(transactions, index, uTxOs)
-//    transactions match {
-//    case Nil => false
-//    case init :+ last => validateCoinbaseTx(last, index) && init.forall(tx => tx.isValid(uTxOs))
-//  }
 
   def noDuplicateTxIn(): Boolean = noDuplicateTxInOf(transactions)
 
