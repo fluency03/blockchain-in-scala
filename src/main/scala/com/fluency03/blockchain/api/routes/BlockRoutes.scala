@@ -32,10 +32,7 @@ trait BlockRoutes extends RoutesSupport {
         post {
           entity(as[Block]) { block =>
             val blockCreated: Future[Message] = (blocksActor ? CreateBlock(block)).mapTo[Message]
-            onSuccess(blockCreated) {
-              case s: SuccessMsg => complete((StatusCodes.Created, s))
-              case f: FailureMsg => complete((StatusCodes.Conflict, f))
-            }
+            onSuccess(blockCreated) { respondOnCreation }
           }
         }
       } ~
@@ -46,10 +43,7 @@ trait BlockRoutes extends RoutesSupport {
         } ~
         delete {
           val blockDeleted: Future[Message] = (blocksActor ? DeleteBlock(hash)).mapTo[Message]
-          onSuccess(blockDeleted) {
-            case s: SuccessMsg => complete((StatusCodes.OK, s))
-            case f: FailureMsg => complete((StatusCodes.NotFound, f))
-          }
+          onSuccess(blockDeleted) { respondOnDeletion }
         }
       }
     }

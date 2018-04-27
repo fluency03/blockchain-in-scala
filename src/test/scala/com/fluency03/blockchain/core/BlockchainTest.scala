@@ -1,9 +1,12 @@
 package com.fluency03.blockchain
 package core
 
+import com.fluency03.blockchain.core.Blockchain.isValidChain
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
+import org.json4s.JsonDSL._
 import org.json4s.JValue
-import org.json4s.native.JsonMethods.parse
+import org.json4s.JsonAST.JArray
+import org.json4s.native.JsonMethods.{compact, parse, render}
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.io.Source
@@ -31,6 +34,12 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchain.lastBlock().isEmpty shouldEqual false
     blockchain.lastBlock().get shouldEqual expectedGenesisBlock
     blockchain.isValid shouldEqual true
+    blockchain.length shouldEqual 1
+    val json = ("difficulty" -> blockchain.difficulty) ~ ("chain" -> JArray(List(expectedBlockJson)))
+    blockchain.toJson shouldEqual json
+    parse(blockchain.toString) shouldEqual json
+
+    a[NoSuchElementException] should be thrownBy Blockchain(4, Seq.empty[Block]).isValid
   }
 
   "A new Blockchain with different difficulty" should "have all default values but the difficulty." in {
@@ -39,6 +48,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainOf5.lastBlock().isEmpty shouldEqual false
     blockchainOf5.lastBlock().get shouldEqual genesisOf5
     blockchainOf5.isValid shouldEqual true
+    blockchainOf5.length shouldEqual 1
   }
 
   "Blockchain" should "be able to mine the next Block." in {
@@ -54,10 +64,23 @@ class BlockchainTest extends FlatSpec with Matchers  {
     val blockchainAdded = blockchainToAdd.addBlock(actual)
     blockchainAdded.lastBlock().get shouldEqual expected
     blockchainAdded.isValid shouldEqual true
+    blockchainAdded.length shouldEqual 2
+
+    val blockchainAdded2 = blockchainToAdd.addBlock("This is next Block!", Seq(t1, t2))
+    val newLastBlock = blockchainAdded2.lastBlock().get
+    newLastBlock.transactions shouldEqual expected.transactions
+    newLastBlock.index shouldEqual expected.index
+    newLastBlock.previousHash shouldEqual expected.previousHash
+    newLastBlock.data shouldEqual expected.data
+    newLastBlock.merkleHash shouldEqual expected.merkleHash
+    newLastBlock.difficulty shouldEqual expected.difficulty
+    blockchainAdded2.isValid shouldEqual true
+    blockchainAdded2.length shouldEqual 2
   }
 
   "Blockchain" should "have be validatable." in {
     // TODO (Chang): isValidChain
+    isValidChain(Nil) shouldEqual true
   }
 
 }

@@ -1,10 +1,12 @@
 package com.fluency03.blockchain
 package core
 
-object Merkle {
-  def computeRoot(trans: Seq[Transaction]): String =
-    computeRootOfHashes(trans.map(_.id))
+import scala.annotation.tailrec
 
+object Merkle {
+  def computeRoot(trans: Seq[Transaction]): String = computeRootOfHashes(trans.map(_.id))
+
+  @tailrec
   def computeRootOfHashes(hashes: Seq[String]): String = hashes.length match {
     case 0 => ZERO64
     case 1 => hashes.head

@@ -98,14 +98,14 @@ class TransactionTest extends FlatSpec with Matchers {
     val signature = Crypto.sign(hash.hex2Bytes, pair.getPrivate.getEncoded)
     Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
 
-    val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
-    val signedTxIn0 = signTxIn(hash, txIn, pair, unspentTxOuts)
+    val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    val signedTxIn0 = signTxIn(hash, txIn, pair, uTxOs)
     signedTxIn0 shouldEqual None
 
-    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.getEncoded.toHex, 40))
-    unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
+    uTxOs += (Outpoint("def0", 0) -> TxOut(pair.getPublic.toHex, 40))
+    uTxOs += (Outpoint("def0", 1) -> TxOut("abc4", 40))
 
-    val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)
+    val signedTxIn = signTxIn(hash, txIn, pair, uTxOs)
     signedTxIn shouldEqual Some(TxIn(Outpoint("def0", 0), signedTxIn.get.signature))
 
     signedTxIn.get.previousOut shouldEqual Outpoint("def0", 0)
@@ -120,23 +120,23 @@ class TransactionTest extends FlatSpec with Matchers {
     Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
 
     val txIn = TxIn(Outpoint("def0", 0), "abc1")
-    val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
-    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.getEncoded.toHex, 40))
-    unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
+    val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    uTxOs += (Outpoint("def0", 0) -> TxOut(pair.getPublic.toHex, 40))
+    uTxOs += (Outpoint("def0", 1) -> TxOut("abc4", 40))
 
-    val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)
+    val signedTxIn = signTxIn(hash, txIn, pair, uTxOs)
 
-    val unspentTxOuts0: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    val uTxOs0: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
 
-    validateTxIn(signedTxIn.get, hash, unspentTxOuts0) shouldEqual false
-    validateTxIn(signedTxIn.get, hash, unspentTxOuts) shouldEqual true
+    validateTxIn(signedTxIn.get, hash, uTxOs0) shouldEqual false
+    validateTxIn(signedTxIn.get, hash, uTxOs) shouldEqual true
   }
 
   "Transaction" should "have valid TxOut values." in {
     val pair: KeyPair = Crypto.generateKeyPair()
 
-    val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
-    unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 20))
+    val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    uTxOs += (Outpoint("def0", 1) -> TxOut("abc4", 20))
 
     val tx: Transaction = Transaction(
       Seq(TxIn(Outpoint("def0", 0), "abc1"), TxIn(Outpoint("def0", 1), "abc1")),
@@ -144,12 +144,11 @@ class TransactionTest extends FlatSpec with Matchers {
       genesisTimestamp
     )
 
-    validateTxOutValues(tx, unspentTxOuts) shouldEqual false
+    validateTxOutValues(tx, uTxOs) shouldEqual false
 
-    unspentTxOuts += (Outpoint("def0", 0) -> TxOut("abc1", 20))
-    validateTxOutValues(tx, unspentTxOuts) shouldEqual true
+    uTxOs += (Outpoint("def0", 0) -> TxOut("abc1", 20))
+    validateTxOutValues(tx, uTxOs) shouldEqual true
   }
-
 
   "updateUTxOs" should "update the UTXOs from a latest Seq of transactions." in {
     val tx: Transaction = Transaction(
@@ -159,22 +158,51 @@ class TransactionTest extends FlatSpec with Matchers {
       genesisTimestamp
     )
 
-    val unspentTxOuts1: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
-    unspentTxOuts1 += (Outpoint("def0", 0) -> TxOut("abc4", 20))
-    unspentTxOuts1 += (Outpoint("def0", 1) -> TxOut("abc4", 20))
+    val uTxOs1: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    uTxOs1 += (Outpoint("def0", 0) -> TxOut("abc4", 20))
+    uTxOs1 += (Outpoint("def0", 1) -> TxOut("abc4", 20))
 
-    val unspentTxOuts2: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
-    updateUTxOs(Seq(tx), unspentTxOuts1.toMap) should not equal unspentTxOuts2
+    val uTxOs2: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    updateUTxOs(Seq(tx), uTxOs1.toMap) should not equal uTxOs2
 
-    unspentTxOuts2 += (Outpoint(tx.id, 0) -> TxOut("abc4", 40))
-    updateUTxOs(Seq(tx), unspentTxOuts1.toMap) shouldEqual unspentTxOuts2
+    uTxOs2 += (Outpoint(tx.id, 0) -> TxOut("abc4", 40))
+    updateUTxOs(Seq(tx), uTxOs1.toMap) shouldEqual uTxOs2
   }
-
 
   "Transaction" should "have be validatable." in {
-    // TODO (Chang): validateTransaction
+    val pair1 = Crypto.generateKeyPair()
+    val address1 = pair1.getPublic.toHex
+    val pair2 = Crypto.generateKeyPair()
+    val address2 = pair2.getPublic.toHex
+    val randHash = "".toSha256
+    val tx: Transaction = Transaction(
+      Seq(TxIn(Outpoint(randHash, 0), ""),
+        TxIn(Outpoint(randHash, 1), "")),
+      Seq(TxOut(address2, 40)),
+      genesisTimestamp
+    )
+
+    val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    val signedTxIns = tx.txIns.map(txIn => signTxIn(tx.id.hex2Bytes, txIn, pair1, uTxOs)).filter(_.isDefined).map(_.get)
+    signedTxIns.length should not equal tx.txIns.length
+    val signedTx = Transaction(
+      signedTxIns,
+      Seq(TxOut(address2, 40)),
+      genesisTimestamp)
+
+    signedTx.isValid(uTxOs) shouldEqual false
+
+    uTxOs += (Outpoint(randHash, 0) -> TxOut(address1, 20))
+    uTxOs += (Outpoint(randHash, 1) -> TxOut(address1, 20))
+
+    val signedTxIns2 = tx.txIns.map(txIn => signTxIn(tx.id.hex2Bytes, txIn, pair1, uTxOs)).filter(_.isDefined).map(_.get)
+    signedTxIns2.length shouldEqual tx.txIns.length
+    val signedTx2 = Transaction(
+      signedTxIns2,
+      Seq(TxOut(address2, 40)),
+      genesisTimestamp)
+
+    signedTx2.isValid(uTxOs) shouldEqual true
   }
-
-
 
 }

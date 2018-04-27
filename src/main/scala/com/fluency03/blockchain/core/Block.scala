@@ -3,8 +3,6 @@ package core
 
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
-import org.json4s.JsonAST.JObject
-import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -13,16 +11,14 @@ import org.json4s.{Extraction, JValue}
  * @param header Header of current Block
  * @param transactions Seq of Transactions included in current Block
  */
-case class Block(header: BlockHeader, transactions: Seq[Transaction] = Seq()) {
-  lazy val index: Int = header.index
-  lazy val previousHash: String = header.previousHash
-  lazy val data: String = header.data
-  lazy val merkleHash: String = header.merkleHash
-  lazy val timestamp: Long = header.timestamp
-  lazy val difficulty: Int = header.difficulty
-  lazy val nonce: Int = header.nonce
-
-  lazy val hash: String = header.hash
+case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: String) {
+  def index: Int = header.index
+  def previousHash: String = header.previousHash
+  def data: String = header.data
+  def merkleHash: String = header.merkleHash
+  def timestamp: Long = header.timestamp
+  def difficulty: Int = header.difficulty
+  def nonce: Int = header.nonce
 
   def nextTrial(): Block = Block(header.nextTrial(), transactions)
 
@@ -35,16 +31,21 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction] = Seq()) {
   def removeTransaction(tx: Transaction): Block =
     Block(index, previousHash, data, timestamp, difficulty, nonce, transactions.filter(_ != tx))
 
-  def isValid: Boolean = isWithValidDifficulty(hash, difficulty) && hasValidMerkleHash
+  def hasValidHash: Boolean = hasValidHeaderHash && isWithValidDifficulty(hash, difficulty) && hasValidMerkleHash
 
   def hasValidMerkleHash: Boolean = merkleHash == Merkle.computeRoot(transactions)
 
-  def toJson: JValue = ("header" -> header.toJson) ~ ("transactions" -> transactions.map(_.toJson)) ~ ("hash" -> hash)
+  def hasValidHeaderHash: Boolean = hash == header.hash
+
+  def toJson: JValue = Extraction.decompose(this)
 
   override def toString: String = compact(render(toJson))
 }
 
 object Block {
+
+  def apply(header: BlockHeader, transactions: Seq[Transaction] = Seq()): Block =
+    Block(header, transactions, header.hash)
 
   def apply(
       index: Int,
@@ -80,9 +81,9 @@ object Block {
 
   lazy val genesisBlock: Block = genesis()
 
-  def genesis(difficulty: Int = 4): Block =
-    mineNextBlock(0, ZERO64, "Welcome to Blockchain in Scala!", genesisTimestamp, difficulty,
-      Seq(createCoinbaseTx(0, genesisMiner, genesisTimestamp)))
+  def genesis(difficulty: Int = 4): Block = mineNextBlock(
+    0, ZERO64, "Welcome to Blockchain in Scala!", genesisTimestamp, difficulty,
+    Seq(createCoinbaseTx(0, genesisMiner, genesisTimestamp)))
 
   def mineNextBlock(
       nextIndex: Int,
@@ -111,8 +112,9 @@ object Block {
       transactions: Seq[Transaction]): Block =
     mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty, transactions)
 
+  // TODO (Chang): Check transactions in the new block?
   def canBeChained(newBlock: Block, previousBlock: Block): Boolean =
-    previousBlock.index + 1 == newBlock.index && previousBlock.hash == newBlock.previousHash
+    previousBlock.index + 1 == newBlock.index && previousBlock.hash == newBlock.previousHash && newBlock.hasValidHash
 
 
 

@@ -1,9 +1,10 @@
 package com.fluency03
 
 import java.nio.charset.Charset
-import java.security.MessageDigest
+import java.security.{MessageDigest, PrivateKey, PublicKey}
 import java.time.Instant
 
+import com.fluency03.blockchain.Crypto.{privateKeyToHex, publicKeyToHex}
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.{Formats, NoTypeHints}
 import org.json4s.native.Serialization
@@ -39,6 +40,14 @@ package object blockchain {
   implicit class BytesImplicit(val bytes: Bytes) {
     def toHex: String = Hex.toHexString(bytes)
     def toBase64: String = base64Of(bytes)
+  }
+
+  implicit class PublicKeyImplicit(val publicKey: PublicKey) {
+    def toHex: String = publicKeyToHex(publicKey)
+  }
+
+  implicit class PrivateKeyImplicit(val privateKey: PrivateKey) {
+    def toHex: String = privateKeyToHex(privateKey)
   }
 
 

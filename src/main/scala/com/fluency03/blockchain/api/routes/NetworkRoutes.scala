@@ -32,10 +32,7 @@ trait NetworkRoutes extends RoutesSupport {
         post {
           entity(as[PeerSimple]) { peer =>
             val peerCreated: Future[Message] = (networkActor ? CreatePeer(peer.name)).mapTo[Message]
-            onSuccess(peerCreated) {
-              case s: SuccessMsg => complete((StatusCodes.Created, s))
-              case f: FailureMsg => complete((StatusCodes.Conflict, f))
-            }
+            onSuccess(peerCreated) { respondOnCreation }
           }
         }
       } ~
@@ -46,10 +43,7 @@ trait NetworkRoutes extends RoutesSupport {
         } ~
           delete {
             val peerDeleted: Future[Message] = (networkActor ? DeletePeer(name)).mapTo[Message]
-            onSuccess(peerDeleted) {
-              case s: SuccessMsg => complete((StatusCodes.OK, s))
-              case f: FailureMsg => complete((StatusCodes.NotFound, f))
-            }
+            onSuccess(peerDeleted) { respondOnDeletion }
           }
       }
     }

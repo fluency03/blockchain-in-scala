@@ -22,7 +22,7 @@ class TransactionsActor extends ActorSupport {
 
   // TODO (Chang): need persistence
   val currentTransactions: mutable.Map[String, Transaction] = mutable.Map.empty[String, Transaction]
-  val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+  val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
 
   val blockchainActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKCHAIN_ACTOR_NAME)
   val blockActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKS_ACTOR_NAME)
