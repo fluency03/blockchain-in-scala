@@ -102,7 +102,7 @@ class TransactionTest extends FlatSpec with Matchers {
     val signedTxIn0 = signTxIn(hash, txIn, pair, unspentTxOuts)
     signedTxIn0 shouldEqual None
 
-    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.getEncoded.toHex, 40))
+    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.toHex, 40))
     unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
 
     val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)
@@ -121,7 +121,7 @@ class TransactionTest extends FlatSpec with Matchers {
 
     val txIn = TxIn(Outpoint("def0", 0), "abc1")
     val unspentTxOuts: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
-    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.getEncoded.toHex, 40))
+    unspentTxOuts += (Outpoint("def0", 0) -> TxOut(pair.getPublic.toHex, 40))
     unspentTxOuts += (Outpoint("def0", 1) -> TxOut("abc4", 40))
 
     val signedTxIn = signTxIn(hash, txIn, pair, unspentTxOuts)

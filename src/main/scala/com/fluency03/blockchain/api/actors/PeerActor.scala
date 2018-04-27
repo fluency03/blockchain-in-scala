@@ -26,14 +26,14 @@ class PeerActor extends ActorSupport {
   val others = mutable.Map.empty[String, Peer]
 
   def receive: Receive = {
-    case GetPublicKeys => sender() ! wallets.values.map(_.getPublic.getEncoded.toHex).toSet
-    case CreateKeyPair => sender() ! addNewKeyPair().getPublic.getEncoded.toHex
+    case GetPublicKeys => sender() ! wallets.values.map(_.getPublic.toHex).toSet
+    case CreateKeyPair => sender() ! addNewKeyPair().getPublic.toHex
     case _ => unhandled _
   }
 
   private def addNewKeyPair(): KeyPair = {
     val pair: KeyPair = Crypto.generateKeyPair()
-    wallets += (pair.getPublic.getEncoded.toHex -> pair)
+    wallets += (pair.getPublic.toHex -> pair)
     pair
   }
 

@@ -3,6 +3,7 @@ package core
 
 import java.security.KeyPair
 
+import com.fluency03.blockchain.Crypto.recoverPublicKey
 import com.fluency03.blockchain.core.Transaction.hashOfTransaction
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
@@ -63,7 +64,7 @@ object Transaction {
   def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
     unspentTxOuts.get(txIn.previousOut) match {
       case Some(uTxO) =>
-        if (keyPair.getPublic.getEncoded.toHex != uTxO.address) None
+        if (keyPair.getPublic.toHex != uTxO.address) None
         else Some(TxIn(txIn.previousOut, Crypto.sign(txId, keyPair.getPrivate.getEncoded).toHex))
       case None => None
     }
@@ -73,7 +74,7 @@ object Transaction {
 
   def validateTxIn(txIn: TxIn, txId: Bytes, unspentTxOuts: mutable.Map[Outpoint, TxOut]): Boolean =
     unspentTxOuts.get(txIn.previousOut) match {
-      case Some(txOut) => Crypto.verify(txId, txOut.address.hex2Bytes, txIn.signature.hex2Bytes)
+      case Some(txOut) => Crypto.verify(txId, recoverPublicKey(txOut.address).getEncoded, txIn.signature.hex2Bytes)
       case None => false
     }
 
