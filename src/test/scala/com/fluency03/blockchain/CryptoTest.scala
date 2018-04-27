@@ -15,6 +15,7 @@ class CryptoTest extends FlatSpec with Matchers {
     val signature = sign(data, pair.getPrivate.getEncoded)
     verify(data, pair.getPublic.getEncoded, signature) shouldEqual true
 
+    generatePublicKey(pair.getPrivate) shouldEqual pair.getPublic
     recoverPublicKey(publicKeyToHex(pair.getPublic)) shouldEqual pair.getPublic
     recoverPrivateKey(privateKeyToHex(pair.getPrivate)) shouldEqual pair.getPrivate
   }

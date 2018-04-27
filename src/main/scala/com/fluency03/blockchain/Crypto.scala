@@ -47,6 +47,10 @@ object Crypto {
     gen.generateKeyPair()
   }
 
+  def generatePublicKey(privateKey: PrivateKey): PublicKey =
+    KeyFactory.getInstance(KEY_ALGORITHM)
+      .generatePublic(new ECPublicKeySpec(ecSpec.getG.multiply(privateKey.asInstanceOf[ECPrivateKey].getD), ecSpec))
+
   def recoverPublicKey(hex: String): PublicKey =
     KeyFactory.getInstance(KEY_ALGORITHM)
       .generatePublic(new ECPublicKeySpec(ecSpec.getCurve.decodePoint(hex.hex2Bytes), ecSpec))
