@@ -134,12 +134,17 @@ object Transaction {
       .map(t => t.txOuts.zipWithIndex.map {
         case (txOut, index) => Outpoint(t.id, index) -> txOut
       }.toMap)
-      .reduce { _ ++ _ }
+      .foldLeft(Map.empty[Outpoint, TxOut])(_ ++ _)
 
   def getConsumedUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
     transactions.map(_.txIns)
-      .reduce { _ ++ _ }
+      .foldLeft(Seq.empty[TxIn])(_ ++ _)
       .map(txIn => Outpoint(txIn.previousOut.id, txIn.previousOut.index) -> TxOut("", 0))
       .toMap
+
+  def noDuplicateTxIn(transactions: Seq[Transaction]): Boolean = {
+    val allRefs = transactions.map(_.txIns.map(_.previousOut)).foldLeft(Seq.empty[Outpoint])(_ ++ _)
+    allRefs.distinct.length == allRefs.length
+  }
 
 }

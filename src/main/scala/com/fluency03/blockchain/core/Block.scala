@@ -6,6 +6,8 @@ import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
+import scala.collection.mutable
+
 /**
  * Block on the chain.
  * @param header Header of current Block
@@ -36,6 +38,8 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: Stri
   def hasValidMerkleHash: Boolean = merkleHash == Merkle.computeRoot(transactions)
 
   def hasValidHeaderHash: Boolean = hash == header.hash
+
+  def allTransactionsValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = transactions.forall(tx => tx.isValid(uTxOs))
 
   def toJson: JValue = Extraction.decompose(this)
 
