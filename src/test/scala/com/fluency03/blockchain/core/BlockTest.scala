@@ -1,14 +1,17 @@
 package com.fluency03.blockchain
 package core
 
+import java.security.KeyPair
+
 import com.fluency03.blockchain.core.BlockHeader.hashOfBlockHeader
-import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
+import com.fluency03.blockchain.core.Transaction.{COINBASE_AMOUNT, createCoinbaseTx, signTxIn, updateUTxOs}
 import org.json4s.JValue
 import org.json4s.JsonAST.{JArray, JInt, JObject, JString}
 import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.parse
 import org.scalatest.{FlatSpec, Matchers}
 
+import scala.collection.mutable
 import scala.io.Source
 
 class BlockTest extends FlatSpec with Matchers {
@@ -31,6 +34,7 @@ class BlockTest extends FlatSpec with Matchers {
     genesis.nonce shouldEqual expectedHeader.nonce
     genesis.hash shouldEqual expectedHeader.hash
     genesis.hasValidHash shouldEqual true
+    genesis.noDuplicateTxIn shouldEqual true
     genesis.toJson shouldEqual expectedBlockJson
     parse(genesis.toString) shouldEqual expectedBlockJson
 
@@ -69,6 +73,7 @@ class BlockTest extends FlatSpec with Matchers {
     genesisNextTrial.hash shouldEqual newExpectedHeader.hash
     genesisNextTrial.hasValidMerkleHash shouldEqual true
     genesisNextTrial.hasValidHash shouldEqual false
+    genesisNextTrial.noDuplicateTxIn shouldEqual true
     val headerJson = expectedHeader.toJson.transformField {
       case ("nonce", JInt(x)) => ("nonce", JInt(x+1))
     }
@@ -96,6 +101,7 @@ class BlockTest extends FlatSpec with Matchers {
     newBlock.hash shouldEqual newHash
     newBlock.hasValidMerkleHash shouldEqual true
     newBlock.hasValidHash shouldEqual false
+    newBlock.noDuplicateTxIn shouldEqual true
     val headerJson = expectedHeader.toJson.transformField {
       case ("merkleHash", JString(_)) => ("merkleHash", newMerkleHash)
     }
@@ -142,5 +148,35 @@ class BlockTest extends FlatSpec with Matchers {
     parse(newBlock.toString) shouldEqual json
   }
 
+  "allTransAreValid" should "check whether all transactions of a Block are valid." in {
+    val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
+    genesis.allTransAreValid(uTxOs) shouldEqual true
+
+    val pair1 = Crypto.generateKeyPair()
+    val address1 = pair1.getPublic.toHex
+
+    val ts = getCurrentTimestamp
+    val tx: Transaction = Transaction(
+      Seq(TxIn(Outpoint(genesis.transactions.head.id, 0), "")),
+      Seq(TxOut(address1, COINBASE_AMOUNT)),
+      ts)
+
+    val nextBlock = Block.mineNextBlock(genesis, "This is next Block!", ts, genesis.difficulty, Seq(tx))
+    nextBlock.allTransAreValid(uTxOs) shouldEqual false
+
+    val uTxOs2 = updateUTxOs(genesis.transactions, uTxOs.toMap)
+    uTxOs ++= uTxOs2
+    nextBlock.allTransAreValid(uTxOs) shouldEqual false
+
+    val genesisPrivate: String = Source.fromResource("private-key").getLines.mkString
+    val keyPair = new KeyPair(Crypto.recoverPublicKey(genesisMiner), Crypto.recoverPrivateKey(genesisPrivate))
+    val signedTxIns = tx.txIns.map(txIn => signTxIn(tx.id.hex2Bytes, txIn, keyPair, uTxOs)).filter(_.isDefined).map(_.get)
+    signedTxIns.length shouldEqual tx.txIns.length
+    val signedTx = Transaction(signedTxIns, Seq(TxOut(address1, COINBASE_AMOUNT)), ts)
+
+    val validNewBlock = Block.mineNextBlock(genesis, "This is next Block!", ts, genesis.difficulty,
+      Seq(signedTx, createCoinbaseTx(1, address1, ts)))
+    validNewBlock.allTransAreValid(uTxOs) shouldEqual true
+  }
 
 }

@@ -1,7 +1,7 @@
 package com.fluency03.blockchain
 package core
 
-import com.fluency03.blockchain.core.Block.canBeChained
+import com.fluency03.blockchain.core.Block.validLinkBetween
 import com.fluency03.blockchain.core.Blockchain._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
@@ -51,7 +51,7 @@ object Blockchain {
   def isValidChain(chain: Seq[Block]): Boolean = chain match {
     case Nil => true
     case g +: Nil => g.previousHash == ZERO64 && g.index == 0 && g.hasValidHash
-    case a +: b +: tail => canBeChained(a, b) && isValidChain(b +: tail)
+    case a +: b +: tail => validLinkBetween(a, b) && isValidChain(b +: tail)
   }
 
 }

@@ -18,6 +18,8 @@ class CryptoTest extends FlatSpec with Matchers {
     generatePublicKey(pair.getPrivate) shouldEqual pair.getPublic
     recoverPublicKey(publicKeyToHex(pair.getPublic)) shouldEqual pair.getPublic
     recoverPrivateKey(privateKeyToHex(pair.getPrivate)) shouldEqual pair.getPrivate
+    recoverPublicKey(pair.getPublic.toHex) shouldEqual pair.getPublic
+    recoverPrivateKey(pair.getPrivate.toHex) shouldEqual pair.getPrivate
   }
 
 
