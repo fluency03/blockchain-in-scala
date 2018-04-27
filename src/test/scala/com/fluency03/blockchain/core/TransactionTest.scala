@@ -104,6 +104,10 @@ class TransactionTest extends FlatSpec with Matchers {
     val signedTxIn0 = signTxIn(hash, txIn, pair, uTxOs)
     signedTxIn0 shouldEqual None
 
+    uTxOs += (Outpoint("def0", 0) -> TxOut("0000", 40))
+    val signedTxIn1 = signTxIn(hash, txIn, pair, uTxOs)
+    signedTxIn1 shouldEqual None
+
     uTxOs += (Outpoint("def0", 0) -> TxOut(pair.getPublic.toHex, 40))
     uTxOs += (Outpoint("def0", 1) -> TxOut("abc4", 40))
 
