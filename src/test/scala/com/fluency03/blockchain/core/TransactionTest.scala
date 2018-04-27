@@ -208,35 +208,35 @@ class TransactionTest extends FlatSpec with Matchers {
   }
 
   "noDuplicateTxIn" should "detect whether Seq of Transactions contians duplicate TxIns." in {
-    noDuplicateTxIn(Seq.empty[Transaction]) shouldEqual true
+    noDuplicateTxInOf(Seq.empty[Transaction]) shouldEqual true
     val tx1: Transaction = Transaction(
       Seq(TxIn(Outpoint("a", 0), ""),
         TxIn(Outpoint("b", 1), "")),
       Seq(TxOut("o", 40)),
       genesisTimestamp
     )
-    noDuplicateTxIn(Seq(tx1)) shouldEqual true
+    noDuplicateTxInOf(Seq(tx1)) shouldEqual true
     val tx2: Transaction = Transaction(
       Seq(TxIn(Outpoint("c", 0), ""),
         TxIn(Outpoint("d", 1), "")),
       Seq(TxOut("o", 40)),
       genesisTimestamp
     )
-    noDuplicateTxIn(Seq(tx1, tx2)) shouldEqual true
+    noDuplicateTxInOf(Seq(tx1, tx2)) shouldEqual true
     val tx3: Transaction = Transaction(
       Seq(TxIn(Outpoint("e", 0), ""),
         TxIn(Outpoint("a", 1), "")),
       Seq(TxOut("o", 40)),
       genesisTimestamp
     )
-    noDuplicateTxIn(Seq(tx1, tx2, tx3)) shouldEqual true
+    noDuplicateTxInOf(Seq(tx1, tx2, tx3)) shouldEqual true
     val tx4: Transaction = Transaction(
       Seq(TxIn(Outpoint("a", 0), ""),
         TxIn(Outpoint("f", 1), "")),
       Seq(TxOut("o", 40)),
       genesisTimestamp
     )
-    noDuplicateTxIn(Seq(tx1, tx2, tx3, tx4)) shouldEqual false
+    noDuplicateTxInOf(Seq(tx1, tx2, tx3, tx4)) shouldEqual false
   }
 
 

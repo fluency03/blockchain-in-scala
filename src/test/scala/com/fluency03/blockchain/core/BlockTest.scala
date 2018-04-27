@@ -31,6 +31,7 @@ class BlockTest extends FlatSpec with Matchers {
     genesis.nonce shouldEqual expectedHeader.nonce
     genesis.hash shouldEqual expectedHeader.hash
     genesis.hasValidHash shouldEqual true
+    genesis.noDuplicateTxIn shouldEqual true
     genesis.toJson shouldEqual expectedBlockJson
     parse(genesis.toString) shouldEqual expectedBlockJson
 
@@ -69,6 +70,7 @@ class BlockTest extends FlatSpec with Matchers {
     genesisNextTrial.hash shouldEqual newExpectedHeader.hash
     genesisNextTrial.hasValidMerkleHash shouldEqual true
     genesisNextTrial.hasValidHash shouldEqual false
+    genesisNextTrial.noDuplicateTxIn shouldEqual true
     val headerJson = expectedHeader.toJson.transformField {
       case ("nonce", JInt(x)) => ("nonce", JInt(x+1))
     }
@@ -96,6 +98,7 @@ class BlockTest extends FlatSpec with Matchers {
     newBlock.hash shouldEqual newHash
     newBlock.hasValidMerkleHash shouldEqual true
     newBlock.hasValidHash shouldEqual false
+    newBlock.noDuplicateTxIn shouldEqual true
     val headerJson = expectedHeader.toJson.transformField {
       case ("merkleHash", JString(_)) => ("merkleHash", newMerkleHash)
     }

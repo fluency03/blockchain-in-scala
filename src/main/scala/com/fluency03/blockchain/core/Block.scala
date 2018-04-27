@@ -2,7 +2,7 @@ package com.fluency03.blockchain
 package core
 
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
-import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
+import com.fluency03.blockchain.core.Transaction.{createCoinbaseTx, validateCoinbaseTx, noDuplicateTxInOf}
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -39,7 +39,12 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: Stri
 
   def hasValidHeaderHash: Boolean = hash == header.hash
 
-  def allTransactionsValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = transactions.forall(tx => tx.isValid(uTxOs))
+  def allTransactionsValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = transactions match {
+    case Nil => false
+    case init :+ last => validateCoinbaseTx(last, index) && init.forall(tx => tx.isValid(uTxOs))
+  }
+
+  def noDuplicateTxIn(): Boolean = noDuplicateTxInOf(transactions)
 
   def toJson: JValue = Extraction.decompose(this)
 

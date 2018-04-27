@@ -142,7 +142,7 @@ object Transaction {
       .map(txIn => Outpoint(txIn.previousOut.id, txIn.previousOut.index) -> TxOut("", 0))
       .toMap
 
-  def noDuplicateTxIn(transactions: Seq[Transaction]): Boolean = {
+  def noDuplicateTxInOf(transactions: Seq[Transaction]): Boolean = {
     val allRefs = transactions.map(_.txIns.map(_.previousOut)).foldLeft(Seq.empty[Outpoint])(_ ++ _)
     allRefs.distinct.length == allRefs.length
   }
