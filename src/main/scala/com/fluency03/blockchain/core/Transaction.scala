@@ -51,6 +51,15 @@ object Transaction {
   def createCoinbaseTx(blockIndex: Int, miner: String, timestamp: Long): Transaction =
     Transaction(Seq(createCoinbase(blockIndex)), Seq(TxOut(miner, COINBASE_AMOUNT)), timestamp)
 
+  def validateCoinbaseTx(cbTx: Transaction, blockIndex: Int): Boolean =
+    cbTx.txIns.length == 1 &&
+      cbTx.txOuts.length == 1 &&
+      cbTx.txIns.head.previousOut.id == "" &&
+      cbTx.txIns.head.previousOut.index == blockIndex &&
+      cbTx.txIns.head.signature == "" &&
+      cbTx.txOuts.head.amount == COINBASE_AMOUNT &&
+      hashOfTransaction(cbTx) == cbTx.id
+
   // hash of transaction
   def hashOfTransaction(tx: Transaction): String = sha256Of(
     tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,

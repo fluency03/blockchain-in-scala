@@ -67,14 +67,20 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainAdded.length shouldEqual 2
 
     val blockchainAdded2 = blockchainToAdd.addBlock("This is next Block!", Seq(t1, t2))
-    blockchainAdded2.lastBlock().get shouldEqual expected
+    val newLastBlock = blockchainAdded2.lastBlock().get
+    newLastBlock.transactions shouldEqual expected.transactions
+    newLastBlock.index shouldEqual expected.index
+    newLastBlock.previousHash shouldEqual expected.previousHash
+    newLastBlock.data shouldEqual expected.data
+    newLastBlock.merkleHash shouldEqual expected.merkleHash
+    newLastBlock.difficulty shouldEqual expected.difficulty
     blockchainAdded2.isValid shouldEqual true
     blockchainAdded2.length shouldEqual 2
   }
 
   "Blockchain" should "have be validatable." in {
     // TODO (Chang): isValidChain
-    isValidChain(Nil) shouldEqual false
+    isValidChain(Nil) shouldEqual true
   }
 
 }
