@@ -59,7 +59,7 @@ object Difficulty {
     case len => "0" * (64 - len) + hex
   }
 
-  def hashLessThanTarget(hash: String, target: String): Boolean = ???
+//  def hashLessThanTarget(hash: String, target: String): Boolean = ???
 
   def difficultyOf(target: BigInt, negative: Boolean, overflow: Boolean): Double = {
     if (target == 0 || negative || overflow) 0.0
