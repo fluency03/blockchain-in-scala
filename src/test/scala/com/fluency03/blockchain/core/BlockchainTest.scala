@@ -1,6 +1,7 @@
 package com.fluency03.blockchain
 package core
 
+import com.fluency03.blockchain.core.Blockchain.isValidChain
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import org.json4s.JsonDSL._
 import org.json4s.JValue
@@ -64,10 +65,16 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainAdded.lastBlock().get shouldEqual expected
     blockchainAdded.isValid shouldEqual true
     blockchainAdded.length shouldEqual 2
+
+    val blockchainAdded2 = blockchainToAdd.addBlock("This is next Block!", Seq(t1, t2))
+    blockchainAdded2.lastBlock().get shouldEqual expected
+    blockchainAdded2.isValid shouldEqual true
+    blockchainAdded2.length shouldEqual 2
   }
 
   "Blockchain" should "have be validatable." in {
     // TODO (Chang): isValidChain
+    isValidChain(Nil) shouldEqual false
   }
 
 }

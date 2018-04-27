@@ -6,6 +6,8 @@ import com.fluency03.blockchain.core.Blockchain._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
+import scala.annotation.tailrec
+
 /**
  * Blockchain with difficulty and the chain of Blocks.
  * @param difficulty Difficulty of a Blockchain
@@ -45,6 +47,7 @@ object Blockchain {
 
   def apply(difficulty: Int): Blockchain = new Blockchain(difficulty, Seq(Block.genesis(difficulty)))
 
+  @tailrec
   def isValidChain(chain: Seq[Block]): Boolean = chain match {
     case Nil => true
     case g +: Nil => g.previousHash == ZERO64 && g.index == 0 && g.hasValidHash
