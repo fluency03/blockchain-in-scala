@@ -2,7 +2,7 @@ package com.fluency03.blockchain.api.actors
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.fluency03.blockchain.api.actors.PeerActor.GetPublicKeys
+import com.fluency03.blockchain.api.actors.PeerActor.{CreateWallet, GetPublicKeys}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 class PeerActorTest extends TestKit(ActorSystem("PeerActorTest")) with ImplicitSender
@@ -21,6 +21,13 @@ class PeerActorTest extends TestKit(ActorSystem("PeerActorTest")) with ImplicitS
       peerActor ! GetPublicKeys
       val publicKeys = expectMsgType[Set[String]]
       publicKeys.size shouldEqual 1
+
+      peerActor ! CreateWallet
+      expectMsgType[String]
+
+      peerActor ! GetPublicKeys
+      val publicKeys2 = expectMsgType[Set[String]]
+      publicKeys2.size shouldEqual 2
 
       peerActor ! "other"
       expectNoMessage
