@@ -11,6 +11,7 @@ import scala.collection.mutable
 
 object PeerActor {
   final case object GetPublicKeys
+  final case object CreateKeyPair
   def props: Props = Props[PeerActor]
 }
 
@@ -20,16 +21,20 @@ class PeerActor extends ActorSupport {
 
   // TODO (Chang): need persistence
   val wallets = mutable.Map.empty[String, KeyPair]
-  wallets += {
-    val pair: KeyPair = Crypto.generateKeyPair()
-    (pair.getPublic.getEncoded.toHex, pair)
-  }
+  addNewKeyPair()
 
   val others = mutable.Map.empty[String, Peer]
 
   def receive: Receive = {
     case GetPublicKeys => sender() ! wallets.values.map(_.getPublic.getEncoded.toHex).toSet
+    case CreateKeyPair => sender() ! addNewKeyPair().getPublic.getEncoded.toHex
     case _ => unhandled _
+  }
+
+  private def addNewKeyPair(): KeyPair = {
+    val pair: KeyPair = Crypto.generateKeyPair()
+    wallets += (pair.getPublic.getEncoded.toHex -> pair)
+    pair
   }
 
 }

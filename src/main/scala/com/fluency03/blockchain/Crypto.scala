@@ -1,11 +1,13 @@
 package com.fluency03.blockchain
 
+import java.math.BigInteger
 import java.security._
 import java.security.spec.{PKCS8EncodedKeySpec, X509EncodedKeySpec}
 
 import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.jce.interfaces.{ECPrivateKey, ECPublicKey}
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.jce.spec.ECParameterSpec
+import org.bouncycastle.jce.spec.{ECParameterSpec, ECPrivateKeySpec, ECPublicKeySpec}
 
 object Crypto {
 
@@ -44,5 +46,22 @@ object Crypto {
     gen.initialize(ecSpec, new SecureRandom)
     gen.generateKeyPair()
   }
+
+  def recoverPublicKey(hex: String): PublicKey =
+    KeyFactory.getInstance(KEY_ALGORITHM)
+      .generatePublic(new ECPublicKeySpec(ecSpec.getCurve.decodePoint(hex.hex2Bytes), ecSpec))
+
+  def recoverPrivateKey(hex: String): PrivateKey =
+    KeyFactory.getInstance(KEY_ALGORITHM)
+      .generatePrivate(new ECPrivateKeySpec(new BigInteger(hex, 16), ecSpec))
+
+  def publicKeyToHex(publicKey: PublicKey): String =
+    publicKey.asInstanceOf[ECPublicKey].getQ.getEncoded(false).toHex
+
+  def privateKeyToHex(privateKey: PrivateKey): String =
+    privateKey.asInstanceOf[ECPrivateKey].getD.toString(16)
+
+
+
 
 }

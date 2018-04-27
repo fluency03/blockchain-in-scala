@@ -13,7 +13,6 @@ import org.json4s.{Extraction, JValue}
  */
 case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesisBlock)) {
 
-
   def addBlock(newBlockData: String, transactions: Seq[Transaction]): Blockchain =
     Blockchain(difficulty, mineNextBlock(newBlockData, transactions) +: chain)
 
@@ -50,13 +49,8 @@ object Blockchain {
   def isValidChain(chain: Seq[Block]): Boolean = chain match {
     case Nil => true
     case g +: Nil => g.previousHash == ZERO64 && g.index == 0 && g.hasValidHash
-    case a +: b +: tail => canBeChained(a, b) && a.hasValidHash && isValidChain(b +: tail)
+    case a +: b +: tail => canBeChained(a, b) && isValidChain(b +: tail)
   }
-
-
-
-
-
 
 }
 

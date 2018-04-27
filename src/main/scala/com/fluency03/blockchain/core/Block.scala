@@ -3,7 +3,6 @@ package core
 
 import com.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
 import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
-import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -13,13 +12,13 @@ import org.json4s.{Extraction, JValue}
  * @param transactions Seq of Transactions included in current Block
  */
 case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: String) {
-  lazy val index: Int = header.index
-  lazy val previousHash: String = header.previousHash
-  lazy val data: String = header.data
-  lazy val merkleHash: String = header.merkleHash
-  lazy val timestamp: Long = header.timestamp
-  lazy val difficulty: Int = header.difficulty
-  lazy val nonce: Int = header.nonce
+  def index: Int = header.index
+  def previousHash: String = header.previousHash
+  def data: String = header.data
+  def merkleHash: String = header.merkleHash
+  def timestamp: Long = header.timestamp
+  def difficulty: Int = header.difficulty
+  def nonce: Int = header.nonce
 
   def nextTrial(): Block = Block(header.nextTrial(), transactions)
 
@@ -113,8 +112,9 @@ object Block {
       transactions: Seq[Transaction]): Block =
     mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty, transactions)
 
+  // TODO (Chang): Check transactions in the new block?
   def canBeChained(newBlock: Block, previousBlock: Block): Boolean =
-    previousBlock.index + 1 == newBlock.index && previousBlock.hash == newBlock.previousHash
+    previousBlock.index + 1 == newBlock.index && previousBlock.hash == newBlock.previousHash && newBlock.hasValidHash
 
 
 
