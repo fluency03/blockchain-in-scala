@@ -5,6 +5,7 @@ import java.security.{MessageDigest, PrivateKey, PublicKey}
 import java.time.Instant
 
 import com.fluency03.blockchain.Crypto.{privateKeyToHex, publicKeyToHex}
+import com.fluency03.blockchain.core.{TxIn, TxOut}
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.{Formats, NoTypeHints}
 import org.json4s.native.Serialization
@@ -14,6 +15,7 @@ import scala.io.Source
 package object blockchain {
 
   type Bytes = Array[Byte]
+  type UTXO = (TxIn, TxOut)
 
   implicit val formats: AnyRef with Formats = Serialization.formats(NoTypeHints)
 
