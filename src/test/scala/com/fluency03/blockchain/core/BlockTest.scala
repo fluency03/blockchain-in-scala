@@ -3,6 +3,7 @@ package core
 
 import java.security.KeyPair
 
+import com.fluency03.blockchain.core.Block.allTransValidOf
 import com.fluency03.blockchain.core.BlockHeader.hashOfBlockHeader
 import com.fluency03.blockchain.core.Transaction.{COINBASE_AMOUNT, createCoinbaseTx, signTxIn, updateUTxOs}
 import org.json4s.JValue
@@ -151,6 +152,7 @@ class BlockTest extends FlatSpec with Matchers {
   "allTransAreValid" should "check whether all transactions of a Block are valid." in {
     val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
     genesis.allTransAreValid(uTxOs) shouldEqual true
+    allTransValidOf(Nil, 0, uTxOs) shouldEqual false
 
     val pair1 = Crypto.generateKeyPair()
     val address1 = pair1.getPublic.toHex
@@ -175,7 +177,7 @@ class BlockTest extends FlatSpec with Matchers {
     val signedTx = Transaction(signedTxIns, Seq(TxOut(address1, COINBASE_AMOUNT)), ts)
 
     val validNewBlock = Block.mineNextBlock(genesis, "This is next Block!", ts, genesis.difficulty,
-      Seq(signedTx, createCoinbaseTx(1, address1, ts)))
+      Seq(signedTx), address1)
     validNewBlock.allTransAreValid(uTxOs) shouldEqual true
   }
 

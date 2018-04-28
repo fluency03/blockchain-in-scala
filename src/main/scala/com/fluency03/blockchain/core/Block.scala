@@ -119,6 +119,16 @@ object Block {
       transactions: Seq[Transaction]): Block =
     mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty, transactions)
 
+  def mineNextBlock(
+    currentBlock: Block,
+    newBlockData: String,
+    timestamp: Long,
+    difficulty: Int,
+    transactions: Seq[Transaction],
+    miner: String): Block =
+    mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty,
+      transactions :+ createCoinbaseTx(currentBlock.index + 1, miner, timestamp))
+
   /**
    * Check whether transactions of a Block are valid:
    * 1. Coinbase transaction is valid
