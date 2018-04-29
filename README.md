@@ -3,7 +3,7 @@
 [![Travis branch](https://img.shields.io/travis/fluency03/blockchain-in-scala/master.svg)](https://travis-ci.org/fluency03/blockchain-in-scala)
 [![Coveralls github branch](https://img.shields.io/coveralls/github/fluency03/blockchain-in-scala/master.svg)](https://coveralls.io/github/fluency03/blockchain-in-scala)
 
-Simple Blockchain Implementation in Scala.
+A simplified Blockchain implementation in Scala based on the specifications of Bitcoin.
 
 *This project is still under development. APIs are not fully completed according to the cores.*
 
@@ -20,3 +20,12 @@ Start the service, run this Class:
 ```
 com.fluency03.blockchain.api.Server
 ```
+
+
+#### Todos
+
+- Complete APIs' Todos
+- Make states in actor persistent (using Akka Persistent)
+- Make data distributed within cluster of peer (using Akka Cluster)
+- Block propagation among peers
+- etc.
