@@ -6,7 +6,7 @@ organization := "com.fluency03"
 
 name := "blockchain-in-scala"
 
-version := "0.0.2"
+version := "0.0.6"
 
 scalaVersion := "2.12.0"
 
@@ -43,3 +43,6 @@ libraryDependencies ++= {
       "org.bouncycastle" % "bcprov-jdk15on" % "1.59"
   )
 } ++ httpDependencies ++ testDependencies
+
+
+mainClass in assembly := Some("com.fluency03.blockchain.api.Server")

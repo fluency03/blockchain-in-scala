@@ -15,7 +15,7 @@ REST API service is built on the open source projects [akka](https://github.com/
 
 API Documentation on Postman: [blockchain-in-scala](https://documenter.getpostman.com/view/1231202/blockchain-in-scala/RVu8iTUP)
 
-Start the service, run the following Class:
+Start the service, run this Class:
 
 ```
 com.fluency03.blockchain.api.Server
