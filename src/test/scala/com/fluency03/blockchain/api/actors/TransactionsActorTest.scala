@@ -25,6 +25,9 @@ class TransactionsActorTest extends TestKit(ActorSystem("TransactionsActorTest")
       transActor ! GetTransactions
       expectMsg(Seq.empty[Transaction])
 
+      transActor ! GetTransactions(Set("someid"))
+      expectMsg(Seq.empty[Transaction])
+
       val genesisTx: Transaction = createCoinbaseTx(0, genesisMiner, genesisTimestamp)
       transActor ! CreateTransaction(genesisTx)
       expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} created."))
@@ -33,6 +36,12 @@ class TransactionsActorTest extends TestKit(ActorSystem("TransactionsActorTest")
       expectMsg(FailureMsg(s"Transaction ${genesisTx.id} already exists."))
 
       transActor ! GetTransactions
+      expectMsg(Seq(genesisTx))
+
+      transActor ! GetTransactions(Set("someid"))
+      expectMsg(Seq.empty[Transaction])
+
+      transActor ! GetTransactions(Set(genesisTx.id))
       expectMsg(Seq(genesisTx))
 
       transActor ! GetTransaction(genesisTx.id)

@@ -21,6 +21,7 @@ package object routes {
   val BLOCK = "block"
 
   // network
+  val NETWORK = "network"
   val PEERS = "peers"
   val PEER = "peer"
 

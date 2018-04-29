@@ -9,6 +9,7 @@ import scala.collection.mutable
 
 object BlocksActor {
   final case object GetBlocks
+  final case class GetBlocks(hashes: Set[String])
   final case class CreateBlock(block: Block)
   final case class GetBlock(hash: String)
   final case class DeleteBlock(hash: String)
@@ -25,35 +26,48 @@ class BlocksActor extends ActorSupport {
   val transActor: ActorSelection = context.actorSelection(PARENT_UP + TRANS_ACTOR_NAME)
 
   // TODO (Chang): need persistence
-  var blocks = mutable.Map.empty[String, Block]
+  var blocksPool = mutable.Map.empty[String, Block]
 
   def receive: Receive = {
     case GetBlocks => onGetBlocks()
+    case GetBlocks(hashes) => onGetBlocks(hashes)
     case CreateBlock(block) => onCreateBlock(block)
     case GetBlock(hash) => onGetBlock(hash)
     case DeleteBlock(hash) => onDeleteBlock(hash)
     case _ => unhandled _
   }
 
-  private[this] def onGetBlocks(): Unit = sender() ! blocks.values.toSeq
+  /**
+   * TODO (Chang): new APIS:
+   *  - CreateBlock
+   *  - GetBlock (onChain or offChain)
+   *  - GetTransactionOfABlock
+   *  - AddBlockOnChain
+   *
+   */
+
+  private[this] def onGetBlocks(): Unit = sender() ! blocksPool.values.toSeq
+
+  private[this] def onGetBlocks(hashes: Set[String]): Unit = sender() ! blocksPool.filterKeys(
+    k => hashes.contains(k)
+  ).values.toSeq
 
   private[this] def onCreateBlock(block: Block): Unit = {
-    if (blocks.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists.")
+    if (blocksPool.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists.")
     else {
-      blocks += (block.hash -> block)
+      blocksPool += (block.hash -> block)
       sender() ! SuccessMsg(s"Block ${block.hash} created.")
     }
   }
 
-  private[this] def onGetBlock(hash: String): Unit = sender() ! blocks.get(hash)
+  private[this] def onGetBlock(hash: String): Unit = sender() ! blocksPool.get(hash)
 
   private[this] def onDeleteBlock(hash: String): Unit = {
-    if (blocks.contains(hash)) {
-      blocks -= hash
+    if (blocksPool.contains(hash)) {
+      blocksPool -= hash
       sender() ! SuccessMsg(s"Block $hash deleted.")
     } else sender() ! FailureMsg(s"Block $hash does not exist.")
   }
-
 
 
 }

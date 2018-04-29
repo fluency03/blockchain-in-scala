@@ -3,7 +3,9 @@ package com.fluency03.blockchain.api.actors
 import akka.actor.{ActorSelection, Props}
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.api._
-import com.fluency03.blockchain.core.Blockchain
+import com.fluency03.blockchain.core.{Block, Blockchain}
+
+import scala.collection.mutable
 
 object BlockchainActor {
   final case object GetBlockchain
@@ -23,6 +25,7 @@ class BlockchainActor extends ActorSupport {
 
   // TODO (Chang): need persistence
   var blockchainOpt: Option[Blockchain] = None
+  var hashIndexMapping = mutable.Map.empty[String, Int]
 
   def receive: Receive = {
     case GetBlockchain => onGetBlockchain()
@@ -30,6 +33,16 @@ class BlockchainActor extends ActorSupport {
     case DeleteBlockchain => onDeleteBlockchain()
     case _ => unhandled _
   }
+
+  /**
+   * TODO (Chang): new APIS:
+   *  - AddBlockOnBlockchain
+   *  - GetBlockFromBlockchain
+   *  - CheckBlockchainIsValid
+   *  - GetTransactionOfABlock
+   *  - MineNextBlock
+   *
+   */
 
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt
 
@@ -45,9 +58,6 @@ class BlockchainActor extends ActorSupport {
       blockchainOpt = None
       sender() ! SuccessMsg(s"Blockchain deleted.")
     } else sender() ! FailureMsg(s"Blockchain does not exist.")
-
-  // TODO (Chang): APIs for adding new Block on the chain
-
 
 
 }

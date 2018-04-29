@@ -23,6 +23,9 @@ class BlocksActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Impli
       blocksActor ! GetBlocks
       expectMsg(Seq.empty[Block])
 
+      blocksActor ! GetBlocks(Set("somehash"))
+      expectMsg(Seq.empty[Block])
+
       blocksActor ! CreateBlock(Block.genesisBlock)
       expectMsg(SuccessMsg(s"Block ${Block.genesisBlock.hash} created."))
 
@@ -30,6 +33,12 @@ class BlocksActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Impli
       expectMsg(FailureMsg(s"Block ${Block.genesisBlock.hash} already exists."))
 
       blocksActor ! GetBlocks
+      expectMsg(Seq(Block.genesisBlock))
+
+      blocksActor ! GetBlocks(Set("somehash"))
+      expectMsg(Seq.empty[Block])
+
+      blocksActor ! GetBlocks(Set(Block.genesisBlock.hash))
       expectMsg(Seq(Block.genesisBlock))
 
       blocksActor ! GetBlock(Block.genesisBlock.hash)

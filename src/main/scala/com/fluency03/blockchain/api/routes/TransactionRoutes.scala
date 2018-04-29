@@ -2,15 +2,15 @@ package com.fluency03.blockchain.api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
-import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
-import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg, Transactions}
 import com.fluency03.blockchain.api.actors.TransactionsActor._
+import com.fluency03.blockchain.api.{Message, Transactions}
 import com.fluency03.blockchain.core.Transaction
 
 import scala.concurrent.Future
@@ -20,10 +20,19 @@ trait TransactionRoutes extends RoutesSupport {
 
   def transActor: ActorRef
 
+  /**
+   * TODO (Chang):
+   *  - Update transaction
+   *  - Sign transaction
+   *
+   */
+
   lazy val transRoutes: Route =
     path(TRANSACTIONS) {
-      get {
-        val transactions: Future[Transactions] = (transActor ? GetTransactions).mapTo[Transactions]
+      parameters( 'ids.as(CsvSeq[String]) ? ) { ids =>
+        val transactions: Future[Transactions] =
+          if (ids.isDefined) (transActor ? GetTransactions(ids.get.toSet)).mapTo[Transactions]
+          else (transActor ? GetTransactions).mapTo[Transactions]
         complete(transactions)
       }
     } ~
