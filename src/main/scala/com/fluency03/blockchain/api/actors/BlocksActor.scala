@@ -9,6 +9,7 @@ import scala.collection.mutable
 
 object BlocksActor {
   final case object GetBlocks
+  final case class GetBlocks(hashes: Set[String])
   final case class CreateBlock(block: Block)
   final case class GetBlock(hash: String)
   final case class DeleteBlock(hash: String)
@@ -29,6 +30,7 @@ class BlocksActor extends ActorSupport {
 
   def receive: Receive = {
     case GetBlocks => onGetBlocks()
+    case GetBlocks(hashes) => onGetBlocks(hashes)
     case CreateBlock(block) => onCreateBlock(block)
     case GetBlock(hash) => onGetBlock(hash)
     case DeleteBlock(hash) => onDeleteBlock(hash)
@@ -45,6 +47,9 @@ class BlocksActor extends ActorSupport {
    */
 
   private[this] def onGetBlocks(): Unit = sender() ! blocks.values.toSeq
+  private[this] def onGetBlocks(hashes: Set[String]): Unit = sender() ! blocks.filterKeys(
+    k => hashes.contains(k)
+  ).values.toSeq
 
   private[this] def onCreateBlock(block: Block): Unit = {
     if (blocks.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists.")

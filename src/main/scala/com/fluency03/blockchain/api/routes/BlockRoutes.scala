@@ -7,6 +7,7 @@ import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
 import com.fluency03.blockchain.api.{Blocks, Message}
 import com.fluency03.blockchain.api.actors.BlocksActor._
@@ -30,8 +31,10 @@ trait BlockRoutes extends RoutesSupport {
 
   lazy val blockRoutes: Route =
     path(BLOCKS) {
-      get {
-        val blocks: Future[Blocks] = (blocksActor ? GetBlocks).mapTo[Blocks]
+      parameters( 'hashes.as(CsvSeq[String]) ? ) { hashes =>
+        val blocks: Future[Blocks] =
+          if (hashes.isDefined) (blocksActor ? GetBlocks(hashes.get.toSet)).mapTo[Blocks]
+          else (blocksActor ? GetBlocks).mapTo[Blocks]
         complete(blocks)
       }
     } ~
