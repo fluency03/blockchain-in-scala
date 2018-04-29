@@ -34,7 +34,13 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       expectMsgType[FailureMsg]
 
       blockchainActor ! GetBlockchain
-      expectMsgType[Some[Blockchain]]
+      val blockchain = expectMsgType[Some[Blockchain]].get
+
+      blockchainActor ! GetBlock("somehash")
+      expectMsg(None)
+
+      blockchainActor ! GetBlock(blockchain.chain.head.hash)
+      expectMsg(Some(blockchain.chain.head))
 
       blockchainActor ! DeleteBlockchain
       expectMsg(SuccessMsg(s"Blockchain deleted."))

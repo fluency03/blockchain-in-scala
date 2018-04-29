@@ -9,7 +9,7 @@ import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
 import com.fluency03.blockchain.api.Message
 import com.fluency03.blockchain.api.actors.BlockchainActor._
-import com.fluency03.blockchain.core.Blockchain
+import com.fluency03.blockchain.core.{Block, Blockchain}
 
 import scala.concurrent.Future
 
@@ -42,6 +42,12 @@ trait BlockchainRoutes extends RoutesSupport {
         delete {
           val blockchainDeleted: Future[Message] = (blockchainActor ? DeleteBlockchain).mapTo[Message]
           onSuccess(blockchainDeleted) { respondOnDeletion }
+        }
+      }
+      path(BLOCK / Segment) { hash =>
+        get {
+          val maybeBlock: Future[Option[Block]] = (blockchainActor ? GetBlock(hash)).mapTo[Option[Block]]
+          rejectEmptyResponse { complete(maybeBlock) }
         }
       }
     }

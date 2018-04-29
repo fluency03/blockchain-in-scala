@@ -4,6 +4,7 @@ import akka.actor.{ActorSelection, Props}
 import com.fluency03.blockchain.api.actors.TransactionsActor._
 import com.fluency03.blockchain.api._
 import com.fluency03.blockchain.core.{Outpoint, Transaction, TxOut}
+import com.fluency03.blockchain.core.Transaction.hashOfTransaction
 
 import scala.collection.mutable
 
@@ -13,7 +14,7 @@ object TransactionsActor {
   final case class CreateTransaction(tx: Transaction)
   final case class GetTransaction(id: String)
   final case class DeleteTransaction(id: String)
-
+  final case class UpdateTransaction(tx: Transaction)
   def props: Props = Props[TransactionsActor]
 }
 
@@ -31,7 +32,6 @@ class TransactionsActor extends ActorSupport {
 
   /**
    * TODO (Chang):
-   *  - Update transaction
    *  - Sign transaction
    *
    */
@@ -42,6 +42,7 @@ class TransactionsActor extends ActorSupport {
     case CreateTransaction(tx) => onCreateTransaction(tx)
     case GetTransaction(id) => onGetTransaction(id)
     case DeleteTransaction(id) => onDeleteTransaction(id)
+    case UpdateTransaction(tx) => onUpdateTransaction(tx)
     case _ => unhandled _
   }
 
@@ -66,5 +67,19 @@ class TransactionsActor extends ActorSupport {
       transPool -= id
       sender() ! SuccessMsg(s"Transaction $id deleted.")
     } else sender() ! FailureMsg(s"Transaction $id does not exist.")
+
+  private def onUpdateTransaction(tx: Transaction): Unit = {
+    val actualId = tx.id
+    val expectedId = hashOfTransaction(tx)
+    if (actualId == expectedId) {
+      val notExistBefore =  !transPool.contains(actualId)
+      transPool += (actualId -> tx)
+      sender() ! {
+        if (notExistBefore) SuccessMsg(s"Transaction $actualId does not exist. New transaction created.")
+        else SuccessMsg(s"Transaction $actualId updated.")
+      }
+    } else sender() ! FailureMsg(s"Transaction does not have valid ID. Should be: $expectedId; actually is: $actualId")
+  }
+
 
 }

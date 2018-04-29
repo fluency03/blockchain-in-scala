@@ -27,4 +27,9 @@ trait RoutesSupport extends JsonSupport {
     case f: FailureMsg => complete((StatusCodes.NotFound, f))
   }
 
+  def respondOnUpdate(m: Message): StandardRoute = m match {
+    case s: SuccessMsg => complete((StatusCodes.OK, s))
+    case f: FailureMsg => complete((StatusCodes.InternalServerError, f))
+  }
+
 }

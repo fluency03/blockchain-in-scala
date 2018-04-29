@@ -11,6 +11,7 @@ object BlockchainActor {
   final case object GetBlockchain
   final case object CreateBlockchain
   final case object DeleteBlockchain
+  final case class GetBlock(hash: String)
 
   def props: Props = Props[BlockchainActor]
 }
@@ -31,6 +32,7 @@ class BlockchainActor extends ActorSupport {
     case GetBlockchain => onGetBlockchain()
     case CreateBlockchain => onCreateBlockchain()
     case DeleteBlockchain => onDeleteBlockchain()
+    case GetBlock(hash) => onGetBlock(hash)
     case _ => unhandled _
   }
 
@@ -50,14 +52,33 @@ class BlockchainActor extends ActorSupport {
     if (blockchainOpt.isDefined) sender() ! FailureMsg(s"Blockchain already exists.")
     else {
       blockchainOpt = Some(Blockchain())
+      if (hashIndexMapping.nonEmpty) {
+        log.error("Hash-to-index mapping is not empty when Blockchain is created! Clear it!")
+        hashIndexMapping.clear()
+      }
+      blockchainOpt.get.chain.zipWithIndex.foreach { case (b, i) => hashIndexMapping += (b.hash -> i) }
       sender() ! SuccessMsg(s"Blockchain created, with difficulty ${blockchainOpt.get.difficulty}.")
     }
 
   private def onDeleteBlockchain(): Unit =
     if (blockchainOpt.isDefined) {
       blockchainOpt = None
+      hashIndexMapping.clear()
       sender() ! SuccessMsg(s"Blockchain deleted.")
     } else sender() ! FailureMsg(s"Blockchain does not exist.")
+
+  private def onGetBlock(hash: String): Unit = sender() ! {
+    hashIndexMapping.get(hash) match {
+      case Some(index) => blockchainOpt match {
+        case Some(blockchain) => Some(blockchain.chain(index))
+        case None =>
+          log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+          hashIndexMapping.clear()
+          None
+      }
+      case None => None
+    }
+  }
 
 
 }
