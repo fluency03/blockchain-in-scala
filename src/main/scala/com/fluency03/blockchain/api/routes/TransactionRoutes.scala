@@ -20,6 +20,13 @@ trait TransactionRoutes extends RoutesSupport {
 
   def transActor: ActorRef
 
+  /**
+   * TODO (Chang):
+   *  - Update transaction
+   *  - Sign transaction
+   *
+   */
+
   lazy val transRoutes: Route =
     path(TRANSACTIONS) {
       parameters( 'ids.as(CsvSeq[String]) ? ) { ids =>

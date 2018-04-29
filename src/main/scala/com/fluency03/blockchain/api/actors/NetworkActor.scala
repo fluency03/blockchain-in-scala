@@ -32,6 +32,13 @@ class NetworkActor extends ActorSupport {
 
   // TODO (Chang): need persistence
 
+  /**
+   * TODO (Chang):
+   *  - Remove wallet
+   *  - Sign transaction
+   *
+   */
+
   def receive: Receive = {
     case GetNetwork => onGetNetwork()
     case GetPeers => onGetPeers()

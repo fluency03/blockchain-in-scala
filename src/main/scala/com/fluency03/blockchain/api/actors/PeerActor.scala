@@ -27,6 +27,13 @@ class PeerActor extends ActorSupport {
   val wallets = mutable.Map.empty[String, Wallet]
   val others = mutable.Map.empty[String, Peer]
 
+  /**
+   * TODO (Chang):
+   *  - Remove wallet
+   *  - Sign transactions
+   *
+   */
+
   def receive: Receive = {
     case GetPublicKeys => sender() ! wallets.values.map(_.address).toSet
     case CreateWallet => sender() ! addWallet()

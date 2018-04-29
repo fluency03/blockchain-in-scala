@@ -20,6 +20,12 @@ trait NetworkRoutes extends RoutesSupport {
 
   def networkActor: ActorRef
 
+  /**
+   * TODO (Chang):
+   *  - Sign transaction
+   *
+   */
+
   lazy val networkRoutes: Route =
     path(NETWORK) {
       get {
