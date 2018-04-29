@@ -9,9 +9,10 @@ import scala.collection.mutable
 
 object TransactionsActor {
   final case object GetTransactions
+  final case class GetTransactions(ids: Set[String])
   final case class CreateTransaction(tx: Transaction)
-  final case class GetTransaction(hash: String)
-  final case class DeleteTransaction(hash: String)
+  final case class GetTransaction(id: String)
+  final case class DeleteTransaction(id: String)
 
   def props: Props = Props[TransactionsActor]
 }
@@ -30,13 +31,18 @@ class TransactionsActor extends ActorSupport {
 
   def receive: Receive = {
     case GetTransactions => onGetTransactions()
+    case GetTransactions(ids) => onGetTransactions(ids)
     case CreateTransaction(tx) => onCreateTransaction(tx)
-    case GetTransaction(hash) => onGetTransaction(hash)
-    case DeleteTransaction(hash) => onDeleteTransaction(hash)
+    case GetTransaction(id) => onGetTransaction(id)
+    case DeleteTransaction(id) => onDeleteTransaction(id)
     case _ => unhandled _
   }
 
   private def onGetTransactions(): Unit = sender() ! currentTransactions.values.toSeq
+
+  private def onGetTransactions(ids: Set[String]): Unit = sender() ! currentTransactions.filterKeys(
+    k => ids.contains(k)
+  ).values.toSeq
 
   private def onCreateTransaction(tx: Transaction): Unit = {
     if (currentTransactions.contains(tx.id)) sender() ! FailureMsg(s"Transaction ${tx.id} already exists.")
@@ -53,8 +59,5 @@ class TransactionsActor extends ActorSupport {
       currentTransactions -= id
       sender() ! SuccessMsg(s"Transaction $id deleted.")
     } else sender() ! FailureMsg(s"Transaction $id does not exist.")
-
-  // TODO (Chang): APIs for selecting transactions based on Seq of ids
-
 
 }

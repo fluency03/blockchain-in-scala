@@ -2,16 +2,15 @@ package com.fluency03.blockchain.api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
-import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
-import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
+import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
+import com.fluency03.blockchain.api.Message
 import com.fluency03.blockchain.api.actors.NetworkActor._
-import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg}
 import com.fluency03.blockchain.core.{Peer, PeerSimple}
 
 import scala.concurrent.Future
@@ -31,15 +30,10 @@ trait NetworkRoutes extends RoutesSupport {
     path(PEERS) {
       get {
         parameters( 'names.as(CsvSeq[String]) ? ) { names =>
-          if (names.isDefined) {
-            val peers: Future[Map[String, Set[String]]] =
-              (networkActor ? GetPeers(names.get.toSet)).mapTo[Map[String, Set[String]]]
-            complete(peers)
-          } else {
-            val peers: Future[Map[String, Set[String]]] =
-              (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
-            complete(peers)
-          }
+          val peers: Future[Map[String, Set[String]]] =
+            if (names.isDefined) (networkActor ? GetPeers(names.get.toSet)).mapTo[Map[String, Set[String]]]
+            else (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
+          complete(peers)
         }
       }
     } ~
