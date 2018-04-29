@@ -7,7 +7,10 @@ import com.fluency03.blockchain.api.actors.NetworkActor._
 import com.fluency03.blockchain.api.actors.PeerActor.GetPublicKeys
 import com.fluency03.blockchain.core.Peer
 
+import scala.concurrent.Future
+
 object NetworkActor {
+  final case object GetNetwork
   final case object GetPeers
   final case class CreatePeer(name: String)
   final case class GetPeer(name: String)
@@ -29,6 +32,7 @@ class NetworkActor extends ActorSupport {
   // TODO (Chang): need persistence
 
   def receive: Receive = {
+    case GetNetwork => onGetNetwork()
     case GetPeers => onGetPeers()
     case CreatePeer(name) => onCreatePeer(name)
     case GetPeer(name) => onGetPeer(name)
@@ -36,7 +40,11 @@ class NetworkActor extends ActorSupport {
     case _ => unhandled _
   }
 
-  private def onGetPeers(): Unit = sender() ! context.children.map(_.path.name).toSet
+  private def onGetNetwork(): Unit = sender() ! context.children.map(_.path.name).toSet
+
+  private def onGetPeers(): Unit = Future.sequence(context.children.map(p => {
+    (p ? GetPublicKeys).mapTo[Set[String]].map(keys => p.path.name -> keys)
+  })).map(_.toMap).pipeTo(sender())
 
   private def onCreatePeer(name: String): Unit =
     if (context.child(name).isDefined) sender() ! FailureMsg(s"Peer $name has been created.")

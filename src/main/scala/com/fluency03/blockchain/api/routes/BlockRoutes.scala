@@ -20,6 +20,15 @@ trait BlockRoutes extends RoutesSupport {
 
   def blocksActor: ActorRef
 
+  /**
+   * TODO (Chang): new APIS:
+   *  - CreateBlock
+   *  - GetBlock (onChain or offChain)
+   *  - GetTransactionOfABlock
+   *  - AddBlockOnChain
+   *
+   */
+
   lazy val blockRoutes: Route =
     path(BLOCKS) {
       get {

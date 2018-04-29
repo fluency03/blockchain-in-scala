@@ -18,6 +18,17 @@ trait BlockchainRoutes extends RoutesSupport {
 
   def blockchainActor: ActorRef
 
+  /**
+   * TODO (Chang): new APIS:
+   *  - AddBlockOnBlockchain
+   *  - GetBlockFromBlockchain
+   *  - CheckBlockchainIsValid
+   *  - GetTransactionOfABlock
+   *  - MineNextBlock
+   *
+   *
+   */
+
   lazy val blockchainRoutes: Route =
     pathPrefix(BLOCKCHAIN) {
       pathEnd {

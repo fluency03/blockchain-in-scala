@@ -9,7 +9,7 @@ import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.actors.NetworkActor.{CreatePeer, DeletePeer, GetPeer, GetPeers}
+import com.fluency03.blockchain.api.actors.NetworkActor._
 import com.fluency03.blockchain.api.{FailureMsg, Message, SuccessMsg}
 import com.fluency03.blockchain.core.{Peer, PeerSimple}
 
@@ -21,9 +21,15 @@ trait NetworkRoutes extends RoutesSupport {
   def networkActor: ActorRef
 
   lazy val networkRoutes: Route =
+    path(NETWORK) {
+      get {
+        val network: Future[Set[String]] = (networkActor ? GetNetwork).mapTo[Set[String]]
+        complete(network)
+      }
+    } ~
     path(PEERS) {
       get {
-        val peers: Future[Set[String]] = (networkActor ? GetPeers).mapTo[Set[String]]
+        val peers: Future[Map[String, Set[String]]] = (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
         complete(peers)
       }
     } ~
@@ -41,10 +47,10 @@ trait NetworkRoutes extends RoutesSupport {
           val maybePeer: Future[Option[Peer]] = (networkActor ? GetPeer(name)).mapTo[Option[Peer]]
           rejectEmptyResponse { complete(maybePeer) }
         } ~
-          delete {
-            val peerDeleted: Future[Message] = (networkActor ? DeletePeer(name)).mapTo[Message]
-            onSuccess(peerDeleted) { respondOnDeletion }
-          }
+        delete {
+          val peerDeleted: Future[Message] = (networkActor ? DeletePeer(name)).mapTo[Message]
+          onSuccess(peerDeleted) { respondOnDeletion }
+        }
       }
     }
 

@@ -31,6 +31,16 @@ class BlockchainActor extends ActorSupport {
     case _ => unhandled _
   }
 
+  /**
+   * TODO (Chang): new APIS:
+   *  - AddBlockOnBlockchain
+   *  - GetBlockFromBlockchain
+   *  - CheckBlockchainIsValid
+   *  - GetTransactionOfABlock
+   *  - MineNextBlock
+   *
+   */
+
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt
 
   private def onCreateBlockchain(): Unit =
@@ -45,9 +55,6 @@ class BlockchainActor extends ActorSupport {
       blockchainOpt = None
       sender() ! SuccessMsg(s"Blockchain deleted.")
     } else sender() ! FailureMsg(s"Blockchain does not exist.")
-
-  // TODO (Chang): APIs for adding new Block on the chain
-
 
 
 }

@@ -20,8 +20,11 @@ class NetworkActorTest extends TestKit(ActorSystem("NetworkActorTest")) with Imp
     "Respond with a Set of Peers." in {
       NetworkActor.props shouldEqual Props[NetworkActor]
 
-      networkActor ! GetPeers
+      networkActor ! GetNetwork
       expectMsg(Set.empty[String])
+
+      networkActor ! GetPeers
+      expectMsg(Map.empty[String, Set[String]])
 
       val name = "peer"
       networkActor ! CreatePeer(name)
@@ -30,8 +33,14 @@ class NetworkActorTest extends TestKit(ActorSystem("NetworkActorTest")) with Imp
       networkActor ! CreatePeer(name)
       expectMsg(FailureMsg(s"Peer $name has been created."))
 
-      networkActor ! GetPeers
+      networkActor ! GetNetwork
       expectMsg(Set(name))
+
+      networkActor ! GetPeers
+      val peers = expectMsgType[Map[String, Set[String]]]
+      peers.size shouldEqual 1
+      peers.contains(name) shouldEqual true
+      peers(name).size shouldEqual 1
 
       networkActor ! GetPeer(name)
       val peerOpt = expectMsgType[Some[Peer]]

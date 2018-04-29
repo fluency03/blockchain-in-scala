@@ -35,6 +35,15 @@ class BlocksActor extends ActorSupport {
     case _ => unhandled _
   }
 
+  /**
+   * TODO (Chang): new APIS:
+   *  - CreateBlock
+   *  - GetBlock (onChain or offChain)
+   *  - GetTransactionOfABlock
+   *  - AddBlockOnChain
+   *
+   */
+
   private[this] def onGetBlocks(): Unit = sender() ! blocks.values.toSeq
 
   private[this] def onCreateBlock(block: Block): Unit = {
@@ -53,7 +62,6 @@ class BlocksActor extends ActorSupport {
       sender() ! SuccessMsg(s"Block $hash deleted.")
     } else sender() ! FailureMsg(s"Block $hash does not exist.")
   }
-
 
 
 }
