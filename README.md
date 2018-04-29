@@ -12,3 +12,11 @@ Inspired by:
 - [Naivecoin](https://github.com/lhartikk/naivecoin) of [@lhartikk](https://github.com/lhartikk)
 
 REST API service is built on the open source projects [akka](https://github.com/akka/akka) and [akka-http](https://github.com/akka/akka-http).
+
+API Documentation on Postman: [blockchain-in-scala](https://documenter.getpostman.com/view/1231202/blockchain-in-scala/RVu8iTUP)
+
+Start the service, run the following Class:
+
+```
+com.fluency03.blockchain.api.Server
+```

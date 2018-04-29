@@ -26,7 +26,6 @@ trait BlockchainRoutes extends RoutesSupport {
    *  - GetTransactionOfABlock
    *  - MineNextBlock
    *
-   *
    */
 
   lazy val blockchainRoutes: Route =
