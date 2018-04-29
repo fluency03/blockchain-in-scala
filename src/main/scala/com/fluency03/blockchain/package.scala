@@ -5,6 +5,7 @@ import java.security.{MessageDigest, PrivateKey, PublicKey}
 import java.time.Instant
 
 import com.fluency03.blockchain.Crypto.{privateKeyToHex, publicKeyToHex}
+import com.fluency03.blockchain.core.{Peer, PeerSimple}
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.{Formats, NoTypeHints}
 import org.json4s.native.Serialization
@@ -48,6 +49,10 @@ package object blockchain {
 
   implicit class PrivateKeyImplicit(val privateKey: PrivateKey) {
     def toHex: String = privateKeyToHex(privateKey)
+  }
+
+  implicit class PeerImplicit(val peer: Peer) {
+    def toSimple: PeerSimple = PeerSimple(peer.name)
   }
 
 

@@ -8,8 +8,11 @@ class PeerTest extends FlatSpec with Matchers {
     val p = Peer("peer", Set("abcd"))
     p.name shouldEqual "peer"
     p.publicKeys shouldEqual Set("abcd")
-    p shouldBe a[PeerSimple]
     p shouldBe a[Peer]
+    p should not be a[PeerSimple]
+    val ps = p.toSimple
+    ps shouldBe a[PeerSimple]
+    ps.name shouldEqual "peer"
   }
 
 }
