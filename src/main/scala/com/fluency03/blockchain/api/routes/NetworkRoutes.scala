@@ -2,6 +2,7 @@ package com.fluency03.blockchain.api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
+import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -29,8 +30,17 @@ trait NetworkRoutes extends RoutesSupport {
     } ~
     path(PEERS) {
       get {
-        val peers: Future[Map[String, Set[String]]] = (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
-        complete(peers)
+        parameters( 'names.as(CsvSeq[String]) ? ) { names =>
+          if (names.isDefined) {
+            val peers: Future[Map[String, Set[String]]] =
+              (networkActor ? GetPeers(names.get.toSet)).mapTo[Map[String, Set[String]]]
+            complete(peers)
+          } else {
+            val peers: Future[Map[String, Set[String]]] =
+              (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
+            complete(peers)
+          }
+        }
       }
     } ~
     pathPrefix(PEER) {
