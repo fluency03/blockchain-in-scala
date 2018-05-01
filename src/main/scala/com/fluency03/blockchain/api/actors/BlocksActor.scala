@@ -42,6 +42,7 @@ class BlocksActor extends ActorSupport {
    *  - CreateBlock
    *  - GetBlock (onChain or offChain)
    *  - GetTransactionOfABlock
+   *  - ContainsBlock
    *  - AddBlockOnChain
    *
    */
@@ -68,6 +69,5 @@ class BlocksActor extends ActorSupport {
       sender() ! SuccessMsg(s"Block $hash deleted.")
     } else sender() ! FailureMsg(s"Block $hash does not exist.")
   }
-
 
 }

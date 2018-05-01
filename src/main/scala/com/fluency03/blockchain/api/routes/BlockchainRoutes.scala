@@ -2,12 +2,13 @@ package com.fluency03.blockchain.api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
+import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.pattern.ask
-import com.fluency03.blockchain.api.Message
+import com.fluency03.blockchain.api.{FailureMsg, Input, Message}
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.core.{Block, Blockchain, Transaction}
 
@@ -20,14 +21,18 @@ trait BlockchainRoutes extends RoutesSupport {
 
   /**
    * TODO (Chang): new APIS:
-   *  - AddBlockOnBlockchain
-   *  - CheckBlockchainIsValid
    *  - MineNextBlock
    *
    */
 
   lazy val blockchainRoutes: Route =
     pathPrefix(BLOCKCHAIN) {
+      path(VALIDITY) {
+        get {
+          val validity: Future[Message] = (blockchainActor ? CheckBlockchainValidity).mapTo[Message]
+          onSuccess(validity) { respondOnUpdate }
+        }
+      } ~
       pathEnd {
         get {
           val blockchain: Future[Option[Blockchain]] = (blockchainActor ? GetBlockchain).mapTo[Option[Blockchain]]
@@ -36,6 +41,25 @@ trait BlockchainRoutes extends RoutesSupport {
         post {
           val blockchainCreated: Future[Message] = (blockchainActor ? CreateBlockchain).mapTo[Message]
           onSuccess(blockchainCreated) { respondOnCreation }
+        } ~
+        put {
+          parameters('action) {
+            case ADD_BLOCK_ACTION =>
+              entity(as[Block]) { block =>
+                val blockchainUpdated: Future[Message] = (blockchainActor ? AddBlock(block)).mapTo[Message]
+                onSuccess(blockchainUpdated) { respondOnUpdate }
+              }
+            case REMOVE_BLOCK_ACTION =>
+              val blockchainUpdated: Future[Message] = (blockchainActor ? RemoveBlock).mapTo[Message]
+              onSuccess(blockchainUpdated) { respondOnUpdate }
+            case MINE_NEXT_BLOCK_ACTION =>
+              entity(as[Input]) { in =>
+                val maybeNextBlock: Future[Option[Block]] =
+                  (blockchainActor ? MineNextBlock(in.content, Seq.empty[Transaction])).mapTo[Option[Block]]
+                rejectEmptyResponse { complete(maybeNextBlock) }
+              }
+            case act => complete((StatusCodes.BadRequest, FailureMsg(s"Action Not Supported: $act")))
+          }
         } ~
         delete {
           val blockchainDeleted: Future[Message] = (blockchainActor ? DeleteBlockchain).mapTo[Message]
@@ -46,9 +70,7 @@ trait BlockchainRoutes extends RoutesSupport {
         pathEnd {
           get {
             val maybeBlock: Future[Option[Block]] = (blockchainActor ? GetBlock(hash)).mapTo[Option[Block]]
-            rejectEmptyResponse {
-              complete(maybeBlock)
-            }
+            rejectEmptyResponse { complete(maybeBlock) }
           }
         } ~
         path(TRANSACTION / Segment) { id =>
@@ -60,4 +82,5 @@ trait BlockchainRoutes extends RoutesSupport {
         }
       }
     }
+
 }

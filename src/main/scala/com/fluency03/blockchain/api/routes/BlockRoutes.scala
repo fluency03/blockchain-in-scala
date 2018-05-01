@@ -25,6 +25,7 @@ trait BlockRoutes extends RoutesSupport {
    *  - CreateBlock
    *  - GetBlock (onChain or offChain)
    *  - GetTransactionOfABlock
+   *  - ContainsBlock
    *  - AddBlockOnChain
    *
    */
@@ -58,4 +59,5 @@ trait BlockRoutes extends RoutesSupport {
         }
       }
     }
+
 }

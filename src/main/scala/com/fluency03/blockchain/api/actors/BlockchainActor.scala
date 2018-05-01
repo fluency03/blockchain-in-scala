@@ -3,7 +3,7 @@ package com.fluency03.blockchain.api.actors
 import akka.actor.{ActorSelection, Props}
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.api._
-import com.fluency03.blockchain.core.{Block, Blockchain}
+import com.fluency03.blockchain.core.{Block, Blockchain, Transaction}
 
 import scala.collection.mutable
 
@@ -13,6 +13,10 @@ object BlockchainActor {
   final case object DeleteBlockchain
   final case class GetBlock(hash: String)
   final case class GetTxOfBlock(id: String, hash: String)
+  final case class AddBlock(block: Block)
+  final case object RemoveBlock
+  final case class MineNextBlock(data: String, trans: Seq[Transaction])
+  final case object CheckBlockchainValidity
 
   def props: Props = Props[BlockchainActor]
 }
@@ -35,13 +39,15 @@ class BlockchainActor extends ActorSupport {
     case DeleteBlockchain => onDeleteBlockchain()
     case GetBlock(hash) => onGetBlock(hash)
     case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
+    case AddBlock(block) => onAddBlock(block)
+    case RemoveBlock => onRemoveBlock()
+    case MineNextBlock(data, trans) => onMineNextBlock(data, trans)
+    case CheckBlockchainValidity => onCheckBlockchainValidity()
     case _ => unhandled _
   }
 
   /**
    * TODO (Chang): new APIS:
-   *  - AddBlockOnBlockchain
-   *  - CheckBlockchainIsValid
    *  - MineNextBlock
    *
    */
@@ -76,20 +82,57 @@ class BlockchainActor extends ActorSupport {
     }
   }
 
-  private def getBlock(hash: String): Option[Block] = {
-    hashIndexMapping.get(hash) match {
-      case Some(index) => blockchainOpt match {
-        case Some(blockchain) => Some(blockchain.chain(index))
-        case None =>
-          log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
-          hashIndexMapping.clear()
-          None
-      }
-      case None => None
-    }
+  private def onAddBlock(block: Block): Unit = blockchainOpt match {
+    case Some(blockchain) =>
+      blockchainOpt = Some(blockchain.addBlock(block))
+      hashIndexMapping += (block.hash -> blockchain.length)
+      sender() ! SuccessMsg(s"New Block added on the chain.")
+    case None =>
+      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+      hashIndexMapping.clear()
+      sender() ! FailureMsg(s"Blockchain does not exist.")
+  }
+
+  private def onRemoveBlock(): Unit = blockchainOpt match {
+    case Some(blockchain) =>
+      val toBeRemoved = blockchain.chain.head
+      blockchainOpt = Some(blockchain.removeBlock())
+      hashIndexMapping -= toBeRemoved.hash
+      sender() ! SuccessMsg(s"Last Block removed from the chain.")
+    case None =>
+      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+      hashIndexMapping.clear()
+      sender() ! FailureMsg(s"Blockchain does not exist.")
+  }
+
+  private def onMineNextBlock(data: String, trans: Seq[Transaction]): Unit = blockchainOpt match {
+    case Some(blockchain) => sender() ! Some(blockchain.mineNextBlock(data, trans))
+    case None =>
+      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+      hashIndexMapping.clear()
+      sender() ! None
+  }
+
+  private def onCheckBlockchainValidity(): Unit = blockchainOpt match {
+    case Some(blockchain) =>
+      if (blockchain.isValid) sender() ! SuccessMsg("true")
+      else sender() ! SuccessMsg("false")
+    case None =>
+      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+      hashIndexMapping.clear()
+      sender() ! FailureMsg(s"Blockchain does not exist.")
   }
 
 
-
+  private def getBlock(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
+    case Some(index) => blockchainOpt match {
+      case Some(blockchain) => Some(blockchain.chain(index))
+      case None =>
+        log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+        hashIndexMapping.clear()
+        None
+    }
+    case None => None
+  }
 
 }
