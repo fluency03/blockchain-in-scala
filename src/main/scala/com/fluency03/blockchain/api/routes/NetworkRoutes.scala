@@ -35,10 +35,11 @@ trait NetworkRoutes extends RoutesSupport {
     } ~
     path(PEERS) {
       get {
-        parameters( 'names.as(CsvSeq[String]) ? ) { names =>
-          val peers: Future[Map[String, Set[String]]] =
-            if (names.isDefined) (networkActor ? GetPeers(names.get.toSet)).mapTo[Map[String, Set[String]]]
-            else (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
+        parameters( 'names.as(CsvSeq[String]).? ) { namesOpt =>
+          val peers: Future[Map[String, Set[String]]] = namesOpt match {
+            case Some(names) => (networkActor ? GetPeers(names.toSet)).mapTo[Map[String, Set[String]]]
+            case None => (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
+          }
           complete(peers)
         }
       }

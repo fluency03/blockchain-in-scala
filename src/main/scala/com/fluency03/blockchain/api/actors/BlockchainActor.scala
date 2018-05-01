@@ -1,22 +1,28 @@
 package com.fluency03.blockchain.api.actors
 
 import akka.actor.{ActorSelection, Props}
+import akka.http.scaladsl.server.Directives.onSuccess
+import akka.pattern.ask
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.api._
 import com.fluency03.blockchain.core.{Block, Blockchain, Transaction}
 
 import scala.collection.mutable
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object BlockchainActor {
   final case object GetBlockchain
   final case object CreateBlockchain
   final case object DeleteBlockchain
-  final case class GetBlock(hash: String)
+  final case class GetBlockFromChain(hash: String)
   final case class GetTxOfBlock(id: String, hash: String)
   final case class AddBlock(block: Block)
+  final case class AddBlockFromPool(hash: String)
   final case object RemoveBlock
-  final case class MineNextBlock(data: String, trans: Seq[Transaction])
+  final case class MineNextBlock(data: String, ids: Seq[String])
   final case object CheckBlockchainValidity
+  final case class GetBlockFromPool(hash: String)
 
   def props: Props = Props[BlockchainActor]
 }
@@ -25,7 +31,9 @@ class BlockchainActor extends ActorSupport {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
-  val blockActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKS_ACTOR_NAME)
+  import context.dispatcher
+
+  val blocksActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKS_ACTOR_NAME)
   val transActor: ActorSelection = context.actorSelection(PARENT_UP + TRANS_ACTOR_NAME)
   val networkActor: ActorSelection = context.actorSelection(PARENT_UP + NETWORK_ACTOR_NAME)
 
@@ -37,19 +45,20 @@ class BlockchainActor extends ActorSupport {
     case GetBlockchain => onGetBlockchain()
     case CreateBlockchain => onCreateBlockchain()
     case DeleteBlockchain => onDeleteBlockchain()
-    case GetBlock(hash) => onGetBlock(hash)
+    case GetBlockFromChain(hash) => onGetBlockFromChain(hash)
     case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
     case AddBlock(block) => onAddBlock(block)
+    case AddBlockFromPool(hash) => onAddBlockFromPool(hash)
     case RemoveBlock => onRemoveBlock()
-    case MineNextBlock(data, trans) => onMineNextBlock(data, trans)
+    case MineNextBlock(data, ids) => onMineNextBlock(data, ids)
     case CheckBlockchainValidity => onCheckBlockchainValidity()
+    case GetBlockFromPool(hash) => onGetBlockFromPool(hash)
     case _ => unhandled _
   }
 
   /**
-   * TODO (Chang): new APIS:
-   *  - AddBlock with Block obtained from pool based on hash
-   *  - MineNextBlock with Transactions
+   * TODO (Chang):
+   *
    */
 
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt
@@ -73,10 +82,10 @@ class BlockchainActor extends ActorSupport {
       sender() ! SuccessMsg("Blockchain deleted.")
     } else sender() ! FailureMsg("Blockchain does not exist.")
 
-  private def onGetBlock(hash: String): Unit = sender() ! getBlock(hash)
+  private def onGetBlockFromChain(hash: String): Unit = sender() ! getBlockFromChain(hash)
 
   private def onGetTxOfBlock(id: String, hash: String): Unit = sender() ! {
-    getBlock(hash) match {
+    getBlockFromChain(hash) match {
       case Some(block) => block.transactions.find(_.id == id)
       case None => None
     }
@@ -87,6 +96,25 @@ class BlockchainActor extends ActorSupport {
       blockchainOpt = Some(blockchain.addBlock(block))
       hashIndexMapping += (block.hash -> blockchain.length)
       sender() ! SuccessMsg(s"New Block ${block.hash} added on the chain.")
+    case None =>
+      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+      hashIndexMapping.clear()
+      sender() ! FailureMsg("Blockchain does not exist.")
+  }
+
+  private def onAddBlockFromPool(hash: String): Unit = blockchainOpt match {
+    case Some(blockchain) =>
+      val maybeBlock: Future[Option[Block]] = (blocksActor ? BlocksActor.GetBlock(hash)).mapTo[Option[Block]]
+      maybeBlock onComplete {
+        case Success(blockOpt) => blockOpt match {
+          case Some(block) =>
+            blockchainOpt = Some(blockchain.addBlock(block))
+            hashIndexMapping += (block.hash -> blockchain.length)
+            sender() ! SuccessMsg(s"New Block ${block.hash} added on the chain.")
+          case None => sender() ! FailureMsg(s"Does not find Block $hash in the poll.")
+        }
+        case Failure(t) => sender() ! FailureMsg(s"Cannot get Block $hash from the poll.")
+      }
     case None =>
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
       hashIndexMapping.clear()
@@ -105,8 +133,17 @@ class BlockchainActor extends ActorSupport {
       sender() ! FailureMsg("Blockchain does not exist.")
   }
 
-  private def onMineNextBlock(data: String, trans: Seq[Transaction]): Unit = blockchainOpt match {
-    case Some(blockchain) => sender() ! Some(blockchain.mineNextBlock(data, trans))
+  private def onMineNextBlock(data: String, ids: Seq[String]): Unit = blockchainOpt match {
+    case Some(blockchain) =>
+      if (ids.isEmpty) sender() ! Some(blockchain.mineNextBlock(data, Seq.empty[Transaction]))
+      else {
+        val maybeTrans: Future[Seq[Transaction]] =
+          (transActor ? TransactionsActor.GetTransactions(ids.toSet)).mapTo[Seq[Transaction]]
+        maybeTrans onComplete {
+          case Success(trans) => sender() ! Some(blockchain.mineNextBlock(data, trans))
+          case Failure(_) => sender() ! None
+        }
+      }
     case None =>
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
       hashIndexMapping.clear()
@@ -123,8 +160,10 @@ class BlockchainActor extends ActorSupport {
       sender() ! FailureMsg("Blockchain does not exist.")
   }
 
+  private def onGetBlockFromPool(hash: String): Unit = blocksActor forward BlocksActor.GetBlock(hash)
 
-  private def getBlock(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
+
+  private def getBlockFromChain(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
     case Some(index) => blockchainOpt match {
       case Some(blockchain) => Some(blockchain.chain(index))
       case None =>

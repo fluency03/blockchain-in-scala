@@ -32,10 +32,11 @@ trait BlockRoutes extends RoutesSupport {
 
   lazy val blockRoutes: Route =
     path(BLOCKS) {
-      parameters( 'hashes.as(CsvSeq[String]) ? ) { hashes =>
-        val blocks: Future[Blocks] =
-          if (hashes.isDefined) (blocksActor ? GetBlocks(hashes.get.toSet)).mapTo[Blocks]
-          else (blocksActor ? GetBlocks).mapTo[Blocks]
+      parameters( 'hashes.as(CsvSeq[String]).? ) { hashesOpt =>
+        val blocks: Future[Blocks] = hashesOpt match {
+          case Some(hashes) => (blocksActor ? GetBlocks(hashes.toSet)).mapTo[Blocks]
+          case None => (blocksActor ? GetBlocks).mapTo[Blocks]
+        }
         complete(blocks)
       }
     } ~

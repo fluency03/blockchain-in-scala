@@ -36,11 +36,11 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! GetBlockchain
       val blockchain = expectMsgType[Some[Blockchain]].get
 
-      blockchainActor ! GetBlock("somehash")
+      blockchainActor ! GetBlockFromChain("somehash")
       expectMsg(None)
 
       val genesis = Block.genesisBlock
-      blockchainActor ! GetBlock(genesis.hash)
+      blockchainActor ! GetBlockFromChain(genesis.hash)
       expectMsg(Some(genesis))
 
       blockchainActor ! GetTxOfBlock(genesis.transactions.head.id, genesis.hash)
@@ -67,7 +67,7 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! CheckBlockchainValidity
       expectMsg(SuccessMsg("true"))
 
-      blockchainActor ! MineNextBlock("next", Seq.empty[Transaction])
+      blockchainActor ! MineNextBlock("next", Seq.empty[String])
       val actualBlock = expectMsgType[Some[Block]].get
       actualBlock.data shouldEqual "next"
       actualBlock.transactions shouldEqual Seq.empty[Transaction]
@@ -91,7 +91,7 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! CheckBlockchainValidity
       expectMsg(FailureMsg("Blockchain does not exist."))
 
-      blockchainActor ! MineNextBlock("next", Seq.empty[Transaction])
+      blockchainActor ! MineNextBlock("next", Seq.empty[String])
       expectMsg(None)
 
       blockchainActor ! "other"

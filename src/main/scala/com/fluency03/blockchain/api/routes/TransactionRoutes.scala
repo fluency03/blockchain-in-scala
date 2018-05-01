@@ -30,10 +30,11 @@ trait TransactionRoutes extends RoutesSupport {
 
   lazy val transRoutes: Route =
     path(TRANSACTIONS) {
-      parameters( 'ids.as(CsvSeq[String]) ? ) { ids =>
-        val transactions: Future[Transactions] =
-          if (ids.isDefined) (transActor ? GetTransactions(ids.get.toSet)).mapTo[Transactions]
-          else (transActor ? GetTransactions).mapTo[Transactions]
+      parameters( 'ids.as(CsvSeq[String]).? ) { idsOpt =>
+        val transactions: Future[Transactions] = idsOpt match {
+          case Some(ids) => (transActor ? GetTransactions(ids.toSet)).mapTo[Transactions]
+          case None => (transActor ? GetTransactions).mapTo[Transactions]
+        }
         complete(transactions)
       }
     } ~
