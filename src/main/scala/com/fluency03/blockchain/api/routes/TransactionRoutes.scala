@@ -45,12 +45,6 @@ trait TransactionRoutes extends RoutesSupport {
             onSuccess(msgOnCreate) { respondOnCreation }
           }
         }
-        put {
-          entity(as[Transaction]) { tx =>
-            val msgOnUpdate: Future[Message] = (transActor ? UpdateTransaction(tx)).mapTo[Message]
-            onSuccess(msgOnUpdate) { respondOnUpdate }
-          }
-        }
       } ~
       path(Segment) { id =>
         get {
