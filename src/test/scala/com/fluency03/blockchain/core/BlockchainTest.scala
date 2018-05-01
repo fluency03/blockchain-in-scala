@@ -65,6 +65,7 @@ class BlockchainTest extends FlatSpec with Matchers  {
     blockchainAdded.lastBlock().get shouldEqual expected
     blockchainAdded.isValid shouldEqual true
     blockchainAdded.length shouldEqual 2
+    blockchainAdded.removeBlock() shouldEqual blockchainToAdd
 
     val blockchainAdded2 = blockchainToAdd.addBlock("This is next Block!", Seq(t1, t2))
     val newLastBlock = blockchainAdded2.lastBlock().get

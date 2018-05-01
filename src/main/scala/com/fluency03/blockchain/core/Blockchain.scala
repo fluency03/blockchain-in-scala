@@ -11,7 +11,8 @@ import scala.annotation.tailrec
 /**
  * Blockchain with difficulty and the chain of Blocks.
  * @param difficulty Difficulty of a Blockchain
- * @param chain Chain of Blocks
+ * @param chain Chain of Blocks, the newest Block is on the head of the chain;
+ *              the first genesis Block is on the last of the chain
  */
 case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesisBlock)) {
 
@@ -19,6 +20,8 @@ case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesis
     Blockchain(difficulty, mineNextBlock(newBlockData, transactions) +: chain)
 
   def addBlock(newBlock: Block): Blockchain = Blockchain(difficulty, newBlock +: chain)
+
+  def removeBlock(): Blockchain = Blockchain(difficulty, chain.tail)
 
   def lastBlock(): Option[Block] = chain.headOption
 
