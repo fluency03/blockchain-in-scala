@@ -50,6 +50,7 @@ object Blockchain {
 
   def apply(difficulty: Int): Blockchain = new Blockchain(difficulty, Seq(Block.genesis(difficulty)))
 
+  // TODO (Chang): return both the validity and highest valid Block index
   @tailrec
   def isValidChain(chain: Seq[Block]): Boolean = chain match {
     case Nil => true

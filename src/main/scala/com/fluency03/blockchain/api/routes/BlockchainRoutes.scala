@@ -21,8 +21,8 @@ trait BlockchainRoutes extends RoutesSupport {
 
   /**
    * TODO (Chang): new APIS:
-   *  - MineNextBlock
-   *
+   *  - AddBlock with Block obtained from pool based on hash
+   *  - MineNextBlock with Transactions
    */
 
   lazy val blockchainRoutes: Route =

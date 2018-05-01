@@ -48,14 +48,14 @@ class BlockchainActor extends ActorSupport {
 
   /**
    * TODO (Chang): new APIS:
-   *  - MineNextBlock
-   *
+   *  - AddBlock with Block obtained from pool based on hash
+   *  - MineNextBlock with Transactions
    */
 
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt
 
   private def onCreateBlockchain(): Unit =
-    if (blockchainOpt.isDefined) sender() ! FailureMsg(s"Blockchain already exists.")
+    if (blockchainOpt.isDefined) sender() ! FailureMsg("Blockchain already exists.")
     else {
       blockchainOpt = Some(Blockchain())
       if (hashIndexMapping.nonEmpty) {
@@ -70,8 +70,8 @@ class BlockchainActor extends ActorSupport {
     if (blockchainOpt.isDefined) {
       blockchainOpt = None
       hashIndexMapping.clear()
-      sender() ! SuccessMsg(s"Blockchain deleted.")
-    } else sender() ! FailureMsg(s"Blockchain does not exist.")
+      sender() ! SuccessMsg("Blockchain deleted.")
+    } else sender() ! FailureMsg("Blockchain does not exist.")
 
   private def onGetBlock(hash: String): Unit = sender() ! getBlock(hash)
 
@@ -86,11 +86,11 @@ class BlockchainActor extends ActorSupport {
     case Some(blockchain) =>
       blockchainOpt = Some(blockchain.addBlock(block))
       hashIndexMapping += (block.hash -> blockchain.length)
-      sender() ! SuccessMsg(s"New Block added on the chain.")
+      sender() ! SuccessMsg(s"New Block ${block.hash} added on the chain.")
     case None =>
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
       hashIndexMapping.clear()
-      sender() ! FailureMsg(s"Blockchain does not exist.")
+      sender() ! FailureMsg("Blockchain does not exist.")
   }
 
   private def onRemoveBlock(): Unit = blockchainOpt match {
@@ -98,11 +98,11 @@ class BlockchainActor extends ActorSupport {
       val toBeRemoved = blockchain.chain.head
       blockchainOpt = Some(blockchain.removeBlock())
       hashIndexMapping -= toBeRemoved.hash
-      sender() ! SuccessMsg(s"Last Block removed from the chain.")
+      sender() ! SuccessMsg(s"Last Block ${toBeRemoved.hash} removed from the chain.")
     case None =>
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
       hashIndexMapping.clear()
-      sender() ! FailureMsg(s"Blockchain does not exist.")
+      sender() ! FailureMsg("Blockchain does not exist.")
   }
 
   private def onMineNextBlock(data: String, trans: Seq[Transaction]): Unit = blockchainOpt match {
@@ -120,7 +120,7 @@ class BlockchainActor extends ActorSupport {
     case None =>
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
       hashIndexMapping.clear()
-      sender() ! FailureMsg(s"Blockchain does not exist.")
+      sender() ! FailureMsg("Blockchain does not exist.")
   }
 
 
