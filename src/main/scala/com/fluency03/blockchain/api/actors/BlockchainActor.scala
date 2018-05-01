@@ -12,6 +12,7 @@ object BlockchainActor {
   final case object CreateBlockchain
   final case object DeleteBlockchain
   final case class GetBlock(hash: String)
+  final case class GetTxOfBlock(id: String, hash: String)
 
   def props: Props = Props[BlockchainActor]
 }
@@ -26,22 +27,21 @@ class BlockchainActor extends ActorSupport {
 
   // TODO (Chang): need persistence
   var blockchainOpt: Option[Blockchain] = None
-  var hashIndexMapping = mutable.Map.empty[String, Int]
+  val hashIndexMapping = mutable.Map.empty[String, Int]
 
   def receive: Receive = {
     case GetBlockchain => onGetBlockchain()
     case CreateBlockchain => onCreateBlockchain()
     case DeleteBlockchain => onDeleteBlockchain()
     case GetBlock(hash) => onGetBlock(hash)
+    case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
     case _ => unhandled _
   }
 
   /**
    * TODO (Chang): new APIS:
    *  - AddBlockOnBlockchain
-   *  - GetBlockFromBlockchain
    *  - CheckBlockchainIsValid
-   *  - GetTransactionOfABlock
    *  - MineNextBlock
    *
    */
@@ -67,7 +67,16 @@ class BlockchainActor extends ActorSupport {
       sender() ! SuccessMsg(s"Blockchain deleted.")
     } else sender() ! FailureMsg(s"Blockchain does not exist.")
 
-  private def onGetBlock(hash: String): Unit = sender() ! {
+  private def onGetBlock(hash: String): Unit = sender() ! getBlock(hash)
+
+  private def onGetTxOfBlock(id: String, hash: String): Unit = sender() ! {
+    getBlock(hash) match {
+      case Some(block) => block.transactions.find(_.id == id)
+      case None => None
+    }
+  }
+
+  private def getBlock(hash: String): Option[Block] = {
     hashIndexMapping.get(hash) match {
       case Some(index) => blockchainOpt match {
         case Some(blockchain) => Some(blockchain.chain(index))

@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.api.{FailureMsg, SuccessMsg}
-import com.fluency03.blockchain.core.Blockchain
+import com.fluency03.blockchain.core.{Block, Blockchain}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
@@ -39,8 +39,18 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! GetBlock("somehash")
       expectMsg(None)
 
-      blockchainActor ! GetBlock(blockchain.chain.head.hash)
-      expectMsg(Some(blockchain.chain.head))
+      val genesis = Block.genesisBlock
+      blockchainActor ! GetBlock(genesis.hash)
+      expectMsg(Some(genesis))
+
+      blockchainActor ! GetTxOfBlock(genesis.transactions.head.id, genesis.hash)
+      expectMsg(Some(genesis.transactions.head))
+
+      blockchainActor ! GetTxOfBlock("aa", genesis.hash)
+      expectMsg(None)
+
+      blockchainActor ! GetTxOfBlock(genesis.transactions.head.id, "bb")
+      expectMsg(None)
 
       blockchainActor ! DeleteBlockchain
       expectMsg(SuccessMsg(s"Blockchain deleted."))

@@ -26,6 +26,7 @@ com.fluency03.blockchain.api.Server
 
 - Complete APIs' Todos
 - Make states in actor persistent (using Akka Persistent)
+- Concurrent collections?
 - Make data distributed within cluster of peer (using Akka Cluster)
 - Block propagation among peers
 - etc.
