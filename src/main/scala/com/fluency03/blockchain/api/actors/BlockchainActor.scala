@@ -1,7 +1,6 @@
 package com.fluency03.blockchain.api.actors
 
 import akka.actor.{ActorSelection, Props}
-import akka.http.scaladsl.server.Directives.onSuccess
 import akka.pattern.ask
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.api._

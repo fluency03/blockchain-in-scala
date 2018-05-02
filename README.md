@@ -11,6 +11,8 @@ Inspired by:
 - [Daniel van Flymen](http://www.dvf.nyc/)'s blog [Learn Blockchains by Building One](https://hackernoon.com/learn-blockchains-by-building-one-117428612f46)
 - [Naivecoin](https://github.com/lhartikk/naivecoin) of [@lhartikk](https://github.com/lhartikk)
 
+This project is meant to learn and understand Bitcoin and Blockchain. I personally also in the process of learning. So, what's a better the approach of learning it by building one ! Because of this is a continuous learning process, there might be something I do not understand earlier. Now when I understand it, the code will also be changed according. I am happy to discuss with you, which will make this learning process quicker and efficient.
+
 REST API service is built on the open source projects [akka](https://github.com/akka/akka) and [akka-http](https://github.com/akka/akka-http).
 
 API Documentation on Postman: [blockchain-in-scala](https://documenter.getpostman.com/view/1231202/blockchain-in-scala/RVu8iTUP)
