@@ -67,14 +67,16 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! CheckBlockchainValidity
       expectMsg(SuccessMsg("true"))
 
-      blockchainActor ! MineNextBlock("next", Seq.empty[String])
-      val actualBlock = expectMsgType[Some[Block]].get
-      actualBlock.data shouldEqual "next"
-      actualBlock.transactions shouldEqual Seq.empty[Transaction]
-      actualBlock.difficulty shouldEqual blockchain.difficulty
-      actualBlock.index shouldEqual 1
-      actualBlock.hasValidHash shouldEqual true
-      actualBlock.previousHash shouldEqual genesis.hash
+      within(15 seconds) {
+        blockchainActor ! MineNextBlock("next", Seq.empty[String])
+        val actualBlock = expectMsgType[Some[Block]].get
+        actualBlock.data shouldEqual "next"
+        actualBlock.transactions shouldEqual Seq.empty[Transaction]
+        actualBlock.difficulty shouldEqual blockchain.difficulty
+        actualBlock.index shouldEqual 1
+        actualBlock.hasValidHash shouldEqual true
+        actualBlock.previousHash shouldEqual genesis.hash
+      }
 
       blockchainActor ! DeleteBlockchain
       expectMsg(SuccessMsg("Blockchain deleted."))
