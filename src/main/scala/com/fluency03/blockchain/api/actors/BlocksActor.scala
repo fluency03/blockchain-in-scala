@@ -63,11 +63,10 @@ class BlocksActor extends ActorSupport {
 
   private[this] def onGetBlock(hash: String): Unit = sender() ! blocksPool.get(hash)
 
-  private[this] def onDeleteBlock(hash: String): Unit = {
+  private[this] def onDeleteBlock(hash: String): Unit =
     if (blocksPool.contains(hash)) {
       blocksPool -= hash
       sender() ! SuccessMsg(s"Block $hash deleted.")
     } else sender() ! FailureMsg(s"Block $hash does not exist.")
-  }
 
 }

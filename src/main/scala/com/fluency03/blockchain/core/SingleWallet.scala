@@ -3,12 +3,12 @@ package core
 
 import java.security.KeyPair
 
-import com.fluency03.blockchain.core.Wallet.balanceOfWallet
+import com.fluency03.blockchain.core.SingleWallet.balanceOfWallet
 import com.fluency03.blockchain.core.Transaction.signTxIn
 
 import scala.collection.mutable
 
-case class Wallet() {
+case class SingleWallet() {
 
   private[this] val keyPair: KeyPair = Crypto.generateKeyPair()
 
@@ -21,9 +21,9 @@ case class Wallet() {
 
 }
 
-object Wallet {
+object SingleWallet {
 
-  def balanceOfWallet(wallet: Wallet, uTxOs: mutable.Map[Outpoint, TxOut]): Long =
+  def balanceOfWallet(wallet: SingleWallet, uTxOs: mutable.Map[Outpoint, TxOut]): Long =
     balanceOfAddress(wallet.address, uTxOs)
 
   def balanceOfAddress(address: String, uTxOs: mutable.Map[Outpoint, TxOut]): Long =

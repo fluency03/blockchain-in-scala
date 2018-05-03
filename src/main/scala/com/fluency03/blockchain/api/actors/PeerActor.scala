@@ -5,7 +5,7 @@ import java.security.KeyPair
 
 import akka.actor.Props
 import com.fluency03.blockchain.api.actors.PeerActor._
-import com.fluency03.blockchain.core.{Peer, Wallet}
+import com.fluency03.blockchain.core.{Peer, SingleWallet}
 
 import scala.collection.mutable
 
@@ -24,7 +24,7 @@ class PeerActor extends ActorSupport {
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
   // TODO (Chang): need persistence
-  val wallets = mutable.Map.empty[String, Wallet]
+  val wallets = mutable.Map.empty[String, SingleWallet]
   val others = mutable.Map.empty[String, Peer]
 
   /**
@@ -41,7 +41,7 @@ class PeerActor extends ActorSupport {
   }
 
   private def addWallet(): String = {
-    val newWallet = Wallet()
+    val newWallet = SingleWallet()
     wallets += (newWallet.address -> newWallet)
     newWallet.address
   }

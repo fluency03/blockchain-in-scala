@@ -1,16 +1,16 @@
 package com.fluency03.blockchain
 package core
 
-import com.fluency03.blockchain.core.Wallet._
+import com.fluency03.blockchain.core.SingleWallet._
 
 import org.scalatest.{FlatSpec, Matchers}
 
 import scala.collection.mutable
 
-class WalletTest extends FlatSpec with Matchers {
+class SingleWalletTest extends FlatSpec with Matchers {
 
   "balanceOfWallet" should "obtain the balance of a Wallet based on UTXOs." in {
-    val wallet = Wallet()
+    val wallet = SingleWallet()
     val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
 
     balanceOfWallet(wallet, uTxOs) shouldEqual 0
@@ -24,7 +24,7 @@ class WalletTest extends FlatSpec with Matchers {
   }
 
   "Wallet" should "be able to sign a TxIn." in {
-    val wallet = Wallet()
+    val wallet = SingleWallet()
     val id = "".toSha256
     val txIn = TxIn(Outpoint("def0", 0), "abc")
     val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]

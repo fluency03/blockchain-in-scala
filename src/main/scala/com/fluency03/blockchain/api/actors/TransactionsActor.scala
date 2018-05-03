@@ -52,13 +52,12 @@ class TransactionsActor extends ActorSupport {
     k => ids.contains(k)
   ).values.toSeq
 
-  private def onCreateTransaction(tx: Transaction): Unit = {
+  private def onCreateTransaction(tx: Transaction): Unit =
     if (transPool.contains(tx.id)) sender() ! FailureMsg(s"Transaction ${tx.id} already exists.")
     else {
       transPool += (tx.id -> tx)
       sender() ! SuccessMsg(s"Transaction ${tx.id} created.")
     }
-  }
 
   private def onGetTransaction(id: String): Unit = sender() ! transPool.get(id)
 

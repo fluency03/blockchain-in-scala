@@ -83,11 +83,9 @@ class BlockchainActor extends ActorSupport {
 
   private def onGetBlockFromChain(hash: String): Unit = sender() ! getBlockFromChain(hash)
 
-  private def onGetTxOfBlock(id: String, hash: String): Unit = sender() ! {
-    getBlockFromChain(hash) match {
-      case Some(block) => block.transactions.find(_.id == id)
-      case None => None
-    }
+  private def onGetTxOfBlock(id: String, hash: String): Unit = getBlockFromChain(hash) match {
+    case Some(block) => sender() ! block.transactions.find(_.id == id)
+    case None => sender() ! None
   }
 
   private def onAddBlock(block: Block): Unit = blockchainOpt match {
