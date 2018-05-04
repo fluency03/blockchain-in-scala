@@ -16,7 +16,7 @@ This project is meant to learn and understand Bitcoin and Blockchain. I personal
 Start the service, run this Class:
 
 ```
-com.fluency03.blockchain.api.Server
+com.github.fluency03.blockchain.api.Server
 ```
 
 ## REST APIs

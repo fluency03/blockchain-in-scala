@@ -2,7 +2,7 @@ resolvers ++= Seq(
   "Artima Maven Repository" at "http://repo.artima.com/releases"
 )
 
-organization := "com.fluency03"
+organization := "com.github.fluency03"
 
 name := "blockchain-in-scala"
 
@@ -45,4 +45,4 @@ libraryDependencies ++= {
 } ++ httpDependencies ++ testDependencies
 
 
-mainClass in assembly := Some("com.fluency03.blockchain.api.Server")
+mainClass in assembly := Some("com.github.fluency03.blockchain.api.Server")
