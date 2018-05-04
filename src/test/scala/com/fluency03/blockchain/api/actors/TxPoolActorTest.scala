@@ -29,10 +29,10 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
       expectMsg(Seq.empty[Transaction])
 
       val genesisTx: Transaction = createCoinbaseTx(0, genesisMiner, genesisTimestamp)
-      txPoolActor ! CreateTransaction(genesisTx)
+      txPoolActor ! AddTransaction(genesisTx)
       expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} created in the Pool."))
 
-      txPoolActor ! CreateTransaction(genesisTx)
+      txPoolActor ! AddTransaction(genesisTx)
       expectMsg(FailureMsg(s"Transaction ${genesisTx.id} already exists in the Pool."))
 
       txPoolActor ! GetTransactions
@@ -41,10 +41,10 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
       val tx2: Transaction = createCoinbaseTx(2, genesisMiner, genesisTimestamp)
       val tx3: Transaction = createCoinbaseTx(3, genesisMiner, genesisTimestamp)
 
-      txPoolActor ! CreateTransaction(tx2)
+      txPoolActor ! AddTransaction(tx2)
       expectMsg(SuccessMsg(s"Transaction ${tx2.id} created in the Pool."))
 
-      txPoolActor ! CreateTransaction(tx3)
+      txPoolActor ! AddTransaction(tx3)
       expectMsg(SuccessMsg(s"Transaction ${tx3.id} created in the Pool."))
 
       txPoolActor ! GetTransactions(Seq("someid"))

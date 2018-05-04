@@ -16,9 +16,9 @@ package object routes {
   // blockchain
   val BLOCKCHAIN = "blockchain"
   val VALIDITY = "validity"
-  val ADD_BLOCK_ACTION = "addBlock"
-  val REMOVE_BLOCK_ACTION = "removeBlock"
-  val MINE_NEXT_BLOCK_ACTION = "mineNextBlock"
+  val LAST_BLOCK = "last-block"
+  val NEW_BLOCK = "new-block"
+  val NEXT_BLOCK = "next-block"
 
   // block
   val BLOCKS = "blocks"

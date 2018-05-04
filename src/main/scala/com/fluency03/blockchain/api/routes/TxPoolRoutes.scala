@@ -23,7 +23,6 @@ trait TxPoolRoutes extends RoutesSupport {
 
   /**
    * TODO (Chang):
-   *  - Update transaction
    *  - Sign transaction
    *
    */
@@ -42,7 +41,7 @@ trait TxPoolRoutes extends RoutesSupport {
       pathEnd {
         post {
           entity(as[Transaction]) { tx =>
-            val msgOnCreate: Future[Message] = (txPoolActor ? CreateTransaction(tx)).mapTo[Message]
+            val msgOnCreate: Future[Message] = (txPoolActor ? AddTransaction(tx)).mapTo[Message]
             onSuccess(msgOnCreate) { respondOnCreation }
           }
         }

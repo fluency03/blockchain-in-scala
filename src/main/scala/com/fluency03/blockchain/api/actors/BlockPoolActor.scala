@@ -10,9 +10,10 @@ import scala.collection.mutable
 object BlockPoolActor {
   final case object GetBlocks
   final case class GetBlocks(hashes: Set[String])
-  final case class CreateBlock(block: Block)
+  final case class AddBlock(block: Block)
   final case class GetBlock(hash: String)
   final case class DeleteBlock(hash: String)
+  final case class GetTxOfBlock(id: String, hash: String)
 
   def props: Props = Props[BlockPoolActor]
 }
@@ -31,19 +32,17 @@ class BlockPoolActor extends ActorSupport {
   def receive: Receive = {
     case GetBlocks => onGetBlocks()
     case GetBlocks(hashes) => onGetBlocks(hashes)
-    case CreateBlock(block) => onCreateBlock(block)
+    case AddBlock(block) => onAddBlock(block)
     case GetBlock(hash) => onGetBlock(hash)
     case DeleteBlock(hash) => onDeleteBlock(hash)
+    case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
     case _ => unhandled _
   }
 
   /**
    * TODO (Chang): new APIS:
    *  - CreateBlock
-   *  - GetBlock (onChain or offChain)
-   *  - GetTransactionOfABlock
    *  - ContainsBlock
-   *  - AddBlockOnChain
    *
    */
 
@@ -53,7 +52,7 @@ class BlockPoolActor extends ActorSupport {
     k => hashes.contains(k)
   ).values.toSeq
 
-  private[this] def onCreateBlock(block: Block): Unit = {
+  private[this] def onAddBlock(block: Block): Unit = {
     if (blocksPool.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists in the Pool.")
     else {
       blocksPool += (block.hash -> block)
@@ -68,5 +67,10 @@ class BlockPoolActor extends ActorSupport {
       blocksPool -= hash
       sender() ! SuccessMsg(s"Block $hash deleted from the Pool.")
     } else sender() ! FailureMsg(s"Block $hash does not exist in the Pool.")
+
+  private def onGetTxOfBlock(id: String, hash: String): Unit = blocksPool.get(hash) match {
+    case Some(block) => sender() ! block.transactions.find(_.id == id)
+    case None => sender() ! None
+  }
 
 }

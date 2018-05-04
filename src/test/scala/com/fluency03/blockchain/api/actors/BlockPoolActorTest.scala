@@ -26,10 +26,10 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Im
       blockPoolActor ! GetBlocks(Set("somehash"))
       expectMsg(Seq.empty[Block])
 
-      blockPoolActor ! CreateBlock(Block.genesisBlock)
+      blockPoolActor ! AddBlock(Block.genesisBlock)
       expectMsg(SuccessMsg(s"Block ${Block.genesisBlock.hash} created in the Pool."))
 
-      blockPoolActor ! CreateBlock(Block.genesisBlock)
+      blockPoolActor ! AddBlock(Block.genesisBlock)
       expectMsg(FailureMsg(s"Block ${Block.genesisBlock.hash} already exists in the Pool."))
 
       blockPoolActor ! GetBlocks

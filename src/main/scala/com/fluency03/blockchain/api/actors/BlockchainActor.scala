@@ -15,10 +15,11 @@ object BlockchainActor {
   final case object CreateBlockchain
   final case object DeleteBlockchain
   final case class GetBlockFromChain(hash: String)
+  final case object GetLastBlock
   final case class GetTxOfBlock(id: String, hash: String)
-  final case class AddBlock(block: Block)
-  final case class AddBlockFromPool(hash: String)
-  final case object RemoveBlock
+  final case class AppendBlock(block: Block)
+  final case class AppendBlockFromPool(hash: String)
+  final case object RemoveLastBlock
   final case class MineNextBlock(data: String, ids: Seq[String])
   final case object CheckBlockchainValidity
   final case class GetBlockFromPool(hash: String)
@@ -45,10 +46,11 @@ class BlockchainActor extends ActorSupport {
     case CreateBlockchain => onCreateBlockchain()
     case DeleteBlockchain => onDeleteBlockchain()
     case GetBlockFromChain(hash) => onGetBlockFromChain(hash)
+    case GetLastBlock => onGetLastBlock()
     case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
-    case AddBlock(block) => onAddBlock(block)
-    case AddBlockFromPool(hash) => onAddBlockFromPool(hash)
-    case RemoveBlock => onRemoveBlock()
+    case AppendBlock(block) => onAppendBlock(block)
+    case AppendBlockFromPool(hash) => onAppendBlockFromPool(hash)
+    case RemoveLastBlock => onRemoveLastBlock()
     case MineNextBlock(data, ids) => onMineNextBlock(data, ids)
     case CheckBlockchainValidity => onCheckBlockchainValidity()
     case GetBlockFromPool(hash) => onGetBlockFromPool(hash)
@@ -57,6 +59,7 @@ class BlockchainActor extends ActorSupport {
 
   /**
    * TODO (Chang):
+   *  - GetLastBlock
    *
    */
 
@@ -83,12 +86,20 @@ class BlockchainActor extends ActorSupport {
 
   private def onGetBlockFromChain(hash: String): Unit = sender() ! getBlockFromChain(hash)
 
+  private def onGetLastBlock(): Unit = blockchainOpt match {
+    case Some(blockchain) => sender() ! blockchain.lastBlock()
+    case None =>
+      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+      hashIndexMapping.clear()
+      None
+  }
+
   private def onGetTxOfBlock(id: String, hash: String): Unit = getBlockFromChain(hash) match {
     case Some(block) => sender() ! block.transactions.find(_.id == id)
     case None => sender() ! None
   }
 
-  private def onAddBlock(block: Block): Unit = blockchainOpt match {
+  private def onAppendBlock(block: Block): Unit = blockchainOpt match {
     case Some(blockchain) =>
       blockchainOpt = Some(blockchain.addBlock(block))
       hashIndexMapping += (block.hash -> blockchain.length)
@@ -99,7 +110,7 @@ class BlockchainActor extends ActorSupport {
       sender() ! FailureMsg("Blockchain does not exist.")
   }
 
-  private def onAddBlockFromPool(hash: String): Unit = blockchainOpt match {
+  private def onAppendBlockFromPool(hash: String): Unit = blockchainOpt match {
     case Some(blockchain) =>
       val maybeBlock: Future[Option[Block]] = (blockPoolActor ? BlockPoolActor.GetBlock(hash)).mapTo[Option[Block]]
       val theSender: ActorRef = sender()
@@ -120,7 +131,7 @@ class BlockchainActor extends ActorSupport {
       sender() ! FailureMsg("Blockchain does not exist.")
   }
 
-  private def onRemoveBlock(): Unit = blockchainOpt match {
+  private def onRemoveLastBlock(): Unit = blockchainOpt match {
     case Some(blockchain) =>
       val toBeRemoved = blockchain.chain.head
       blockchainOpt = Some(blockchain.removeBlock())
