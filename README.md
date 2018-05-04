@@ -13,18 +13,71 @@ Inspired by:
 
 This project is meant to learn and understand Bitcoin and Blockchain. I personally also in the process of learning. So, what's a better the approach of learning it by building one ! Because of this is a continuous learning process, there might be something I do not understand earlier. Now when I understand it, the code will also be changed according. I am happy to discuss with you, which will make this learning process quicker and efficient.
 
-REST API service is built on the open source projects [akka](https://github.com/akka/akka) and [akka-http](https://github.com/akka/akka-http).
-
-API Documentation on Postman: [blockchain-in-scala](https://documenter.getpostman.com/view/1231202/blockchain-in-scala/RVu8iTUP)
-
 Start the service, run this Class:
 
 ```
 com.fluency03.blockchain.api.Server
 ```
 
+## REST APIs
 
-#### Todos
+REST API service is built on the open source projects [akka](https://github.com/akka/akka) and [akka-http](https://github.com/akka/akka-http).
+
+Please see the full API Documentation on Postman: [blockchain-in-scala](https://documenter.getpostman.com/view/1231202/blockchain-in-scala/RVu8iTUP)
+
+Summary:
+
+### root
+
+```
+/
+```
+
+### blockchain
+
+
+```
+
+```
+
+
+### block
+
+```
+
+```
+
+
+
+### transaction
+
+```
+
+```
+
+
+
+
+### network
+
+```
+
+```
+
+
+
+### generic
+
+```
+
+```
+
+
+
+
+
+
+## Todos
 
 - Complete APIs' Todos
 - API tests

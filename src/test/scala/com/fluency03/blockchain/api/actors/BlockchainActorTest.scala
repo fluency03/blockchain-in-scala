@@ -49,6 +49,9 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! GetBlockFromChain(genesis.hash)
       expectMsg(Some(genesis))
 
+      blockchainActor ! GetLastBlock
+      expectMsg(Some(genesis))
+
       blockchainActor ! GetTxOfBlock(genesis.transactions.head.id, genesis.hash)
       expectMsg(Some(genesis.transactions.head))
 
@@ -128,6 +131,12 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
         actualBlock.hasValidHash shouldEqual true
         actualBlock.previousHash shouldEqual genesis.hash
       }
+
+      blockchainActor ! RemoveLastBlock
+      expectMsg(SuccessMsg(s"Last Block ${genesis.hash} removed from the chain."))
+
+      blockchainActor ! GetLastBlock
+      expectMsg(None)
 
       blockchainActor ! DeleteBlockchain
       expectMsg(SuccessMsg("Blockchain deleted."))
