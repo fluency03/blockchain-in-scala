@@ -137,10 +137,11 @@ class BlockchainActor extends ActorSupport {
       if (ids.isEmpty) sender() ! Some(blockchain.mineNextBlock(data, Seq.empty[Transaction]))
       else {
         val maybeTrans: Future[Seq[Transaction]] =
-          (txPoolActor ? TxPoolActor.GetTransactions(ids.toSet)).mapTo[Seq[Transaction]]
+          (txPoolActor ? TxPoolActor.GetTransactions(ids)).mapTo[Seq[Transaction]]
+        val theSender: ActorRef = sender()
         maybeTrans onComplete {
-          case Success(trans) => sender() ! Some(blockchain.mineNextBlock(data, trans))
-          case Failure(_) => sender() ! None
+          case Success(trans) => theSender ! Some(blockchain.mineNextBlock(data, trans))
+          case Failure(_) => theSender ! None
         }
       }
     case None =>

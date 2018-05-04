@@ -32,7 +32,7 @@ trait TxPoolRoutes extends RoutesSupport {
     path(TRANSACTIONS) {
       parameters( 'ids.as(CsvSeq[String]).? ) { idsOpt =>
         val transactions: Future[Transactions] = idsOpt match {
-          case Some(ids) => (txPoolActor ? GetTransactions(ids.toSet)).mapTo[Transactions]
+          case Some(ids) => (txPoolActor ? GetTransactions(ids)).mapTo[Transactions]
           case None => (txPoolActor ? GetTransactions).mapTo[Transactions]
         }
         complete(transactions)

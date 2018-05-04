@@ -10,7 +10,7 @@ import scala.collection.mutable
 
 object TxPoolActor {
   final case object GetTransactions
-  final case class GetTransactions(ids: Set[String])
+  final case class GetTransactions(ids: Seq[String])
   final case class CreateTransaction(tx: Transaction)
   final case class GetTransaction(id: String)
   final case class DeleteTransaction(id: String)
@@ -48,9 +48,8 @@ class TxPoolActor extends ActorSupport {
 
   private def onGetTransactions(): Unit = sender() ! transPool.values.toSeq
 
-  private def onGetTransactions(ids: Set[String]): Unit = sender() ! transPool.filterKeys(
-    k => ids.contains(k)
-  ).values.toSeq
+  private def onGetTransactions(ids: Seq[String]): Unit =
+    sender() ! ids.map(id => transPool.get(id)).filter(_.isDefined).map(_.get)
 
   private def onCreateTransaction(tx: Transaction): Unit =
     if (transPool.contains(tx.id)) sender() ! FailureMsg(s"Transaction ${tx.id} already exists in the Pool.")

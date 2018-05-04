@@ -1,11 +1,14 @@
 package com.fluency03.blockchain.api.actors
 
-import akka.actor.{ActorRef, ActorSelection, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import com.fluency03.blockchain.api.actors.BlockPoolActor.CreateBlock
 import com.fluency03.blockchain.api.actors.BlockchainActor._
-import com.fluency03.blockchain.api.{BLOCKCHAIN_ACTOR_NAME, BLOCK_POOL_ACTOR_NAME, FailureMsg, SuccessMsg}
+import com.fluency03.blockchain.api._
+import com.fluency03.blockchain.api.actors.TxPoolActor.CreateTransaction
+import com.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import com.fluency03.blockchain.core.{Block, Blockchain, Transaction}
+import com.fluency03.blockchain.{genesisMiner, genesisTimestamp}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
@@ -19,6 +22,7 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
 
   val blockchainActor: ActorRef = system.actorOf(Props[BlockchainActor], BLOCKCHAIN_ACTOR_NAME)
   val blockPoolActor: ActorRef = system.actorOf(Props[BlockPoolActor], BLOCK_POOL_ACTOR_NAME)
+  val txPoolActor: ActorRef = system.actorOf(Props[TxPoolActor], TX_POOL_ACTOR_NAME)
 
   "A BlockchainActor" should {
     "Respond with a Blockchain." in {
@@ -80,7 +84,7 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
         expectMsg(None)
       }
 
-      within(30 seconds) {
+      within(15 seconds) {
         blockchainActor ! AddBlockFromPool(genesis.hash)
         expectMsg(SuccessMsg(s"New Block ${genesis.hash} added on the chain."))
 
@@ -96,6 +100,29 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
         val actualBlock = expectMsgType[Some[Block]].get
         actualBlock.data shouldEqual "next"
         actualBlock.transactions shouldEqual Seq.empty[Transaction]
+        actualBlock.difficulty shouldEqual blockchain.difficulty
+        actualBlock.index shouldEqual 1
+        actualBlock.hasValidHash shouldEqual true
+        actualBlock.previousHash shouldEqual genesis.hash
+      }
+
+      val tx1: Transaction = createCoinbaseTx(1, genesisMiner, genesisTimestamp)
+      val tx2: Transaction = createCoinbaseTx(2, genesisMiner, genesisTimestamp)
+      val tx3: Transaction = createCoinbaseTx(3, genesisMiner, genesisTimestamp)
+      txPoolActor ! CreateTransaction(tx1)
+      expectMsg(SuccessMsg(s"Transaction ${tx1.id} created in the Pool."))
+
+      txPoolActor ! CreateTransaction(tx2)
+      expectMsg(SuccessMsg(s"Transaction ${tx2.id} created in the Pool."))
+
+      txPoolActor ! CreateTransaction(tx3)
+      expectMsg(SuccessMsg(s"Transaction ${tx3.id} created in the Pool."))
+
+      within(15 seconds) {
+        blockchainActor ! MineNextBlock("next", Seq(tx1.id, tx2.id, tx3.id))
+        val actualBlock = expectMsgType[Some[Block]].get
+        actualBlock.data shouldEqual "next"
+        actualBlock.transactions shouldEqual Seq(tx1, tx2, tx3)
         actualBlock.difficulty shouldEqual blockchain.difficulty
         actualBlock.index shouldEqual 1
         actualBlock.hasValidHash shouldEqual true

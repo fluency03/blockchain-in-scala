@@ -25,7 +25,7 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
       txPoolActor ! GetTransactions
       expectMsg(Seq.empty[Transaction])
 
-      txPoolActor ! GetTransactions(Set("someid"))
+      txPoolActor ! GetTransactions(Seq("someid"))
       expectMsg(Seq.empty[Transaction])
 
       val genesisTx: Transaction = createCoinbaseTx(0, genesisMiner, genesisTimestamp)
@@ -38,11 +38,23 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
       txPoolActor ! GetTransactions
       expectMsg(Seq(genesisTx))
 
-      txPoolActor ! GetTransactions(Set("someid"))
+      val tx2: Transaction = createCoinbaseTx(2, genesisMiner, genesisTimestamp)
+      val tx3: Transaction = createCoinbaseTx(3, genesisMiner, genesisTimestamp)
+
+      txPoolActor ! CreateTransaction(tx2)
+      expectMsg(SuccessMsg(s"Transaction ${tx2.id} created in the Pool."))
+
+      txPoolActor ! CreateTransaction(tx3)
+      expectMsg(SuccessMsg(s"Transaction ${tx3.id} created in the Pool."))
+
+      txPoolActor ! GetTransactions(Seq("someid"))
       expectMsg(Seq.empty[Transaction])
 
-      txPoolActor ! GetTransactions(Set(genesisTx.id))
+      txPoolActor ! GetTransactions(Seq(genesisTx.id))
       expectMsg(Seq(genesisTx))
+
+      txPoolActor ! GetTransactions(Seq(genesisTx.id, tx2.id, tx3.id))
+      expectMsg(Seq(genesisTx, tx2, tx3))
 
       txPoolActor ! GetTransaction(genesisTx.id)
       expectMsg(Some(genesisTx))
