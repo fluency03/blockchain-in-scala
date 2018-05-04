@@ -25,15 +25,15 @@ REST API service is built on the open source projects [akka](https://github.com/
 
 Please see the full API Documentation on Postman: [blockchain-in-scala](https://documenter.getpostman.com/view/1231202/blockchain-in-scala/RVu8iTUP)
 
-Summary:
+### Summary:
 
-### root
+#### root
 
 ```
 /
 ```
 
-### blockchain
+#### blockchain
 
 ```
 GET  /blockchain
@@ -49,7 +49,7 @@ GET  /blockchain/block/:hash/transaction/:id
 ```
 
 
-### block
+#### block
 
 ```
 GET  /blocks
@@ -60,7 +60,7 @@ GET  /block/:hash/transaction/:id
 ```
 
 
-### transaction
+#### transaction
 
 ```
 GET  /transactions
@@ -71,7 +71,7 @@ DEL  /transaction/:id
 ```
 
 
-### network
+#### network
 
 ```
 GET  /network
@@ -82,7 +82,7 @@ GET  /peer/:name
 ```
 
 
-### generic
+#### generic
 
 ```
 POST /generic/to-sha256
