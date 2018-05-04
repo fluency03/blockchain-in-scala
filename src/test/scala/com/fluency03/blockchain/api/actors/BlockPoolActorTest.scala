@@ -42,7 +42,10 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Im
       expectMsg(None)
 
       blockPoolActor ! GetTxOfBlock(Block.genesisBlock.transactions.head.id, "bb")
-      expectMsg(Some(Block.genesisBlock.transactions.head))
+      expectMsg(None)
+
+      blockPoolActor ! GetTxOfBlock(Block.genesisBlock.transactions.head.id, Block.genesisBlock.hash)
+      expectMsg(Some(Block.genesisBlock))
 
       blockPoolActor ! GetBlocks(Set(Block.genesisBlock.hash))
       expectMsg(Seq(Block.genesisBlock))
