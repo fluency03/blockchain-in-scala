@@ -26,9 +26,9 @@ class NetworkActor extends ActorSupport {
 
   import context.dispatcher
 
-  val blockActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKS_ACTOR_NAME)
+  val blockPoolActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCK_POOL_ACTOR_NAME)
   val blockchainActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKCHAIN_ACTOR_NAME)
-  val transActor: ActorSelection = context.actorSelection(PARENT_UP + TRANS_ACTOR_NAME)
+  val txPoolActor: ActorSelection = context.actorSelection(PARENT_UP + TX_POOL_ACTOR_NAME)
 
   // TODO (Chang): need persistence
 

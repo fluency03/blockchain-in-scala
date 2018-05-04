@@ -4,6 +4,6 @@ import akka.http.scaladsl.testkit.ScalatestRouteTest
 import com.fluency03.blockchain.api.JsonSupport
 import org.scalatest.{Matchers, WordSpec}
 
-class TransactionRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonSupport {
+class TxPoolRoutesTest extends WordSpec with Matchers with ScalatestRouteTest with JsonSupport {
 
 }

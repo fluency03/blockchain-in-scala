@@ -1,24 +1,24 @@
 package com.fluency03.blockchain.api.actors
 
 import akka.actor.{ActorSelection, Props}
-import com.fluency03.blockchain.api.actors.TransactionsActor._
+import com.fluency03.blockchain.api.actors.TxPoolActor._
 import com.fluency03.blockchain.api._
 import com.fluency03.blockchain.core.{Outpoint, Transaction, TxOut}
 import com.fluency03.blockchain.core.Transaction.hashOfTransaction
 
 import scala.collection.mutable
 
-object TransactionsActor {
+object TxPoolActor {
   final case object GetTransactions
   final case class GetTransactions(ids: Set[String])
   final case class CreateTransaction(tx: Transaction)
   final case class GetTransaction(id: String)
   final case class DeleteTransaction(id: String)
   final case class UpdateTransaction(tx: Transaction)
-  def props: Props = Props[TransactionsActor]
+  def props: Props = Props[TxPoolActor]
 }
 
-class TransactionsActor extends ActorSupport {
+class TxPoolActor extends ActorSupport {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
@@ -27,7 +27,7 @@ class TransactionsActor extends ActorSupport {
   val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
 
   val blockchainActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKCHAIN_ACTOR_NAME)
-  val blockActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKS_ACTOR_NAME)
+  val blockPoolActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCK_POOL_ACTOR_NAME)
   val networkActor: ActorSelection = context.actorSelection(PARENT_UP + NETWORK_ACTOR_NAME)
 
   /**

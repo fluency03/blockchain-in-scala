@@ -10,16 +10,16 @@ import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
-import com.fluency03.blockchain.api.actors.TransactionsActor._
+import com.fluency03.blockchain.api.actors.TxPoolActor._
 import com.fluency03.blockchain.api.{FailureMsg, Message, Transactions}
 import com.fluency03.blockchain.core.Transaction
 
 import scala.concurrent.Future
 
-trait TransactionRoutes extends RoutesSupport {
-  lazy val log = Logging(system, classOf[TransactionRoutes])
+trait TxPoolRoutes extends RoutesSupport {
+  lazy val log = Logging(system, classOf[TxPoolRoutes])
 
-  def transActor: ActorRef
+  def txPoolActor: ActorRef
 
   /**
    * TODO (Chang):
@@ -28,12 +28,12 @@ trait TransactionRoutes extends RoutesSupport {
    *
    */
 
-  lazy val transRoutes: Route =
+  lazy val txPoolRoutes: Route =
     path(TRANSACTIONS) {
       parameters( 'ids.as(CsvSeq[String]).? ) { idsOpt =>
         val transactions: Future[Transactions] = idsOpt match {
-          case Some(ids) => (transActor ? GetTransactions(ids.toSet)).mapTo[Transactions]
-          case None => (transActor ? GetTransactions).mapTo[Transactions]
+          case Some(ids) => (txPoolActor ? GetTransactions(ids.toSet)).mapTo[Transactions]
+          case None => (txPoolActor ? GetTransactions).mapTo[Transactions]
         }
         complete(transactions)
       }
@@ -42,18 +42,18 @@ trait TransactionRoutes extends RoutesSupport {
       pathEnd {
         post {
           entity(as[Transaction]) { tx =>
-            val msgOnCreate: Future[Message] = (transActor ? CreateTransaction(tx)).mapTo[Message]
+            val msgOnCreate: Future[Message] = (txPoolActor ? CreateTransaction(tx)).mapTo[Message]
             onSuccess(msgOnCreate) { respondOnCreation }
           }
         }
       } ~
       path(Segment) { id =>
         get {
-          val maybeTx: Future[Option[Transaction]] = (transActor ? GetTransaction(id)).mapTo[Option[Transaction]]
+          val maybeTx: Future[Option[Transaction]] = (txPoolActor ? GetTransaction(id)).mapTo[Option[Transaction]]
           rejectEmptyResponse { complete(maybeTx) }
         } ~
         delete {
-          val txDeleted: Future[Message] = (transActor ? DeleteTransaction(id)).mapTo[Message]
+          val txDeleted: Future[Message] = (txPoolActor ? DeleteTransaction(id)).mapTo[Message]
           onSuccess(txDeleted) { respondOnDeletion }
         } ~
         put {
@@ -61,7 +61,7 @@ trait TransactionRoutes extends RoutesSupport {
             if (tx.id != id)
               complete((StatusCodes.InternalServerError, FailureMsg("Transaction ID in the data does not match ID on the path.")))
             else {
-              val msgOnUpdate: Future[Message] = (transActor ? UpdateTransaction(tx)).mapTo[Message]
+              val msgOnUpdate: Future[Message] = (txPoolActor ? UpdateTransaction(tx)).mapTo[Message]
               onSuccess(msgOnUpdate) { respondOnUpdate }
             }
           }

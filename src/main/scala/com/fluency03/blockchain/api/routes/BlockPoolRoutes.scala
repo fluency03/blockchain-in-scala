@@ -10,15 +10,15 @@ import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
 import com.fluency03.blockchain.api.{Blocks, Message}
-import com.fluency03.blockchain.api.actors.BlocksActor._
+import com.fluency03.blockchain.api.actors.BlockPoolActor._
 import com.fluency03.blockchain.core.Block
 
 import scala.concurrent.Future
 
-trait BlockRoutes extends RoutesSupport {
-  lazy val log = Logging(system, classOf[BlockRoutes])
+trait BlockPoolRoutes extends RoutesSupport {
+  lazy val log = Logging(system, classOf[BlockPoolRoutes])
 
-  def blocksActor: ActorRef
+  def blockPoolActor: ActorRef
 
   /**
    * TODO (Chang): new APIS:
@@ -30,12 +30,12 @@ trait BlockRoutes extends RoutesSupport {
    *
    */
 
-  lazy val blockRoutes: Route =
+  lazy val blockPoolRoutes: Route =
     path(BLOCKS) {
       parameters( 'hashes.as(CsvSeq[String]).? ) { hashesOpt =>
         val blocks: Future[Blocks] = hashesOpt match {
-          case Some(hashes) => (blocksActor ? GetBlocks(hashes.toSet)).mapTo[Blocks]
-          case None => (blocksActor ? GetBlocks).mapTo[Blocks]
+          case Some(hashes) => (blockPoolActor ? GetBlocks(hashes.toSet)).mapTo[Blocks]
+          case None => (blockPoolActor ? GetBlocks).mapTo[Blocks]
         }
         complete(blocks)
       }
@@ -44,18 +44,18 @@ trait BlockRoutes extends RoutesSupport {
       pathEnd {
         post {
           entity(as[Block]) { block =>
-            val blockCreated: Future[Message] = (blocksActor ? CreateBlock(block)).mapTo[Message]
+            val blockCreated: Future[Message] = (blockPoolActor ? CreateBlock(block)).mapTo[Message]
             onSuccess(blockCreated) { respondOnCreation }
           }
         }
       } ~
       path(Segment) { hash =>
         get {
-          val maybeBlock: Future[Option[Block]] = (blocksActor ? GetBlock(hash)).mapTo[Option[Block]]
+          val maybeBlock: Future[Option[Block]] = (blockPoolActor ? GetBlock(hash)).mapTo[Option[Block]]
           rejectEmptyResponse { complete(maybeBlock) }
         } ~
         delete {
-          val blockDeleted: Future[Message] = (blocksActor ? DeleteBlock(hash)).mapTo[Message]
+          val blockDeleted: Future[Message] = (blockPoolActor ? DeleteBlock(hash)).mapTo[Message]
           onSuccess(blockDeleted) { respondOnDeletion }
         }
       }

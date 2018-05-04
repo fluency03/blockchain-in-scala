@@ -1,29 +1,29 @@
 package com.fluency03.blockchain.api.actors
 
 import akka.actor.{ActorSelection, Props}
-import com.fluency03.blockchain.api.actors.BlocksActor._
+import com.fluency03.blockchain.api.actors.BlockPoolActor._
 import com.fluency03.blockchain.api._
 import com.fluency03.blockchain.core.Block
 
 import scala.collection.mutable
 
-object BlocksActor {
+object BlockPoolActor {
   final case object GetBlocks
   final case class GetBlocks(hashes: Set[String])
   final case class CreateBlock(block: Block)
   final case class GetBlock(hash: String)
   final case class DeleteBlock(hash: String)
 
-  def props: Props = Props[BlocksActor]
+  def props: Props = Props[BlockPoolActor]
 }
 
-class BlocksActor extends ActorSupport {
+class BlockPoolActor extends ActorSupport {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
   val blockchainActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKCHAIN_ACTOR_NAME)
   val networkActor: ActorSelection = context.actorSelection(PARENT_UP + NETWORK_ACTOR_NAME)
-  val transActor: ActorSelection = context.actorSelection(PARENT_UP + TRANS_ACTOR_NAME)
+  val txPoolActor: ActorSelection = context.actorSelection(PARENT_UP + TX_POOL_ACTOR_NAME)
 
   // TODO (Chang): need persistence
   var blocksPool = mutable.Map.empty[String, Block]

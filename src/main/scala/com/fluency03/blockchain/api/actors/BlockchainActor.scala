@@ -32,8 +32,8 @@ class BlockchainActor extends ActorSupport {
 
   import context.dispatcher
 
-  val blocksActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKS_ACTOR_NAME)
-  val transActor: ActorSelection = context.actorSelection(PARENT_UP + TRANS_ACTOR_NAME)
+  val blockPoolActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCK_POOL_ACTOR_NAME)
+  val txPoolActor: ActorSelection = context.actorSelection(PARENT_UP + TX_POOL_ACTOR_NAME)
   val networkActor: ActorSelection = context.actorSelection(PARENT_UP + NETWORK_ACTOR_NAME)
 
   // TODO (Chang): need persistence
@@ -101,7 +101,7 @@ class BlockchainActor extends ActorSupport {
 
   private def onAddBlockFromPool(hash: String): Unit = blockchainOpt match {
     case Some(blockchain) =>
-      val maybeBlock: Future[Option[Block]] = (blocksActor ? BlocksActor.GetBlock(hash)).mapTo[Option[Block]]
+      val maybeBlock: Future[Option[Block]] = (blockPoolActor ? BlockPoolActor.GetBlock(hash)).mapTo[Option[Block]]
       maybeBlock onComplete {
         case Success(blockOpt) => blockOpt match {
           case Some(block) =>
@@ -135,7 +135,7 @@ class BlockchainActor extends ActorSupport {
       if (ids.isEmpty) sender() ! Some(blockchain.mineNextBlock(data, Seq.empty[Transaction]))
       else {
         val maybeTrans: Future[Seq[Transaction]] =
-          (transActor ? TransactionsActor.GetTransactions(ids.toSet)).mapTo[Seq[Transaction]]
+          (txPoolActor ? TxPoolActor.GetTransactions(ids.toSet)).mapTo[Seq[Transaction]]
         maybeTrans onComplete {
           case Success(trans) => sender() ! Some(blockchain.mineNextBlock(data, trans))
           case Failure(_) => sender() ! None
@@ -157,7 +157,7 @@ class BlockchainActor extends ActorSupport {
       sender() ! FailureMsg("Blockchain does not exist.")
   }
 
-  private def onGetBlockFromPool(hash: String): Unit = blocksActor forward BlocksActor.GetBlock(hash)
+  private def onGetBlockFromPool(hash: String): Unit = blockPoolActor forward BlockPoolActor.GetBlock(hash)
 
 
   private def getBlockFromChain(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
