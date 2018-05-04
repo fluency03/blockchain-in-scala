@@ -1,6 +1,6 @@
 package com.fluency03.blockchain.api.actors
 
-import akka.actor.{ActorSelection, Props}
+import akka.actor.{ActorRef, ActorSelection, Props}
 import akka.pattern.ask
 import com.fluency03.blockchain.api.actors.BlockchainActor._
 import com.fluency03.blockchain.api._
@@ -102,15 +102,17 @@ class BlockchainActor extends ActorSupport {
   private def onAddBlockFromPool(hash: String): Unit = blockchainOpt match {
     case Some(blockchain) =>
       val maybeBlock: Future[Option[Block]] = (blockPoolActor ? BlockPoolActor.GetBlock(hash)).mapTo[Option[Block]]
+      val theSender: ActorRef = sender()
       maybeBlock onComplete {
         case Success(blockOpt) => blockOpt match {
           case Some(block) =>
+            log.error(theSender.toString())
             blockchainOpt = Some(blockchain.addBlock(block))
             hashIndexMapping += (block.hash -> blockchain.length)
-            sender() ! SuccessMsg(s"New Block ${block.hash} added on the chain.")
-          case None => sender() ! FailureMsg(s"Does not find Block $hash in the poll.")
+            theSender ! SuccessMsg(s"New Block ${block.hash} added on the chain.")
+          case None => theSender ! FailureMsg(s"Did not find Block $hash in the poll.")
         }
-        case Failure(t) => sender() ! FailureMsg(s"Cannot get Block $hash from the poll.")
+        case Failure(e) => theSender ! FailureMsg(s"Cannot get Block $hash from the poll: ${e.getMessage}")
       }
     case None =>
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")

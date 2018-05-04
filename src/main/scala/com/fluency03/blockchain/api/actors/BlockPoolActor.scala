@@ -54,10 +54,10 @@ class BlockPoolActor extends ActorSupport {
   ).values.toSeq
 
   private[this] def onCreateBlock(block: Block): Unit = {
-    if (blocksPool.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists.")
+    if (blocksPool.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists in the Pool.")
     else {
       blocksPool += (block.hash -> block)
-      sender() ! SuccessMsg(s"Block ${block.hash} created.")
+      sender() ! SuccessMsg(s"Block ${block.hash} created in the Pool.")
     }
   }
 
@@ -66,7 +66,7 @@ class BlockPoolActor extends ActorSupport {
   private[this] def onDeleteBlock(hash: String): Unit =
     if (blocksPool.contains(hash)) {
       blocksPool -= hash
-      sender() ! SuccessMsg(s"Block $hash deleted.")
-    } else sender() ! FailureMsg(s"Block $hash does not exist.")
+      sender() ! SuccessMsg(s"Block $hash deleted from the Pool.")
+    } else sender() ! FailureMsg(s"Block $hash does not exist in the Pool.")
 
 }

@@ -27,10 +27,10 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Im
       expectMsg(Seq.empty[Block])
 
       blockPoolActor ! CreateBlock(Block.genesisBlock)
-      expectMsg(SuccessMsg(s"Block ${Block.genesisBlock.hash} created."))
+      expectMsg(SuccessMsg(s"Block ${Block.genesisBlock.hash} created in the Pool."))
 
       blockPoolActor ! CreateBlock(Block.genesisBlock)
-      expectMsg(FailureMsg(s"Block ${Block.genesisBlock.hash} already exists."))
+      expectMsg(FailureMsg(s"Block ${Block.genesisBlock.hash} already exists in the Pool."))
 
       blockPoolActor ! GetBlocks
       expectMsg(Seq(Block.genesisBlock))
@@ -45,10 +45,10 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Im
       expectMsg(Some(Block.genesisBlock))
 
       blockPoolActor ! DeleteBlock(Block.genesisBlock.hash)
-      expectMsg(SuccessMsg(s"Block ${Block.genesisBlock.hash} deleted."))
+      expectMsg(SuccessMsg(s"Block ${Block.genesisBlock.hash} deleted from the Pool."))
 
       blockPoolActor ! DeleteBlock(Block.genesisBlock.hash)
-      expectMsg(FailureMsg(s"Block ${Block.genesisBlock.hash} does not exist."))
+      expectMsg(FailureMsg(s"Block ${Block.genesisBlock.hash} does not exist in the Pool."))
 
       blockPoolActor ! GetBlock(Block.genesisBlock.hash)
       expectMsg(None)

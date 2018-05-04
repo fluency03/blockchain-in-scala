@@ -30,10 +30,10 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
 
       val genesisTx: Transaction = createCoinbaseTx(0, genesisMiner, genesisTimestamp)
       txPoolActor ! CreateTransaction(genesisTx)
-      expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} created."))
+      expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} created in the Pool."))
 
       txPoolActor ! CreateTransaction(genesisTx)
-      expectMsg(FailureMsg(s"Transaction ${genesisTx.id} already exists."))
+      expectMsg(FailureMsg(s"Transaction ${genesisTx.id} already exists in the Pool."))
 
       txPoolActor ! GetTransactions
       expectMsg(Seq(genesisTx))
@@ -48,11 +48,11 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
       expectMsg(Some(genesisTx))
 
       txPoolActor ! UpdateTransaction(genesisTx)
-      expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} updated."))
+      expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} updated in the Pool."))
 
       val tx1: Transaction = createCoinbaseTx(1, genesisMiner, genesisTimestamp + 10)
       txPoolActor ! UpdateTransaction(tx1)
-      expectMsg(SuccessMsg(s"Transaction ${tx1.id} does not exist. New transaction created."))
+      expectMsg(SuccessMsg(s"Transaction ${tx1.id} does not exist. New transaction created in the Pool."))
 
       val tx0: Transaction = Transaction(Seq.empty[TxIn], Seq.empty[TxOut], genesisTimestamp, "0000")
       val idOfTx0 = hashOfTransaction(tx0)
@@ -60,10 +60,10 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
       expectMsg(FailureMsg(s"Transaction does not have valid ID. Should be: $idOfTx0; actually is: ${tx0.id}"))
 
       txPoolActor ! DeleteTransaction(genesisTx.id)
-      expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} deleted."))
+      expectMsg(SuccessMsg(s"Transaction ${genesisTx.id} deleted from the Pool."))
 
       txPoolActor ! DeleteTransaction(genesisTx.id)
-      expectMsg(FailureMsg(s"Transaction ${genesisTx.id} does not exist."))
+      expectMsg(FailureMsg(s"Transaction ${genesisTx.id} does not exist in the Pool."))
 
       txPoolActor ! GetTransaction(genesisTx.id)
       expectMsg(None)

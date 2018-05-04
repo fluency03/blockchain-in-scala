@@ -1,9 +1,10 @@
 package com.fluency03.blockchain.api.actors
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSelection, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
+import com.fluency03.blockchain.api.actors.BlockPoolActor.CreateBlock
 import com.fluency03.blockchain.api.actors.BlockchainActor._
-import com.fluency03.blockchain.api.{FailureMsg, SuccessMsg}
+import com.fluency03.blockchain.api.{BLOCKCHAIN_ACTOR_NAME, BLOCK_POOL_ACTOR_NAME, FailureMsg, SuccessMsg}
 import com.fluency03.blockchain.core.{Block, Blockchain, Transaction}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -16,7 +17,8 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
     shutdown()
   }
 
-  val blockchainActor: ActorRef = system.actorOf(Props[BlockchainActor])
+  val blockchainActor: ActorRef = system.actorOf(Props[BlockchainActor], BLOCKCHAIN_ACTOR_NAME)
+  val blockPoolActor: ActorRef = system.actorOf(Props[BlockPoolActor], BLOCK_POOL_ACTOR_NAME)
 
   "A BlockchainActor" should {
     "Respond with a Blockchain." in {
@@ -67,6 +69,28 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! CheckBlockchainValidity
       expectMsg(SuccessMsg("true"))
 
+      blockPoolActor ! CreateBlock(genesis)
+      expectMsg(SuccessMsg(s"Block ${genesis.hash} created in the Pool."))
+
+      within(15 seconds) {
+        blockchainActor ! GetBlockFromPool(genesis.hash)
+        expectMsg(Some(genesis))
+
+        blockchainActor ! GetBlockFromPool("someid")
+        expectMsg(None)
+      }
+
+      within(30 seconds) {
+        blockchainActor ! AddBlockFromPool(genesis.hash)
+        expectMsg(SuccessMsg(s"New Block ${genesis.hash} added on the chain."))
+
+        blockchainActor ! AddBlockFromPool("someid")
+        expectMsg(FailureMsg(s"Did not find Block someid in the poll."))
+      }
+
+      blockchainActor ! RemoveBlock
+      expectMsg(SuccessMsg(s"Last Block ${genesis.hash} removed from the chain."))
+
       within(15 seconds) {
         blockchainActor ! MineNextBlock("next", Seq.empty[String])
         val actualBlock = expectMsgType[Some[Block]].get
@@ -85,6 +109,9 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       expectMsg(FailureMsg("Blockchain does not exist."))
 
       blockchainActor ! AddBlock(genesis)
+      expectMsg(FailureMsg("Blockchain does not exist."))
+
+      blockchainActor ! AddBlockFromPool(genesis.hash)
       expectMsg(FailureMsg("Blockchain does not exist."))
 
       blockchainActor ! RemoveBlock
