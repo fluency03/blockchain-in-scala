@@ -91,7 +91,7 @@ class BlockchainActor extends ActorSupport {
     case None =>
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
       hashIndexMapping.clear()
-      None
+      sender() ! None
   }
 
   private def onGetTxOfBlock(id: String, hash: String): Unit = getBlockFromChain(hash) match {

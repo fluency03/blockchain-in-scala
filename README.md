@@ -35,45 +35,62 @@ Summary:
 
 ### blockchain
 
-
 ```
-
+GET  /blockchain
+POST /blockchain
+DEL  /blockchain
+GET  /blockchain/validity
+GET  /blockchain/last-block
+DEL  /blockchain/last-block
+POST /blockchain/new-block
+POST /blockchain/next-block
+GET  /blockchain/block/:hash
+GET  /blockchain/block/:hash/transaction/:id
 ```
 
 
 ### block
 
 ```
-
+GET  /blocks
+GET  /block/:hash
+POST /block
+DEL  /block/:hash
+GET  /block/:hash/transaction/:id
 ```
-
 
 
 ### transaction
 
 ```
-
+GET  /transactions
+GET  /transaction/:id
+POST /transaction
+PUT  /transaction/:id
+DEL  /transaction/:id
 ```
-
-
 
 
 ### network
 
 ```
-
+GET  /network
+POST /peer
+GET  /peers
+GET  /peers?names=name1,name2
+GET  /peer/:name
 ```
-
 
 
 ### generic
 
 ```
-
+POST /generic/to-sha256
+POST /generic/to-base64
+POST /generic/from-base64
+POST /generic/to-epoch-time
+POST /generic/time-from-epoch
 ```
-
-
-
 
 
 
