@@ -6,7 +6,7 @@ organization := "com.github.fluency03"
 
 name := "blockchain-in-scala"
 
-version := "0.0.6"
+version := "0.0.8"
 
 scalaVersion := "2.12.0"
 
