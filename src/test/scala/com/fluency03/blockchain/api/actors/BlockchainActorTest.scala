@@ -156,6 +156,9 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! CheckBlockchainValidity
       expectMsg(FailureMsg("Blockchain does not exist."))
 
+      blockchainActor ! GetLastBlock
+      expectMsg(None)
+
       blockchainActor ! MineNextBlock("next", Seq.empty[String])
       expectMsg(None)
 
