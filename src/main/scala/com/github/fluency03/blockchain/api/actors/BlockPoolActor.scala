@@ -1,11 +1,15 @@
 package com.github.fluency03.blockchain.api.actors
 
-import akka.actor.{ActorSelection, Props}
+import akka.actor.{ActorRef, ActorSelection, Props}
+import akka.pattern.ask
 import com.github.fluency03.blockchain.api.actors.BlockPoolActor._
 import com.github.fluency03.blockchain.api._
+import com.github.fluency03.blockchain.api.actors.BlockchainActor
 import com.github.fluency03.blockchain.core.Block
 
 import scala.collection.mutable
+import scala.concurrent.Future
+import scala.util.{Failure, Success}
 
 object BlockPoolActor {
   final case object GetBlocks
@@ -14,6 +18,7 @@ object BlockPoolActor {
   final case class GetBlock(hash: String)
   final case class DeleteBlock(hash: String)
   final case class GetTxOfBlock(id: String, hash: String)
+  final case class MineAndAddNextBlock(data: String, ids: Seq[String])
 
   def props: Props = Props[BlockPoolActor]
 }
@@ -36,13 +41,13 @@ class BlockPoolActor extends ActorSupport {
     case GetBlock(hash) => onGetBlock(hash)
     case DeleteBlock(hash) => onDeleteBlock(hash)
     case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
+    case MineAndAddNextBlock(data, ids) => onMineAndAddNextBlock(data, ids)
     case _ => unhandled _
   }
 
   /**
    * TODO (Chang): new APIS:
    *  - CreateBlock
-   *  - ContainsBlock
    *
    */
 
@@ -76,5 +81,21 @@ class BlockPoolActor extends ActorSupport {
     case Some(block) => sender() ! block.transactions.find(_.id == id)
     case None => sender() ! None
   }
+
+  private def onMineAndAddNextBlock(data: String, ids: Seq[String]): Unit = {
+    val maybeBlock: Future[Option[Block]] =
+      (blockchainActor ? BlockchainActor.MineNextBlock(data, ids)).mapTo[Option[Block]]
+    val theSender: ActorRef = sender()
+    maybeBlock onComplete {
+      case Success(blockOpt) => blockOpt match {
+        case Some(block) =>
+          blocksPool += (block.hash -> block)
+          Some(block)
+        case None => theSender ! None
+      }
+      case Failure(_) => theSender ! None
+    }
+  }
+
 
 }

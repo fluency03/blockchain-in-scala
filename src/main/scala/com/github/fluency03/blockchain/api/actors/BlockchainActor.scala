@@ -70,7 +70,7 @@ class BlockchainActor extends ActorSupport {
   }
 
   /**
-   * Handlers for each of the Messages.
+   * Handlers for each of the BlockchainMsg.
    */
 
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt
@@ -93,6 +93,20 @@ class BlockchainActor extends ActorSupport {
       hashIndexMapping.clear()
       sender() ! SuccessMsg("Blockchain deleted.")
     } else sender() ! FailureMsg("Blockchain does not exist.")
+
+  private def onCheckBlockchainValidity(): Unit = blockchainOpt match {
+    case Some(blockchain) =>
+      if (blockchain.isValid) sender() ! SuccessMsg("true")
+      else sender() ! SuccessMsg("false")
+    case None =>
+      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
+      hashIndexMapping.clear()
+      sender() ! FailureMsg("Blockchain does not exist.")
+  }
+
+  /**
+   * Handlers for each of the BlockMsg.
+   */
 
   private def onGetBlockFromChain(hash: String): Unit = sender() ! getBlockFromChain(hash)
 
@@ -169,16 +183,6 @@ class BlockchainActor extends ActorSupport {
       log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
       hashIndexMapping.clear()
       sender() ! None
-  }
-
-  private def onCheckBlockchainValidity(): Unit = blockchainOpt match {
-    case Some(blockchain) =>
-      if (blockchain.isValid) sender() ! SuccessMsg("true")
-      else sender() ! SuccessMsg("false")
-    case None =>
-      log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
-      hashIndexMapping.clear()
-      sender() ! FailureMsg("Blockchain does not exist.")
   }
 
   private def onGetBlockFromPool(hash: String): Unit = blockPoolActor forward BlockPoolActor.GetBlock(hash)

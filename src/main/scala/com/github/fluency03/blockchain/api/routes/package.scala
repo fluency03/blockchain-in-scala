@@ -20,7 +20,8 @@ package object routes {
   val NEW_BLOCK = "new-block"
   val NEXT_BLOCK = "next-block"
 
-  // block
+  // block-pool
+  val BLOCK_POOL = "block-pool"
   val BLOCKS = "blocks"
   val BLOCK = "block"
 
@@ -29,7 +30,8 @@ package object routes {
   val PEERS = "peers"
   val PEER = "peer"
 
-  // transaction
+  // tx-pool
+  val TX_POOL = "tx-pool"
   val TRANSACTIONS = "transactions"
   val TRANSACTION = "transaction"
 

@@ -28,40 +28,42 @@ trait TxPoolRoutes extends RoutesSupport {
    */
 
   lazy val txPoolRoutes: Route =
-    path(TRANSACTIONS) {
-      parameters( 'ids.as(CsvSeq[String]).? ) { idsOpt =>
-        val transactions: Future[Transactions] = idsOpt match {
-          case Some(ids) => (txPoolActor ? GetTransactions(ids)).mapTo[Transactions]
-          case None => (txPoolActor ? GetTransactions).mapTo[Transactions]
-        }
-        complete(transactions)
-      }
-    } ~
-    pathPrefix(TRANSACTION) {
-      pathEnd {
-        post {
-          entity(as[Transaction]) { tx =>
-            val msgOnCreate: Future[Message] = (txPoolActor ? AddTransaction(tx)).mapTo[Message]
-            onSuccess(msgOnCreate) { respondOnCreation }
+    path(TX_POOL) {
+      path(TRANSACTIONS) {
+        parameters('ids.as(CsvSeq[String]).?) { idsOpt =>
+          val transactions: Future[Transactions] = idsOpt match {
+            case Some(ids) => (txPoolActor ? GetTransactions(ids)).mapTo[Transactions]
+            case None => (txPoolActor ? GetTransactions).mapTo[Transactions]
           }
+          complete(transactions)
         }
       } ~
-      path(Segment) { id =>
-        get {
-          val maybeTx: Future[Option[Transaction]] = (txPoolActor ? GetTransaction(id)).mapTo[Option[Transaction]]
-          rejectEmptyResponse { complete(maybeTx) }
+      pathPrefix(TRANSACTION) {
+        pathEnd {
+          post {
+            entity(as[Transaction]) { tx =>
+              val msgOnCreate: Future[Message] = (txPoolActor ? AddTransaction(tx)).mapTo[Message]
+              onSuccess(msgOnCreate) { respondOnCreation }
+            }
+          }
         } ~
-        delete {
-          val txDeleted: Future[Message] = (txPoolActor ? DeleteTransaction(id)).mapTo[Message]
-          onSuccess(txDeleted) { respondOnDeletion }
-        } ~
-        put {
-          entity(as[Transaction]) { tx =>
-            if (tx.id != id)
-              complete((StatusCodes.InternalServerError, FailureMsg("Transaction ID in the data does not match ID on the path.")))
-            else {
-              val msgOnUpdate: Future[Message] = (txPoolActor ? UpdateTransaction(tx)).mapTo[Message]
-              onSuccess(msgOnUpdate) { respondOnUpdate }
+        path(Segment) { id =>
+          get {
+            val maybeTx: Future[Option[Transaction]] = (txPoolActor ? GetTransaction(id)).mapTo[Option[Transaction]]
+            rejectEmptyResponse { complete(maybeTx) }
+          } ~
+          delete {
+            val txDeleted: Future[Message] = (txPoolActor ? DeleteTransaction(id)).mapTo[Message]
+            onSuccess(txDeleted) { respondOnDeletion }
+          } ~
+          put {
+            entity(as[Transaction]) { tx =>
+              if (tx.id != id)
+                complete((StatusCodes.InternalServerError, FailureMsg("Transaction ID in the data does not match ID on the path.")))
+              else {
+                val msgOnUpdate: Future[Message] = (txPoolActor ? UpdateTransaction(tx)).mapTo[Message]
+                onSuccess(msgOnUpdate) { respondOnUpdate }
+              }
             }
           }
         }

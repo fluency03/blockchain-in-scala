@@ -2,7 +2,6 @@ package com.github.fluency03.blockchain.api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
-import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
