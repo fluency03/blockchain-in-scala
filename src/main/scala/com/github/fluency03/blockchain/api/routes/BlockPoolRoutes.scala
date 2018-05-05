@@ -11,7 +11,7 @@ import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
 import com.github.fluency03.blockchain.api.{Blocks, Input, Message}
 import com.github.fluency03.blockchain.api.actors.BlockPoolActor._
-import com.github.fluency03.blockchain.api.actors.BlockchainActor.MineNextBlock
+import com.github.fluency03.blockchain.api.actors.BlockchainActor
 import com.github.fluency03.blockchain.core.{Block, Transaction}
 
 import scala.concurrent.Future
@@ -28,7 +28,7 @@ trait BlockPoolRoutes extends RoutesSupport {
    */
 
   lazy val blockPoolRoutes: Route =
-    path(BLOCK_POOL) {
+    pathPrefix(BLOCK_POOL) {
       path(BLOCKS) {
         parameters('hashes.as(CsvSeq[String]).?) { hashesOpt: Option[Seq[String]] =>
           val blocks: Future[Blocks] = hashesOpt match {
@@ -64,10 +64,10 @@ trait BlockPoolRoutes extends RoutesSupport {
               val maybeBlock: Future[Option[Block]] = (blockPoolActor ? GetBlock(hash)).mapTo[Option[Block]]
               rejectEmptyResponse { complete(maybeBlock) }
             } ~
-              delete {
-                val blockDeleted: Future[Message] = (blockPoolActor ? DeleteBlock(hash)).mapTo[Message]
-                onSuccess(blockDeleted) { respondOnDeletion }
-              }
+            delete {
+              val blockDeleted: Future[Message] = (blockPoolActor ? DeleteBlock(hash)).mapTo[Message]
+              onSuccess(blockDeleted) { respondOnDeletion }
+            }
           } ~
           path(TRANSACTION / Segment) { id =>
             get {

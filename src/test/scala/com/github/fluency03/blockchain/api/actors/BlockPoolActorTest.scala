@@ -3,7 +3,7 @@ package com.github.fluency03.blockchain.api.actors
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.github.fluency03.blockchain.api.actors.BlockPoolActor._
-import com.github.fluency03.blockchain.api.{FailureMsg, SuccessMsg}
+import com.github.fluency03.blockchain.api._
 import com.github.fluency03.blockchain.core.Block
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -14,7 +14,9 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with Im
     shutdown()
   }
 
-  val blockPoolActor: ActorRef = system.actorOf(Props[BlockPoolActor])
+  val blockchainActor: ActorRef = system.actorOf(Props[BlockchainActor], BLOCKCHAIN_ACTOR_NAME)
+  val blockPoolActor: ActorRef = system.actorOf(Props[BlockPoolActor], BLOCK_POOL_ACTOR_NAME)
+  val txPoolActor: ActorRef = system.actorOf(Props[TxPoolActor], TX_POOL_ACTOR_NAME)
 
   "A BlocksActor" should {
     "Respond with a Seq of Blocks." in {

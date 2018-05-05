@@ -28,7 +28,7 @@ trait TxPoolRoutes extends RoutesSupport {
    */
 
   lazy val txPoolRoutes: Route =
-    path(TX_POOL) {
+    pathPrefix(TX_POOL) {
       path(TRANSACTIONS) {
         parameters('ids.as(CsvSeq[String]).?) { idsOpt =>
           val transactions: Future[Transactions] = idsOpt match {
