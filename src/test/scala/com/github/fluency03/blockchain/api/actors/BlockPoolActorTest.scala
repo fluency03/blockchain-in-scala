@@ -4,7 +4,7 @@ import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
 import com.github.fluency03.blockchain.api._
 import com.github.fluency03.blockchain.api.actors.BlockPoolActor._
-import com.github.fluency03.blockchain.api.actors.BlockchainActor.CreateBlockchain
+import com.github.fluency03.blockchain.api.actors.BlockchainActor.{CreateBlockchain, DeleteBlockchain}
 import com.github.fluency03.blockchain.core.{Block, Transaction}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -58,7 +58,6 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with De
       blockPoolActor ! GetBlock(Block.genesisBlock.hash)
       expectMsg(Some(Block.genesisBlock))
 
-
       within(15 seconds) {
         blockchainActor ! CreateBlockchain
         expectMsgType[SuccessMsg]
@@ -79,6 +78,16 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with De
 
       blocks.length shouldEqual 2
       blocks should contain allOf (Block.genesisBlock, actualBlock)
+
+      within(15 seconds) {
+        blockchainActor ! DeleteBlockchain
+        expectMsg(SuccessMsg("Blockchain deleted."))
+      }
+
+      within(15 seconds) {
+        blockPoolActor ! MineAndAddNextBlock("next", Seq.empty[String])
+        expectMsg(None)
+      }
 
       blockPoolActor ! DeleteBlock(Block.genesisBlock.hash)
       expectMsg(SuccessMsg(s"Block ${Block.genesisBlock.hash} deleted from the Pool."))
