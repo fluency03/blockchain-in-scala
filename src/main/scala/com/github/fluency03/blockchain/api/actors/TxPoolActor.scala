@@ -46,6 +46,10 @@ class TxPoolActor extends ActorSupport {
     case _ => unhandled _
   }
 
+  /**
+   * Handlers for each of the Messages.
+   */
+
   private def onGetTransactions(): Unit = sender() ! transPool.values.toSeq
 
   private def onGetTransactions(ids: Seq[String]): Unit =

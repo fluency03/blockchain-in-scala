@@ -11,18 +11,22 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object BlockchainActor {
-  final case object GetBlockchain
-  final case object CreateBlockchain
-  final case object DeleteBlockchain
-  final case class GetBlockFromChain(hash: String)
-  final case object GetLastBlock
-  final case class GetTxOfBlock(id: String, hash: String)
-  final case class AppendBlock(block: Block)
-  final case class AppendBlockFromPool(hash: String)
-  final case object RemoveLastBlock
-  final case class MineNextBlock(data: String, ids: Seq[String])
-  final case object CheckBlockchainValidity
-  final case class GetBlockFromPool(hash: String)
+  sealed trait BlockchainMsg
+  sealed trait BlockMsg
+
+  final case object GetBlockchain extends BlockchainMsg
+  final case object CreateBlockchain extends BlockchainMsg
+  final case object DeleteBlockchain extends BlockchainMsg
+  final case object CheckBlockchainValidity extends BlockchainMsg
+
+  final case class GetBlockFromChain(hash: String) extends BlockMsg
+  final case object GetLastBlock extends BlockMsg
+  final case class GetTxOfBlock(id: String, hash: String) extends BlockMsg
+  final case class AppendBlock(block: Block) extends BlockMsg
+  final case class AppendBlockFromPool(hash: String) extends BlockMsg
+  final case object RemoveLastBlock extends BlockMsg
+  final case class MineNextBlock(data: String, ids: Seq[String]) extends BlockMsg
+  final case class GetBlockFromPool(hash: String) extends BlockMsg
 
   def props: Props = Props[BlockchainActor]
 }
@@ -42,9 +46,19 @@ class BlockchainActor extends ActorSupport {
   val hashIndexMapping = mutable.Map.empty[String, Int]
 
   def receive: Receive = {
+    case msg: BlockchainMsg => inCaseOfBlockchainMsg(msg)
+    case msg: BlockMsg => inCaseOfBlockMsg(msg)
+    case _ => unhandled _
+  }
+
+  private def inCaseOfBlockchainMsg(msg: BlockchainMsg): Unit = msg match {
     case GetBlockchain => onGetBlockchain()
     case CreateBlockchain => onCreateBlockchain()
     case DeleteBlockchain => onDeleteBlockchain()
+    case CheckBlockchainValidity => onCheckBlockchainValidity()
+  }
+
+  private def inCaseOfBlockMsg(msg: BlockMsg): Unit = msg match {
     case GetBlockFromChain(hash) => onGetBlockFromChain(hash)
     case GetLastBlock => onGetLastBlock()
     case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
@@ -52,15 +66,11 @@ class BlockchainActor extends ActorSupport {
     case AppendBlockFromPool(hash) => onAppendBlockFromPool(hash)
     case RemoveLastBlock => onRemoveLastBlock()
     case MineNextBlock(data, ids) => onMineNextBlock(data, ids)
-    case CheckBlockchainValidity => onCheckBlockchainValidity()
     case GetBlockFromPool(hash) => onGetBlockFromPool(hash)
-    case _ => unhandled _
   }
 
   /**
-   * TODO (Chang):
-   *  - GetLastBlock
-   *
+   * Handlers for each of the Messages.
    */
 
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt

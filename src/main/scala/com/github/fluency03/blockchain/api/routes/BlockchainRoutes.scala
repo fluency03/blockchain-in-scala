@@ -20,11 +20,6 @@ trait BlockchainRoutes extends RoutesSupport {
 
   def blockchainActor: ActorRef
 
-  /**
-   * TODO (Chang):
-   *
-   */
-
   lazy val blockchainRoutes: Route =
     pathPrefix(BLOCKCHAIN) {
       path(VALIDITY) {

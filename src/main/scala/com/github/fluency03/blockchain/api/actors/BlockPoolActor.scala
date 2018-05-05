@@ -46,6 +46,10 @@ class BlockPoolActor extends ActorSupport {
    *
    */
 
+  /**
+   * Handlers for each of the Messages.
+   */
+
   private[this] def onGetBlocks(): Unit = sender() ! blocksPool.values.toSeq
 
   private[this] def onGetBlocks(hashes: Set[String]): Unit = sender() ! blocksPool.filterKeys(

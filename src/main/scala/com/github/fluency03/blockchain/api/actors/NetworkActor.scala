@@ -49,6 +49,10 @@ class NetworkActor extends ActorSupport {
     case _ => unhandled _
   }
 
+  /**
+   * Handlers for each of the Messages.
+   */
+
   private def onGetNetwork(): Unit = sender() ! context.children.map(_.path.name).toSet
 
   private def onGetPeers(): Unit = Future.sequence(context.children.map(p => {
