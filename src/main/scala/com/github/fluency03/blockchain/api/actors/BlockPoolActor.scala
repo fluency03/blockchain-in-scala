@@ -4,7 +4,6 @@ import akka.actor.{ActorRef, ActorSelection, Props}
 import akka.pattern.ask
 import com.github.fluency03.blockchain.api.actors.BlockPoolActor._
 import com.github.fluency03.blockchain.api._
-import com.github.fluency03.blockchain.api.actors.BlockchainActor
 import com.github.fluency03.blockchain.core.Block
 
 import scala.collection.mutable
@@ -90,7 +89,7 @@ class BlockPoolActor extends ActorSupport {
       case Success(blockOpt) => blockOpt match {
         case Some(block) =>
           blocksPool += (block.hash -> block)
-          Some(block)
+          theSender ! Some(block)
         case None => theSender ! None
       }
       case Failure(_) => theSender ! None
