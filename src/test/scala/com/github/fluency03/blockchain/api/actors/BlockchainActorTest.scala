@@ -2,9 +2,9 @@ package com.github.fluency03.blockchain.api.actors
 
 import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.testkit.{DefaultTimeout, ImplicitSender, TestKit}
+import com.github.fluency03.blockchain.api._
 import com.github.fluency03.blockchain.api.actors.BlockPoolActor.AddBlock
 import com.github.fluency03.blockchain.api.actors.BlockchainActor._
-import com.github.fluency03.blockchain.api._
 import com.github.fluency03.blockchain.api.actors.TxPoolActor.AddTransaction
 import com.github.fluency03.blockchain.core.Transaction.createCoinbaseTx
 import com.github.fluency03.blockchain.core.{Block, Blockchain, Transaction}

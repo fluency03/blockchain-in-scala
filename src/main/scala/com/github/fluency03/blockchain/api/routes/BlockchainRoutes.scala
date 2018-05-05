@@ -8,7 +8,7 @@ import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
-import com.github.fluency03.blockchain.api.{FailureMsg, Input, Message}
+import com.github.fluency03.blockchain.api.{Input, Message}
 import com.github.fluency03.blockchain.api.actors.BlockchainActor._
 import com.github.fluency03.blockchain.core.{Block, Blockchain, Transaction}
 
