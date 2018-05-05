@@ -26,6 +26,8 @@ class BlockPoolActor extends ActorSupport {
   override def preStart(): Unit = log.info("{} started!", this.getClass.getSimpleName)
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
+  import context.dispatcher
+
   val blockchainActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKCHAIN_ACTOR_NAME)
   val networkActor: ActorSelection = context.actorSelection(PARENT_UP + NETWORK_ACTOR_NAME)
   val txPoolActor: ActorSelection = context.actorSelection(PARENT_UP + TX_POOL_ACTOR_NAME)
@@ -43,12 +45,6 @@ class BlockPoolActor extends ActorSupport {
     case MineAndAddNextBlock(data, ids) => onMineAndAddNextBlock(data, ids)
     case _ => unhandled _
   }
-
-  /**
-   * TODO (Chang): new APIS:
-   *  - CreateBlock
-   *
-   */
 
   /**
    * Handlers for each of the Messages.

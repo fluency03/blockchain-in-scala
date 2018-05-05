@@ -19,12 +19,6 @@ trait BlockPoolRoutes extends RoutesSupport {
 
   def blockPoolActor: ActorRef
 
-  /**
-   * TODO (Chang): new APIS:
-   *  - CreateBlock
-   *
-   */
-
   lazy val blockPoolRoutes: Route =
     pathPrefix(BLOCK_POOL) {
       path(BLOCKS) {
