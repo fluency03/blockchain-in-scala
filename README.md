@@ -52,22 +52,23 @@ GET  /blockchain/block/:hash/transaction/:id
 #### block
 
 ```
-GET  /blocks
-GET  /block/:hash
-POST /block
-DEL  /block/:hash
-GET  /block/:hash/transaction/:id
+GET  /block-pool/blocks
+GET  /block-pool/block/:hash
+POST /block-pool/block
+POST /block-pool/next-block
+DEL  /block-pool/block/:hash
+GET  /block-pool/block/:hash/transaction/:id
 ```
 
 
 #### transaction
 
 ```
-GET  /transactions
-GET  /transaction/:id
-POST /transaction
-PUT  /transaction/:id
-DEL  /transaction/:id
+GET  /tx-pool/transactions
+GET  /tx-pool/transaction/:id
+POST /tx-pool/transaction
+PUT  /tx-pool/transaction/:id
+DEL  /tx-pool/transaction/:id
 ```
 
 
