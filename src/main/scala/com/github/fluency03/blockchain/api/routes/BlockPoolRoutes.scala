@@ -2,16 +2,14 @@ package com.github.fluency03.blockchain.api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
-import akka.http.scaladsl.server.Directives.{path, _}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.directives.MethodDirectives.{delete, get, post}
-import akka.http.scaladsl.server.directives.PathDirectives.path
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.http.scaladsl.unmarshalling.PredefinedFromStringUnmarshallers.CsvSeq
 import akka.pattern.ask
 import com.github.fluency03.blockchain.api.{Blocks, Input, Message}
 import com.github.fluency03.blockchain.api.actors.BlockPoolActor._
-import com.github.fluency03.blockchain.api.actors.BlockchainActor
 import com.github.fluency03.blockchain.core.{Block, Transaction}
 
 import scala.concurrent.Future
