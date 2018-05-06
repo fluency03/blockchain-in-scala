@@ -43,8 +43,6 @@ object Base58 {
 
   def decodeToHex(str: String): String = new String(decode(str))
 
-  def checkEncodeHex(str: String): String = encodeString(str + str.hex2Bytes.toSha256Digest.toSha256.substring(0, 8))
-
   def checkEncode(bytes: Bytes): String = encode(bytes ++ bytes.toSha256Digest.toSha256Digest.slice(0, 4))
 
 
