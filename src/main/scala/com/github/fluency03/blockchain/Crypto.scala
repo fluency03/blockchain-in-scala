@@ -71,7 +71,7 @@ object Crypto {
     privateKey.asInstanceOf[ECPrivateKey].getD.toByteArray
 
   def publicKeyToAddress(publicKey: String, networkBytes: String = "00"): String =
-    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.toHash160Bytes)
+    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.toHash160Digest)
 
 
 

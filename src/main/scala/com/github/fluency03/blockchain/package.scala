@@ -39,7 +39,7 @@ package object blockchain {
     def hex2Binary: String = binaryOfHex(str)
     def toBase64: String = base64Of(str.getBytes)
     def toSha256: String = SHA256.hash(str)
-    def toRipemd160Of: String = ripemd160Of(str)
+    def toRipemd160: String = RIPEMD160.hash(str)
   }
 
   implicit class BytesImplicit(val bytes: Bytes) {
@@ -48,10 +48,10 @@ package object blockchain {
     def toBase64: String = base64Of(bytes)
     def toSha256: String = SHA256.hash(bytes)
     def toSha256Digest: Bytes = SHA256.hashToDigest(bytes)
-    def toRipemd160Of: String = ripemd160Of(bytes)
-    def toRipemd160ODigest: Bytes = ripemd160ODigestOf(bytes)
-    def toHash160: String = hash160Of(bytes)
-    def toHash160Bytes: Bytes = hash160BytesOf(bytes)
+    def toRipemd160Of: String = RIPEMD160.hash(bytes)
+    def toRipemd160ODigest: Bytes = RIPEMD160.hashToDigest(bytes)
+    def toHash160: String = RIPEMD160.doubleHash(bytes)
+    def toHash160Digest: Bytes = RIPEMD160.doubleHashToDigest(bytes)
   }
 
   implicit class PublicKeyImplicit(val publicKey: PublicKey) {
@@ -101,24 +101,5 @@ package object blockchain {
    * Decode a Base64 to String.
    */
   def fromBase64(base64: String): String = new String(Base64.decode(base64), "UTF-8")
-
-
-  def ripemd160Of(str: String): String = ripemd160Of(str.getBytes)
-
-  def ripemd160Of(bytes: Bytes): String = ripemd160ODigestOf(bytes).map("%02x".format(_)).mkString
-
-  def ripemd160ODigestOf(bytes: Bytes): Bytes = {
-    val (raw, messageDigest) = (bytes, new RIPEMD160Digest())
-    messageDigest.update(raw, 0, raw.length)
-    val out = Array.fill[Byte](messageDigest.getDigestSize)(0)
-    messageDigest.doFinal(out, 0)
-    out
-  }
-
-  def hash160Of(bytes: Bytes): String = ripemd160Of(SHA256.hashToDigest(bytes))
-
-  def hash160BytesOf(bytes: Bytes): Bytes = ripemd160ODigestOf(SHA256.hashToDigest(bytes))
-
-
 
 }
