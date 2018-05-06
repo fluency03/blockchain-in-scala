@@ -61,12 +61,12 @@ object Transaction {
       hashOfTransaction(cbTx) == cbTx.id
 
   // hash of transaction
-  def hashOfTransaction(tx: Transaction): String = sha256Of(
+  def hashOfTransaction(tx: Transaction): String = SHA256.hashAll(
     tx.txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
     tx.txOuts.map(tx => tx.address + tx.amount).mkString,
     tx.timestamp.toString)
 
-  def hashOfTransaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): String = sha256Of(
+  def hashOfTransaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): String = SHA256.hashAll(
     txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
     txOuts.map(tx => tx.address + tx.amount).mkString,
     timestamp.toString)

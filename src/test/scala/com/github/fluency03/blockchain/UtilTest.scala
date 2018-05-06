@@ -7,13 +7,6 @@ import org.scalatest.{FlatSpec, Matchers}
 
 class UtilTest extends FlatSpec with Matchers with MockFactory {
 
-  "hashOf" should "convert a String to SHA256 hash." in {
-    sha256Of("open sesame") shouldEqual "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
-    sha256Of("open", " ", "sesame") shouldEqual "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
-    sha256Of("") shouldEqual "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-    sha256Of("0000000000000000000000000000000000000000000000000000000000000") shouldEqual "a738b0b5c122d30af5b9da1c63c5d590a31aeafa7de1723ee9b5e3a11c9def35"
-  }
-
   "getCurrentTimestamp" should "be able to get current Unix epoch time." in {
     val t1 = getCurrentTimestamp
     val t2 = getCurrentTimestamp

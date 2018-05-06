@@ -11,7 +11,7 @@ object Merkle {
     case 0 => ZERO64
     case 1 => hashes.head
     case n if n % 2 != 0 => computeRootOfHashes(hashes :+ hashes.last) // append last element again
-    case _ => computeRootOfHashes(hashes.grouped(2).map { a => sha256Of(a(0), a(1)) } .toList)
+    case _ => computeRootOfHashes(hashes.grouped(2).map { a => SHA256.hashAll(a(0), a(1)) } .toList)
   }
 
 }

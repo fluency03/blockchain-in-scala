@@ -55,6 +55,6 @@ object BlockHeader {
       timestamp: Long,
       difficulty: Int,
       nonce: Int): String =
-    sha256Of(index.toString, previousHash, data, merkleHash, timestamp.toString, difficulty.toString, nonce.toString)
+    SHA256.hashAll(index.toString, previousHash, data, merkleHash, timestamp.toString, difficulty.toString, nonce.toString)
 
 }

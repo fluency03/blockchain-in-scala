@@ -59,10 +59,21 @@ object Crypto {
     KeyFactory.getInstance(KEY_ALGORITHM)
       .generatePrivate(new ECPrivateKeySpec(new BigInteger(hex, 16), ecSpec))
 
-  def publicKeyToHex(publicKey: PublicKey): String =
-    publicKey.asInstanceOf[ECPublicKey].getQ.getEncoded(false).toHex
+  def publicKeyToHex(publicKey: PublicKey): String = publicKeyToBytes(publicKey).toHex
 
   def privateKeyToHex(privateKey: PrivateKey): String =
     privateKey.asInstanceOf[ECPrivateKey].getD.toString(16)
+
+  def publicKeyToBytes(publicKey: PublicKey): Bytes =
+    publicKey.asInstanceOf[ECPublicKey].getQ.getEncoded(false)
+
+  def privateKeyToBytes(privateKey: PrivateKey): Bytes =
+    privateKey.asInstanceOf[ECPrivateKey].getD.toByteArray
+
+  def publicKeyToAddress(publicKey: String, networkBytes: String = "00"): String =
+    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.toHash160Bytes)
+
+
+
 
 }

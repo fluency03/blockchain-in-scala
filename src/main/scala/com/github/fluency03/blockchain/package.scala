@@ -1,11 +1,12 @@
 package com.github.fluency03
 
 import java.nio.charset.Charset
-import java.security.{MessageDigest, PrivateKey, PublicKey}
+import java.security.{PrivateKey, PublicKey}
 import java.time.Instant
 
 import com.github.fluency03.blockchain.Crypto.{privateKeyToHex, publicKeyToHex}
 import com.github.fluency03.blockchain.core.{Peer, PeerSimple, TxIn, TxOut}
+import org.bouncycastle.crypto.digests.RIPEMD160Digest
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.native.Serialization
 import org.json4s.{Formats, NoTypeHints}
@@ -33,15 +34,24 @@ package object blockchain {
 
   implicit class StringImplicit(val str: String) {
     def hex2Long: Long = java.lang.Long.parseLong(str, 16)
+    def hex2BigInt: BigInt = BigInt(str, 16)
     def hex2Bytes: Array[Byte] = Hex.decode(str)
     def hex2Binary: String = binaryOfHex(str)
-    def toBase64: String = base64Of(str.getBytes("UTF-8"))
-    def toSha256: String = sha256HashOf(str)
+    def toBase64: String = base64Of(str.getBytes)
+    def toSha256: String = SHA256.hash(str)
+    def toRipemd160Of: String = ripemd160Of(str)
   }
 
   implicit class BytesImplicit(val bytes: Bytes) {
     def toHex: String = Hex.toHexString(bytes)
+    def toBigInt: BigInt = BigInt(bytes)
     def toBase64: String = base64Of(bytes)
+    def toSha256: String = SHA256.hash(bytes)
+    def toSha256Digest: Bytes = SHA256.hashToDigest(bytes)
+    def toRipemd160Of: String = ripemd160Of(bytes)
+    def toRipemd160ODigest: Bytes = ripemd160ODigestOf(bytes)
+    def toHash160: String = hash160Of(bytes)
+    def toHash160Bytes: Bytes = hash160BytesOf(bytes)
   }
 
   implicit class PublicKeyImplicit(val publicKey: PublicKey) {
@@ -56,25 +66,6 @@ package object blockchain {
     def toSimple: PeerSimple = PeerSimple(peer.name)
   }
 
-
-  /**
-   * Generate SHA256 Hash from a input String.
-   * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
-   */
-  def sha256HashOf(text: String) : String = String.format("%064x",
-    new java.math.BigInteger(1, digestOf(text)))
-
-  /**
-   * Generate digest from a input String.
-   * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
-   */
-  def digestOf(text: String): Bytes =
-    MessageDigest.getInstance("SHA-256").digest(text.getBytes("UTF-8"))
-
-  /**
-   * Calculate the hash of concatenation a Seq of Strings.
-   */
-  def sha256Of(strings: String*): String = sha256HashOf(strings mkString "")
 
   /**
    * Return the current timestamp in Unix Epoch Time.
@@ -99,7 +90,7 @@ package object blockchain {
   /**
    * Encode a String to Base64.
    */
-  def base64Of(text: String): String = Base64.toBase64String(text.getBytes("UTF-8"))
+  def base64Of(text: String): String = Base64.toBase64String(text.getBytes)
 
   /**
    * Encode an Array of Bytes String to Base64.
@@ -110,6 +101,23 @@ package object blockchain {
    * Decode a Base64 to String.
    */
   def fromBase64(base64: String): String = new String(Base64.decode(base64), "UTF-8")
+
+
+  def ripemd160Of(str: String): String = ripemd160Of(str.getBytes)
+
+  def ripemd160Of(bytes: Bytes): String = ripemd160ODigestOf(bytes).map("%02x".format(_)).mkString
+
+  def ripemd160ODigestOf(bytes: Bytes): Bytes = {
+    val (raw, messageDigest) = (bytes, new RIPEMD160Digest())
+    messageDigest.update(raw, 0, raw.length)
+    val out = Array.fill[Byte](messageDigest.getDigestSize)(0)
+    messageDigest.doFinal(out, 0)
+    out
+  }
+
+  def hash160Of(bytes: Bytes): String = ripemd160Of(SHA256.hashToDigest(bytes))
+
+  def hash160BytesOf(bytes: Bytes): Bytes = ripemd160ODigestOf(SHA256.hashToDigest(bytes))
 
 
 
