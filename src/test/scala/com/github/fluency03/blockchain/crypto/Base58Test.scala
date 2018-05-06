@@ -29,6 +29,9 @@ class Base58Test extends FlatSpec with Matchers {
     Base58.encodeHex("0088C2D2FA846282C870A76CADECBE45C4ACD72BB655DA1216") shouldEqual
       "1DU8Hi1sbHTpEP9vViBEkEw6noeUrgKkJH"
 
+    Base58.encodeHex("00A6020CF86FECEDEEF8859C172BAA1A15A575BC6F27D7CF19") shouldEqual
+      "1G8mdKwihfYAxeb2E7XwtE94myognJxibS"
+
   }
 
 }

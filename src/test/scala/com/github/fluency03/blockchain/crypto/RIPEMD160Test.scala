@@ -25,6 +25,9 @@ class RIPEMD160Test extends FlatSpec with Matchers {
     RIPEMD160.hash("bitcoin") shouldEqual "5891bf40b0b0e8e19f524bdc2e842d012264624b"
     RIPEMD160.hash("blockchain") shouldEqual "5c403af45cae136a79eea3c7e9f79c3dd049776b"
 
+    RIPEMD160.hash("0261107E41495C0DDC3850CD205D32896133EDD2ADDEBE7D8E20E01EFD078710".hex2Bytes) shouldEqual
+      "A6020CF86FECEDEEF8859C172BAA1A15A575BC6F".toLowerCase
+
   }
 
 }

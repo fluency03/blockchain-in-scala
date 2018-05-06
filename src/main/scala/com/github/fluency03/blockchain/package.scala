@@ -7,7 +7,6 @@ import java.time.Instant
 import com.github.fluency03.blockchain.crypto.Secp256k1.{privateKeyToHex, publicKeyToHex}
 import com.github.fluency03.blockchain.core.{Peer, PeerSimple, TxIn, TxOut}
 import com.github.fluency03.blockchain.crypto.{RIPEMD160, SHA256}
-import org.bouncycastle.crypto.digests.RIPEMD160Digest
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.native.Serialization
 import org.json4s.{Formats, NoTypeHints}
