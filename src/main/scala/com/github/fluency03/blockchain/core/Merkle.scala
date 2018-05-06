@@ -1,6 +1,8 @@
 package com.github.fluency03.blockchain
 package core
 
+import com.github.fluency03.blockchain.crypto.SHA256
+
 import scala.annotation.tailrec
 
 object Merkle {

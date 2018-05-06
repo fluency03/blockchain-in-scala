@@ -4,6 +4,7 @@ package core
 import java.security.KeyPair
 
 import com.github.fluency03.blockchain.core.Transaction._
+import com.github.fluency03.blockchain.crypto.Secp256k1
 import org.json4s.JValue
 import org.json4s.native.JsonMethods.parse
 import org.scalatest.{FlatSpec, Matchers}
@@ -94,11 +95,11 @@ class TransactionTest extends FlatSpec with Matchers {
 
   "Transaction" should "be able to be signed by key pair." in {
     val txIn = TxIn(Outpoint("def0", 0), "abc")
-    val pair: KeyPair = Crypto.generateKeyPair()
+    val pair: KeyPair = Secp256k1.generateKeyPair()
     val hash = "ace0"
 
-    val signature = Crypto.sign(hash.hex2Bytes, pair.getPrivate.getEncoded)
-    Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
+    val signature = Secp256k1.sign(hash.hex2Bytes, pair.getPrivate.getEncoded)
+    Secp256k1.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
 
     val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
     val signedTxIn0 = signTxIn(hash, txIn, pair, uTxOs)
@@ -115,15 +116,15 @@ class TransactionTest extends FlatSpec with Matchers {
     signedTxIn shouldEqual Some(TxIn(Outpoint("def0", 0), signedTxIn.get.signature))
 
     signedTxIn.get.previousOut shouldEqual Outpoint("def0", 0)
-    Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signedTxIn.get.signature.hex2Bytes) shouldEqual true
+    Secp256k1.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signedTxIn.get.signature.hex2Bytes) shouldEqual true
   }
 
   "Transaction" should "have valid TxIns." in {
-    val pair: KeyPair = Crypto.generateKeyPair()
+    val pair: KeyPair = Secp256k1.generateKeyPair()
     val hash = "ace0"
 
-    val signature = Crypto.sign(hash.hex2Bytes, pair.getPrivate.getEncoded)
-    Crypto.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
+    val signature = Secp256k1.sign(hash.hex2Bytes, pair.getPrivate.getEncoded)
+    Secp256k1.verify(hash.hex2Bytes, pair.getPublic.getEncoded, signature) shouldEqual true
 
     val txIn = TxIn(Outpoint("def0", 0), "abc1")
     val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
@@ -139,7 +140,7 @@ class TransactionTest extends FlatSpec with Matchers {
   }
 
   "Transaction" should "have valid TxOut values." in {
-    val pair: KeyPair = Crypto.generateKeyPair()
+    val pair: KeyPair = Secp256k1.generateKeyPair()
 
     val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
     uTxOs += (Outpoint("def0", 1) -> TxOut("abc4", 20))
@@ -176,9 +177,9 @@ class TransactionTest extends FlatSpec with Matchers {
   }
 
   "Transaction" should "have be validatable." in {
-    val pair1 = Crypto.generateKeyPair()
+    val pair1 = Secp256k1.generateKeyPair()
     val address1 = pair1.getPublic.toHex
-    val pair2 = Crypto.generateKeyPair()
+    val pair2 = Secp256k1.generateKeyPair()
     val address2 = pair2.getPublic.toHex
     val randHash = "".toSha256
     val tx: Transaction = Transaction(

@@ -4,8 +4,9 @@ import java.nio.charset.Charset
 import java.security.{PrivateKey, PublicKey}
 import java.time.Instant
 
-import com.github.fluency03.blockchain.Crypto.{privateKeyToHex, publicKeyToHex}
+import com.github.fluency03.blockchain.crypto.Secp256k1.{privateKeyToHex, publicKeyToHex}
 import com.github.fluency03.blockchain.core.{Peer, PeerSimple, TxIn, TxOut}
+import com.github.fluency03.blockchain.crypto.{RIPEMD160, SHA256}
 import org.bouncycastle.crypto.digests.RIPEMD160Digest
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.native.Serialization
@@ -100,6 +101,6 @@ package object blockchain {
   /**
    * Decode a Base64 to String.
    */
-  def fromBase64(base64: String): String = new String(Base64.decode(base64), "UTF-8")
+  def fromBase64(base64: String): String = new String(Base64.decode(base64))
 
 }

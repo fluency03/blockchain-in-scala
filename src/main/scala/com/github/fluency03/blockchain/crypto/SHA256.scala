@@ -1,4 +1,5 @@
 package com.github.fluency03.blockchain
+package crypto
 
 import java.security.MessageDigest
 

@@ -3,6 +3,7 @@ package core
 
 import com.github.fluency03.blockchain.core.Merkle._
 import com.github.fluency03.blockchain.core.Transaction.createCoinbaseTx
+import com.github.fluency03.blockchain.crypto.SHA256
 import org.scalatest.{FlatSpec, Matchers}
 
 class MerkleTest extends FlatSpec with Matchers {

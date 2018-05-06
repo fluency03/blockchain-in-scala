@@ -6,6 +6,7 @@ import java.security.KeyPair
 import com.github.fluency03.blockchain.core.Block.allTransValidOf
 import com.github.fluency03.blockchain.core.BlockHeader.hashOfBlockHeader
 import com.github.fluency03.blockchain.core.Transaction.{COINBASE_AMOUNT, createCoinbaseTx, signTxIn, updateUTxOs}
+import com.github.fluency03.blockchain.crypto.Secp256k1
 import org.json4s.JValue
 import org.json4s.JsonAST.{JArray, JInt, JObject, JString}
 import org.json4s.JsonDSL._
@@ -154,7 +155,7 @@ class BlockTest extends FlatSpec with Matchers {
     genesis.allTransAreValid(uTxOs) shouldEqual true
     allTransValidOf(Nil, 0, uTxOs) shouldEqual false
 
-    val pair1 = Crypto.generateKeyPair()
+    val pair1 = Secp256k1.generateKeyPair()
     val address1 = pair1.getPublic.toHex
 
     val ts = getCurrentTimestamp
@@ -171,7 +172,7 @@ class BlockTest extends FlatSpec with Matchers {
     nextBlock.allTransAreValid(uTxOs) shouldEqual false
 
     val genesisPrivate: String = Source.fromResource("private-key").getLines.mkString
-    val keyPair = new KeyPair(Crypto.recoverPublicKey(genesisMiner), Crypto.recoverPrivateKey(genesisPrivate))
+    val keyPair = new KeyPair(Secp256k1.recoverPublicKey(genesisMiner), Secp256k1.recoverPrivateKey(genesisPrivate))
     val signedTxIns = tx.txIns.map(txIn => signTxIn(tx.id.hex2Bytes, txIn, keyPair, uTxOs)).filter(_.isDefined).map(_.get)
     signedTxIns.length shouldEqual tx.txIns.length
     val signedTx = Transaction(signedTxIns, Seq(TxOut(address1, COINBASE_AMOUNT)), ts)

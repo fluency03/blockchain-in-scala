@@ -3,8 +3,9 @@ package core
 
 import java.security.KeyPair
 
-import com.github.fluency03.blockchain.Crypto.recoverPublicKey
+import com.github.fluency03.blockchain.crypto.Secp256k1.recoverPublicKey
 import com.github.fluency03.blockchain.core.Transaction.{hashOfTransaction, validateTransaction}
+import com.github.fluency03.blockchain.crypto.{SHA256, Secp256k1}
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -83,7 +84,7 @@ object Transaction {
 
   def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, uTxO: TxOut): Option[TxIn] =
     if (keyPair.getPublic.toHex != uTxO.address) None
-    else Some(TxIn(txIn.previousOut, Crypto.sign(txId, keyPair.getPrivate.getEncoded).toHex))
+    else Some(TxIn(txIn.previousOut, Secp256k1.sign(txId, keyPair.getPrivate.getEncoded).toHex))
 
   // validate TxIn's signature
   def validateTxIn(txIn: TxIn, txId: String, uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
@@ -96,7 +97,7 @@ object Transaction {
     }
 
   def validateTxIn(txId: Bytes, txOut: TxOut, txIn: TxIn): Boolean =
-    Crypto.verify(txId, recoverPublicKey(txOut.address).getEncoded, txIn.signature.hex2Bytes)
+    Secp256k1.verify(txId, recoverPublicKey(txOut.address).getEncoded, txIn.signature.hex2Bytes)
 
   // validate TxOut: Sum of TxOuts is equal to the sum of TxIns
   def validateTxOutValues(transaction: Transaction, uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =

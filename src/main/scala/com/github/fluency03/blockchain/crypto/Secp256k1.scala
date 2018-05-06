@@ -1,4 +1,5 @@
 package com.github.fluency03.blockchain
+package crypto
 
 import java.math.BigInteger
 import java.security._
@@ -9,7 +10,7 @@ import org.bouncycastle.jce.interfaces.{ECPrivateKey, ECPublicKey}
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.spec.{ECParameterSpec, ECPrivateKeySpec, ECPublicKeySpec}
 
-object Crypto {
+object Secp256k1 {
 
   Security.addProvider(new BouncyCastleProvider)
 
