@@ -48,7 +48,7 @@ package object blockchain {
     def toBase64: String = base64Of(bytes)
     def toSha256: String = SHA256.hash(bytes)
     def toSha256Digest: Bytes = SHA256.hashToDigest(bytes)
-    def toRipemd160Of: String = RIPEMD160.hash(bytes)
+    def toRipemd160: String = RIPEMD160.hash(bytes)
     def toRipemd160ODigest: Bytes = RIPEMD160.hashToDigest(bytes)
     def toHash160: String = RIPEMD160.doubleHash(bytes)
     def toHash160Digest: Bytes = RIPEMD160.doubleHashToDigest(bytes)
