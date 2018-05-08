@@ -42,11 +42,11 @@ class BlockchainActorTest extends TestKit(ActorSystem("BlockchainActorTest")) wi
       blockchainActor ! GetBlockchain
       val blockchain = expectMsgType[Some[Blockchain]].get
 
-      blockchainActor ! GetBlockFromChain("somehash")
+      blockchainActor ! GetBlockByHash("somehash")
       expectMsg(None)
 
       val genesis = Block.genesisBlock
-      blockchainActor ! GetBlockFromChain(genesis.hash)
+      blockchainActor ! GetBlockByHash(genesis.hash)
       expectMsg(Some(genesis))
 
       blockchainActor ! GetLastBlock

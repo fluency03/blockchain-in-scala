@@ -27,6 +27,8 @@ Please see the full API Documentation on Postman: [blockchain-in-scala](https://
 
 ### Summary:
 
+Default hostname and port is `localhost:9090`.
+
 #### root
 
 ```

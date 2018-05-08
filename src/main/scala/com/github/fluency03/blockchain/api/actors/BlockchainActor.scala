@@ -19,7 +19,8 @@ object BlockchainActor {
   final case object DeleteBlockchain extends BlockchainMsg
   final case object CheckBlockchainValidity extends BlockchainMsg
 
-  final case class GetBlockFromChain(hash: String) extends BlockMsg
+  final case class GetBlockByHash(hash: String) extends BlockMsg
+  final case class GetBlocksByHashesAndIndices(hashes: Set[String], indices: Set[Int]) extends BlockMsg
   final case object GetLastBlock extends BlockMsg
   final case class GetTxOfBlock(id: String, hash: String) extends BlockMsg
   final case class AppendBlock(block: Block) extends BlockMsg
@@ -59,7 +60,8 @@ class BlockchainActor extends ActorSupport {
   }
 
   private def inCaseOfBlockMsg(msg: BlockMsg): Unit = msg match {
-    case GetBlockFromChain(hash) => onGetBlockFromChain(hash)
+    case GetBlockByHash(hash) => onGetBlockByHash(hash)
+    case GetBlocksByHashesAndIndices(hashes, indices) => onGetBlocksByHashesAndIndices(hashes, indices)
     case GetLastBlock => onGetLastBlock()
     case GetTxOfBlock(id, hash) => onGetTxOfBlock(id, hash)
     case AppendBlock(block) => onAppendBlock(block)
@@ -108,7 +110,10 @@ class BlockchainActor extends ActorSupport {
    * Handlers for each of the BlockMsg.
    */
 
-  private def onGetBlockFromChain(hash: String): Unit = sender() ! getBlockFromChain(hash)
+  private def onGetBlockByHash(hash: String): Unit = sender() ! getBlockByHash(hash)
+
+  private def onGetBlocksByHashesAndIndices(hashes: Set[String], indices: Set[Int]): Unit =
+    sender() ! getBlocksByHashesAndIndices(hashes, indices)
 
   private def onGetLastBlock(): Unit = blockchainOpt match {
     case Some(blockchain) => sender() ! blockchain.lastBlock()
@@ -118,7 +123,7 @@ class BlockchainActor extends ActorSupport {
       sender() ! None
   }
 
-  private def onGetTxOfBlock(id: String, hash: String): Unit = getBlockFromChain(hash) match {
+  private def onGetTxOfBlock(id: String, hash: String): Unit = getBlockByHash(hash) match {
     case Some(block) => sender() ! block.transactions.find(_.id == id)
     case None => sender() ! None
   }
@@ -188,7 +193,7 @@ class BlockchainActor extends ActorSupport {
   private def onGetBlockFromPool(hash: String): Unit = blockPoolActor forward BlockPoolActor.GetBlock(hash)
 
 
-  private def getBlockFromChain(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
+  private def getBlockByHash(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
     case Some(index) => blockchainOpt match {
       case Some(blockchain) => Some(blockchain.chain(index))
       case None =>
@@ -198,5 +203,10 @@ class BlockchainActor extends ActorSupport {
     }
     case None => None
   }
+
+  private def getBlocksByHashesAndIndices(hashes: Set[String], indices: Set[Int]): Set[Block] = {
+    ???
+  }
+
 
 }

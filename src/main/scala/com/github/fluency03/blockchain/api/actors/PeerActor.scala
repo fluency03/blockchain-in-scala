@@ -1,11 +1,9 @@
 package com.github.fluency03.blockchain
 package api.actors
 
-import java.security.KeyPair
-
 import akka.actor.Props
 import com.github.fluency03.blockchain.api.actors.PeerActor._
-import com.github.fluency03.blockchain.core.{Peer, SingleWallet}
+import com.github.fluency03.blockchain.core.{Peer, KeyContainer}
 
 import scala.collection.mutable
 
@@ -19,12 +17,12 @@ class PeerActor extends ActorSupport {
   override def preStart(): Unit = {
     log.info("{} started!", this.getClass.getSimpleName)
     addWallet()
-    log.info("Created initial wallet: {}", wallets.head._1)
+    log.info("Created initial wallet: {}", wallet.head._1)
   }
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
   // TODO (Chang): need persistence
-  val wallets = mutable.Map.empty[String, SingleWallet]
+  val wallet = mutable.Map.empty[String, KeyContainer]
   val others = mutable.Map.empty[String, Peer]
 
   /**
@@ -35,15 +33,15 @@ class PeerActor extends ActorSupport {
    */
 
   def receive: Receive = {
-    case GetPublicKeys => sender() ! wallets.values.map(_.address).toSet
+    case GetPublicKeys => sender() ! wallet.values.map(_.address).toSet
     case CreateWallet => sender() ! addWallet()
     case _ => unhandled _
   }
 
   private def addWallet(): String = {
-    val newWallet = SingleWallet()
-    wallets += (newWallet.address -> newWallet)
-    newWallet.address
+    val kc = KeyContainer()
+    wallet += (kc.address -> kc)
+    kc.address
   }
 
 }

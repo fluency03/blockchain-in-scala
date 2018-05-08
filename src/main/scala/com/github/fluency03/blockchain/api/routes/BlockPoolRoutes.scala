@@ -32,7 +32,7 @@ trait BlockPoolRoutes extends RoutesSupport {
       } ~
       path(NEXT_BLOCK) {
         post {
-          parameters('id.as(CsvSeq[String]).?) { idsOpt: Option[Seq[String]] =>
+          parameters('ids.as(CsvSeq[String]).?) { idsOpt: Option[Seq[String]] =>
             entity(as[Input]) { in =>
               val maybeNextBlock: Future[Option[Block]] =
                 (blockPoolActor ? MineAndAddNextBlock(in.content, idsOpt.getOrElse(Seq.empty[String]))).mapTo[Option[Block]]

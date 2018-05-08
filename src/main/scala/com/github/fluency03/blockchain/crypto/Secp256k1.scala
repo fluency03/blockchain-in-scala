@@ -74,7 +74,21 @@ object Secp256k1 {
   def publicKeyHexToAddress(publicKey: String, networkBytes: String = "00"): String =
     Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.toHash160Digest)
 
+  /**
+   * Convert a Public Key to its Base58 Address.
+   * 0 - Private ECDSA Key
+   * 1 - Public ECDSA Key
+   * 2 - SHA-256 hash of 1
+   * 3 - RIPEMD-160 Hash of 2
+   * 4 - Adding network bytes to 3
+   * 5 - SHA-256 hash of 4
+   * 6 - SHA-256 hash of 5
+   * 7 - First four bytes of 6
+   * 8 - Adding 7 at the end of 4
+   * 9 - Base58 encoding of 8
+   */
   def publicKeyToAddress(publicKey: PublicKey, networkBytes: String = "00"): String =
     Base58.checkEncode(networkBytes.hex2Bytes ++ publicKeyToBytes(publicKey).toHash160Digest)
+
 
 }

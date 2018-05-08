@@ -73,10 +73,23 @@ trait BlockchainRoutes extends RoutesSupport {
           onSuccess(blockchainDeleted) { respondOnDeletion }
         }
       } ~
+      path(BLOCKS) {
+        get {
+          parameters('hashes.as(CsvSeq[String]).?, 'indices.as(CsvSeq[Int]).?) {
+            (hashesOpt: Option[Seq[String]], indicesOpt: Option[Seq[Int]]) =>
+              val blocks: Future[Set[Block]] = (blockchainActor ?
+                GetBlocksByHashesAndIndices(
+                  hashesOpt.getOrElse(Seq.empty[String]).toSet,
+                  indicesOpt.getOrElse(Seq.empty[Int]).toSet))
+                .mapTo[Set[Block]]
+              rejectEmptyResponse { complete(blocks) }
+          }
+        }
+      } ~
       pathPrefix(BLOCK / Segment) { hash =>
         pathEnd {
           get {
-            val maybeBlock: Future[Option[Block]] = (blockchainActor ? GetBlockFromChain(hash)).mapTo[Option[Block]]
+            val maybeBlock: Future[Option[Block]] = (blockchainActor ? GetBlockByHash(hash)).mapTo[Option[Block]]
             rejectEmptyResponse { complete(maybeBlock) }
           }
         } ~

@@ -3,29 +3,31 @@ package core
 
 import java.security.KeyPair
 
-import com.github.fluency03.blockchain.core.SingleWallet.balanceOfWallet
+import com.github.fluency03.blockchain.core.KeyContainer.balanceOfKey
 import com.github.fluency03.blockchain.core.Transaction.signTxIn
 import com.github.fluency03.blockchain.crypto.Secp256k1
 
 import scala.collection.mutable
 
-case class SingleWallet() {
+case class KeyContainer() {
 
   private[this] val keyPair: KeyPair = Secp256k1.generateKeyPair()
 
   lazy val address: String = keyPair.getPublic.toHex
 
-  def balance(uTxOs: mutable.Map[Outpoint, TxOut]): Long = balanceOfWallet(this, uTxOs)
+  lazy val publicKeyHex: String = keyPair.getPublic.toHex
+
+  def balance(uTxOs: mutable.Map[Outpoint, TxOut]): Long = balanceOfKey(this, uTxOs)
 
   def sign(txId: String, txIn: TxIn, uTxOs: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
     signTxIn(txId, txIn, keyPair, uTxOs)
 
 }
 
-object SingleWallet {
+object KeyContainer {
 
-  def balanceOfWallet(wallet: SingleWallet, uTxOs: mutable.Map[Outpoint, TxOut]): Long =
-    balanceOfAddress(wallet.address, uTxOs)
+  def balanceOfKey(kc: KeyContainer, uTxOs: mutable.Map[Outpoint, TxOut]): Long =
+    balanceOfAddress(kc.address, uTxOs)
 
   def balanceOfAddress(address: String, uTxOs: mutable.Map[Outpoint, TxOut]): Long =
     uTxOs.values.filter(_.address == address).map(_.amount).sum
