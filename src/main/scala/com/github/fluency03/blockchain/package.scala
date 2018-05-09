@@ -30,9 +30,9 @@ package object blockchain {
 
   val ZERO64: String = "0000000000000000000000000000000000000000000000000000000000000000"
 
+  val genesisTime: String = "2018-04-11T18:52:01Z"
   val genesisTimestamp: Long = Instant.parse(genesisTime).getEpochSecond
 
-  val genesisTime: String = "2018-04-11T18:52:01Z"
   val genesisMiner: String = getResource(GENESIS_MINER_PUBLIC_KEY_RESOURCE)
 
   val SLOGAN: String = "Welcome to Blockchain in Scala!"
