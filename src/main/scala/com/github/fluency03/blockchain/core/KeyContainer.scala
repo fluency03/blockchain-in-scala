@@ -13,6 +13,7 @@ case class KeyContainer() {
 
   private[this] val keyPair: KeyPair = Secp256k1.generateKeyPair()
 
+  // TODO (Chang): change it to actual address of a PublicKey
   lazy val address: String = keyPair.getPublic.toHex
 
   lazy val publicKeyHex: String = keyPair.getPublic.toHex

@@ -49,6 +49,7 @@ object Transaction {
 
   def createCoinbase(blockIndex: Int): TxIn = TxIn(Outpoint("", blockIndex), "")
 
+  // TODO (Chang): correct coinbase format
   def createCoinbaseTx(blockIndex: Int, miner: String, timestamp: Long): Transaction =
     Transaction(Seq(createCoinbase(blockIndex)), Seq(TxOut(miner, COINBASE_AMOUNT)), timestamp)
 
