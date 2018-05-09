@@ -6,7 +6,7 @@ import java.time.Instant
 
 import com.github.fluency03.blockchain.crypto.Secp256k1.{privateKeyToHex, publicKeyToHex}
 import com.github.fluency03.blockchain.core.{Peer, PeerSimple, TxIn, TxOut}
-import com.github.fluency03.blockchain.crypto.{RIPEMD160, SHA256}
+import com.github.fluency03.blockchain.crypto.{RIPEMD160, SHA256, Secp256k1}
 import org.bouncycastle.util.encoders.{Base64, Hex}
 import org.json4s.native.Serialization
 import org.json4s.{Formats, NoTypeHints}
@@ -22,13 +22,18 @@ package object blockchain {
 
   implicit val defaultCharset: Charset = Charset.forName("UTF-8")
 
+  val GENESIS_MINER_PUBLIC_KEY_RESOURCE: String = "public-key"
+  val GENESIS_MINER_PRIVATE_KEY_RESOURCE: String = "private-key"
+  val GENESIS_MINER_ADDRESS_RESOURCE: String = "address"
+
+  def getResource(re: String): String = Source.fromResource(re).getLines.mkString
+
   val ZERO64: String = "0000000000000000000000000000000000000000000000000000000000000000"
 
-  lazy val genesisTimestamp: Long = Instant.parse(genesisTime).getEpochSecond
+  val genesisTimestamp: Long = Instant.parse(genesisTime).getEpochSecond
 
   val genesisTime: String = "2018-04-11T18:52:01Z"
-
-  val genesisMiner: String = Source.fromResource("public-key").getLines.mkString
+  val genesisMiner: String = getResource(GENESIS_MINER_PUBLIC_KEY_RESOURCE)
 
   val SLOGAN: String = "Welcome to Blockchain in Scala!"
 
@@ -56,6 +61,7 @@ package object blockchain {
 
   implicit class PublicKeyImplicit(val publicKey: PublicKey) {
     def toHex: String = publicKeyToHex(publicKey)
+    def address: String = Secp256k1.publicKeyToAddress(publicKey)
   }
 
   implicit class PrivateKeyImplicit(val privateKey: PrivateKey) {

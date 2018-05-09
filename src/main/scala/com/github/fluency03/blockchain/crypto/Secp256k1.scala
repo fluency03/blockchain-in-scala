@@ -90,5 +90,10 @@ object Secp256k1 {
   def publicKeyToAddress(publicKey: PublicKey, networkBytes: String = "00"): String =
     Base58.checkEncode(networkBytes.hex2Bytes ++ publicKeyToBytes(publicKey).toHash160Digest)
 
+  def addressToHash160(address: String, networkBytes: String = "00"): (String, String) = {
+    val decoded: Bytes = Base58.decode(address)
+    val (preBytes, fourBytes) = decoded.splitAt(decoded.length - 4)
+    preBytes.toHex.splitAt(2)
+  }
 
 }
