@@ -37,8 +37,11 @@ object Base58 {
         restoreBigInt(chars, bi * 58 + i, idx + 1)
       }
 
-    val bi = restoreBigInt(str.toCharArray, 0, 0)
-    Hex.decode(bi.toString(16))
+    val zeroes = str.takeWhile(_ == '1').map(_ => 0: Byte).toArray
+    val trim = str.dropWhile(_ == '1').toCharArray
+
+    val bi = restoreBigInt(trim, 0, 0)
+    zeroes ++ Hex.decode(bi.toString(16))
   }
 
   def decodeToHex(str: String): String = new String(decode(str))
