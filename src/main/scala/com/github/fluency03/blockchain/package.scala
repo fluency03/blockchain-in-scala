@@ -17,6 +17,10 @@ package object blockchain {
 
   type Bytes = Array[Byte]
   type UTXO = (TxIn, TxOut)
+  type Hex = String
+  type Binary = String
+  type Base64 = String
+  type Base58 = String
 
   implicit val formats: AnyRef with Formats = Serialization.formats(NoTypeHints)
 
@@ -40,7 +44,7 @@ package object blockchain {
   implicit class StringImplicit(val str: String) {
     def hex2Long: Long = java.lang.Long.parseLong(str, 16)
     def hex2BigInt: BigInt = BigInt(str, 16)
-    def hex2Bytes: Array[Byte] = Hex.decode(str)
+    def hex2Bytes: Bytes = Hex.decode(str)
     def hex2Binary: String = binaryOfHex(str)
     def toBase64: String = base64Of(str.getBytes)
     def toSha256: String = SHA256.hash(str)

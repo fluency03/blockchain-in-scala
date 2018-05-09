@@ -97,6 +97,13 @@ POST /generic/time-from-epoch
 
 
 
+## References
+
+- [Bitcoin White Paper](https://bitcoin.org/bitcoin.pdf)
+- [bitcoin.org](https://bitcoin.org/en/)
+- [Mastering Bitcoin: Unlocking Digital Crypto-Currencies, Andreas M. Antonopoulos](https://bitcoinbook.info/)
+
+
 ## Todos
 
 - Complete APIs' Todos
