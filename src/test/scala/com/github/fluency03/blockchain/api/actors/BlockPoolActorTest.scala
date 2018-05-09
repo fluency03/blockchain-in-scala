@@ -21,7 +21,7 @@ class BlockPoolActorTest extends TestKit(ActorSystem("BlocksActorTest")) with De
   val blockPoolActor: ActorRef = system.actorOf(Props[BlockPoolActor], BLOCK_POOL_ACTOR_NAME)
   val txPoolActor: ActorRef = system.actorOf(Props[TxPoolActor], TX_POOL_ACTOR_NAME)
 
-  "A BlocksActor" should {
+  "A BlockPoolActor" should {
     "Respond with a Seq of Blocks." in {
       BlockPoolActor.props shouldEqual Props[BlockPoolActor]
 

@@ -14,7 +14,7 @@ class PeerActorTest extends TestKit(ActorSystem("PeerActorTest")) with ImplicitS
 
   val peerActor: ActorRef = system.actorOf(Props[PeerActor])
 
-  "A BlocksActor" should {
+  "A PeerActor" should {
     "Respond with a Seq of Blocks." in {
       PeerActor.props shouldEqual Props[PeerActor]
 

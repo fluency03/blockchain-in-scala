@@ -18,7 +18,7 @@ class TxPoolActorTest extends TestKit(ActorSystem("TransactionsActorTest")) with
 
   val txPoolActor: ActorRef = system.actorOf(Props[TxPoolActor])
 
-  "A TransactionsActor" should {
+  "A TxPoolActor" should {
     "Respond with a Seq of Transactions." in {
       TxPoolActor.props shouldEqual Props[TxPoolActor]
 
