@@ -36,4 +36,15 @@ class WalletTest extends FlatSpec with Matchers {
     kc2.balance(uTxOs) shouldEqual 40
   }
 
+  "SeededWallet" should "maintain a set of keys in seeded way." in {
+    val wallet = SeededWallet()
+
+    // TODO (Chang): tests after methods being implemented
+    a[NotImplementedError] should be thrownBy wallet.size()
+    a[NotImplementedError] should be thrownBy wallet.newKey()
+    a[NotImplementedError] should be thrownBy wallet.getKey("")
+    a[NotImplementedError] should be thrownBy wallet.balance(mutable.Map.empty[Outpoint, TxOut])
+
+  }
+
 }
