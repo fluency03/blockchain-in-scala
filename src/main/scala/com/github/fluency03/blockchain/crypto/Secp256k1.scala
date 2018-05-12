@@ -72,7 +72,7 @@ object Secp256k1 {
     privateKey.asInstanceOf[ECPrivateKey].getD.toByteArray
 
   def publicKeyHexToAddress(publicKey: HexString, networkBytes: String = "00"): String =
-    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.toHash160Digest)
+    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.hash160Digest)
 
   /**
    * Convert a Public Key to its Base58 Address.
@@ -88,7 +88,7 @@ object Secp256k1 {
    * 9 - Base58 encoding of 8
    */
   def publicKeyToAddress(publicKey: PublicKey, networkBytes: String = "00"): Base58 =
-    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKeyToBytes(publicKey).toHash160Digest)
+    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKeyToBytes(publicKey).hash160Digest)
 
   def hash160ToAddress(hash160: HexString, networkBytes: String = "00"): Base58 =
     Base58.checkEncode(networkBytes.hex2Bytes ++ hash160.hex2Bytes)

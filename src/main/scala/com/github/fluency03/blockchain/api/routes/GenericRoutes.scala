@@ -23,7 +23,7 @@ trait GenericRoutes extends RoutesSupport {
         path(TO_SHA256) {
           post {
             entity(as[Input]) { in =>
-              complete(failsafeResp(in.content.toSha256))
+              complete(failsafeResp(in.content.sha256))
             }
           }
         } ~

@@ -18,7 +18,11 @@ class Secp256k1Test extends FlatSpec with Matchers {
     recoverPublicKey(publicKeyToHex(pair.getPublic)) shouldEqual pair.getPublic
     recoverPrivateKey(privateKeyToHex(pair.getPrivate)) shouldEqual pair.getPrivate
     recoverPublicKey(pair.getPublic.toHex) shouldEqual pair.getPublic
+    recoverPublicKey(pair.getPublic.toBytes.toHex) shouldEqual pair.getPublic
+    pair.getPublic.toBytes.toHex shouldEqual pair.getPublic.toHex
+    pair.getPublic.hash160 shouldEqual RIPEMD160.hash(SHA256.hashDigest(pair.getPublic.toBytes))
     recoverPrivateKey(pair.getPrivate.toHex) shouldEqual pair.getPrivate
+    recoverPrivateKey(pair.getPrivate.toBytes.toHex) shouldEqual pair.getPrivate
 
     Secp256k1.publicKeyHexToAddress("04B4D653FCBB4B96000C99343F23B08A44FA306031E0587F9E657AB" +
       "4A2541129368D7D9BB05CD8AFBDF7705A6540D98028236965553F91BF1C5B4F70073F55B55D") shouldEqual

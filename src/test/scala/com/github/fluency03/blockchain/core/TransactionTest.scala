@@ -181,7 +181,7 @@ class TransactionTest extends FlatSpec with Matchers {
     val address1 = pair1.getPublic.toHex
     val pair2 = Secp256k1.generateKeyPair()
     val address2 = pair2.getPublic.toHex
-    val randHash = "".toSha256
+    val randHash = "".sha256
     val tx: Transaction = Transaction(
       Seq(TxIn(Outpoint(randHash, 0), ""),
         TxIn(Outpoint(randHash, 1), "")),

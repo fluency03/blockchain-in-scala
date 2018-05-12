@@ -51,36 +51,36 @@ class BlockchainPackageTest extends FlatSpec with Matchers with MockFactory {
 
   "StringImplicit" should "convert String to corresponding type." in {
     fromBase64("open sesame".toBase64) shouldEqual "open sesame"
-    "open sesame".toSha256 shouldEqual "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
-    "".toSha256 shouldEqual "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "open sesame".sha256 shouldEqual "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
+    "".sha256 shouldEqual "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
     "a".hex2Binary shouldEqual "1010"
     "a".hex2BigInt shouldEqual BigInt(10)
     "ab".hex2Binary shouldEqual "10101011"
     "ab".hex2BigInt shouldEqual BigInt(171)
-    "bitcoin".toRipemd160 shouldEqual "5891bf40b0b0e8e19f524bdc2e842d012264624b"
-    "blockchain".toRipemd160 shouldEqual "5c403af45cae136a79eea3c7e9f79c3dd049776b"
+    "bitcoin".ripemd160 shouldEqual "5891bf40b0b0e8e19f524bdc2e842d012264624b"
+    "blockchain".ripemd160 shouldEqual "5c403af45cae136a79eea3c7e9f79c3dd049776b"
   }
 
   "BytesImplicit" should "convert Array of Byte to corresponding type." in {
     val bytes: Bytes = Array(192.toByte, 168.toByte, 1, 9)
     bytes.toHex shouldEqual "c0a80109"
     bytes.toBase64 shouldEqual "wKgBCQ=="
-    "open sesame".getBytes.toSha256 shouldEqual "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
-    "open sesame".getBytes.toSha256Digest shouldEqual ("41ef4bb0b23661e66301aac36066912da" +
+    "open sesame".getBytes.sha256 shouldEqual "41ef4bb0b23661e66301aac36066912dac037827b4ae63a7b1165a5aa93ed4eb"
+    "open sesame".getBytes.sha256Digest shouldEqual ("41ef4bb0b23661e66301aac36066912da" +
       "c037827b4ae63a7b1165a5aa93ed4eb").hex2Bytes
 
-    "173BDED8F2A2069C193E63EA30DC8FD20E815EC3642B9C24AD7002C03D1BFB9B".hex2Bytes.toRipemd160 shouldEqual
+    "173BDED8F2A2069C193E63EA30DC8FD20E815EC3642B9C24AD7002C03D1BFB9B".hex2Bytes.ripemd160 shouldEqual
       "88C2D2FA846282C870A76CADECBE45C4ACD72BB6".toLowerCase
 
-    "173BDED8F2A2069C193E63EA30DC8FD20E815EC3642B9C24AD7002C03D1BFB9B".hex2Bytes.toRipemd160ODigest shouldEqual
+    "173BDED8F2A2069C193E63EA30DC8FD20E815EC3642B9C24AD7002C03D1BFB9B".hex2Bytes.ripemd160ODigest shouldEqual
       "88C2D2FA846282C870A76CADECBE45C4ACD72BB6".hex2Bytes
 
     ("04b4d653fcbb4b96000c99343f23b08a44fa306031e0587f9e657ab4a25411" +
-      "29368d7d9bb05cd8afbdf7705a6540d98028236965553f91bf1c5b4f70073f55b55d").hex2Bytes.toHash160Digest shouldEqual
+      "29368d7d9bb05cd8afbdf7705a6540d98028236965553f91bf1c5b4f70073f55b55d").hex2Bytes.hash160Digest shouldEqual
       "88C2D2FA846282C870A76CADECBE45C4ACD72BB6".hex2Bytes
 
     ("04b4d653fcbb4b96000c99343f23b08a44fa306031e0587f9e657ab4a25411" +
-      "29368d7d9bb05cd8afbdf7705a6540d98028236965553f91bf1c5b4f70073f55b55d").hex2Bytes.toHash160 shouldEqual
+      "29368d7d9bb05cd8afbdf7705a6540d98028236965553f91bf1c5b4f70073f55b55d").hex2Bytes.hash160 shouldEqual
       "88C2D2FA846282C870A76CADECBE45C4ACD72BB6".toLowerCase
   }
 

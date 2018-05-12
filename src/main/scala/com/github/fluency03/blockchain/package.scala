@@ -46,26 +46,26 @@ package object blockchain {
     def hex2Bytes: Bytes = Hex.decode(str)
     def hex2Binary: BinaryString = binaryOfHex(str)
     def toBase64: Base64 = base64Of(str.getBytes)
-    def toSha256: HexString = SHA256.hash(str)
-    def toRipemd160: HexString = RIPEMD160.hash(str)
+    def sha256: HexString = SHA256.hash(str)
+    def ripemd160: HexString = RIPEMD160.hash(str)
   }
 
   implicit class BytesImplicit(val bytes: Bytes) {
     def toHex: HexString = Hex.toHexString(bytes)
     def toBigInt: BigInt = BigInt(bytes)
     def toBase64: Base64 = base64Of(bytes)
-    def toSha256: HexString = SHA256.hash(bytes)
-    def toSha256Digest: Bytes = SHA256.hashDigest(bytes)
-    def toRipemd160: HexString = RIPEMD160.hash(bytes)
-    def toRipemd160ODigest: Bytes = RIPEMD160.hashDigest(bytes)
-    def toHash160: HexString = RIPEMD160.hash160(bytes)
-    def toHash160Digest: Bytes = RIPEMD160.hash160Digest(bytes)
+    def sha256: HexString = SHA256.hash(bytes)
+    def sha256Digest: Bytes = SHA256.hashDigest(bytes)
+    def ripemd160: HexString = RIPEMD160.hash(bytes)
+    def ripemd160ODigest: Bytes = RIPEMD160.hashDigest(bytes)
+    def hash160: HexString = RIPEMD160.hash160(bytes)
+    def hash160Digest: Bytes = RIPEMD160.hash160Digest(bytes)
   }
 
   implicit class PublicKeyImplicit(val publicKey: PublicKey) {
     def toHex: HexString = Secp256k1.publicKeyToHex(publicKey)
     def toBytes: Bytes = Secp256k1.publicKeyToBytes(publicKey)
-    def toHash160: HexString = Secp256k1.publicKeyToBytes(publicKey).toHash160
+    def hash160: HexString = Secp256k1.publicKeyToBytes(publicKey).hash160
     def address: Base58 = Secp256k1.publicKeyToAddress(publicKey)
   }
 

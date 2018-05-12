@@ -25,7 +25,7 @@ class KeyContainerTest extends FlatSpec with Matchers {
 
   "KeyContainer" should "be able to sign a TxIn." in {
     val kc = KeyContainer()
-    val id = "".toSha256
+    val id = "".sha256
     val txIn = TxIn(Outpoint("def0", 0), "abc")
     val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
 

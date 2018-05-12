@@ -21,6 +21,6 @@ object SHA256 {
 
   def hash256(bytes: Bytes): HexString = hash(hashDigest(bytes))
 
-  def hash256ToDigest(bytes: Bytes): Bytes = hashDigest(hashDigest(bytes))
+  def hash256Digest(bytes: Bytes): Bytes = hashDigest(hashDigest(bytes))
 
 }
