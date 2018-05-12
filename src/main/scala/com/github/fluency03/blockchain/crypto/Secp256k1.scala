@@ -24,9 +24,12 @@ object Secp256k1 {
     val keySpec: PKCS8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKey)
     val keyFactory: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM)
     val key: PrivateKey = keyFactory.generatePrivate(keySpec)
+    sign(data, key)
+  }
 
+  def sign(data: Bytes, privateKey: PrivateKey): Bytes = {
     val sig: Signature = Signature.getInstance(KEY_ALGORITHM, KEY_PROVIDER)
-    sig.initSign(key, new SecureRandom)
+    sig.initSign(privateKey, new SecureRandom)
     sig.update(data)
     sig.sign()
   }
@@ -35,9 +38,12 @@ object Secp256k1 {
     val keySpec: X509EncodedKeySpec = new X509EncodedKeySpec(publicKey)
     val keyFactory: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM)
     val key: PublicKey = keyFactory.generatePublic(keySpec)
+    verify(data, key, signature)
+  }
 
+  def verify(data: Bytes, publicKey: PublicKey, signature: Bytes): Boolean =  {
     val sig: Signature = Signature.getInstance(KEY_ALGORITHM, KEY_PROVIDER)
-    sig.initVerify(key)
+    sig.initVerify(publicKey)
     sig.update(data)
     sig.verify(signature)
   }

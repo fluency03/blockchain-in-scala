@@ -37,6 +37,10 @@ class KeyContainerTest extends FlatSpec with Matchers {
 
     val signedTxIn = kc.sign(id, txIn, uTxOs)
     signedTxIn shouldEqual Some(TxIn(Outpoint("def0", 0), signedTxIn.get.signature))
+
+    kc.verify("abc".getBytes, kc.sign("abc".getBytes)) shouldEqual true
+    kc.verify("".getBytes, kc.sign("abc".getBytes)) shouldEqual false
+    kc.verify("123".getBytes, kc.sign("123".getBytes)) shouldEqual true
   }
 
 

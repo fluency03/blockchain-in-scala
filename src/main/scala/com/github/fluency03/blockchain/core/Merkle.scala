@@ -23,7 +23,7 @@ object Merkle {
 
   @tailrec
   def hashViaMerklePath(init: String, path: Seq[String], index: Int): String =
-    if (path.isEmpty) init
+    if (path.isEmpty) init.toLowerCase()
     else {
       val newHash = if (index % 2 == 0)
         SHA256.hashAll(init, path.head)
