@@ -13,10 +13,10 @@ case class KeyContainer() {
 
   private[this] val keyPair: KeyPair = Secp256k1.generateKeyPair()
 
-  // TODO (Chang): change it to actual address of a PublicKey
-  lazy val address: String = keyPair.getPublic.toHex
+  // TODO (Chang): change it to actual address (which is a Base58) of a PublicKey
+  lazy val address: HexString = keyPair.getPublic.toHex
 
-  lazy val publicKeyHex: String = keyPair.getPublic.toHex
+  lazy val publicKeyHex: HexString = keyPair.getPublic.toHex
 
   def balance(uTxOs: mutable.Map[Outpoint, TxOut]): Long = balanceOfKey(this, uTxOs)
 

@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.actors
+package com.github.fluency03.blockchain
+package api.actors
 
 import akka.actor.{ActorRef, ActorSelection, Props}
 import akka.pattern.ask
@@ -11,12 +12,12 @@ import scala.util.{Failure, Success}
 
 object BlockPoolActor {
   final case object GetBlocks
-  final case class GetBlocks(hashes: Set[String])
+  final case class GetBlocks(hashes: Set[HexString])
   final case class AddBlock(block: Block)
-  final case class GetBlock(hash: String)
-  final case class DeleteBlock(hash: String)
-  final case class GetTxOfBlock(id: String, hash: String)
-  final case class MineAndAddNextBlock(data: String, ids: Seq[String])
+  final case class GetBlock(hash: HexString)
+  final case class DeleteBlock(hash: HexString)
+  final case class GetTxOfBlock(id: HexString, hash: HexString)
+  final case class MineAndAddNextBlock(data: String, ids: Seq[HexString])
 
   def props: Props = Props[BlockPoolActor]
 }
@@ -32,7 +33,7 @@ class BlockPoolActor extends ActorSupport {
   val txPoolActor: ActorSelection = context.actorSelection(PARENT_UP + TX_POOL_ACTOR_NAME)
 
   // TODO (Chang): need persistence
-  var blocksPool: mutable.Map[String, Block] = mutable.Map.empty[String, Block]
+  var blocksPool: mutable.Map[HexString, Block] = mutable.Map.empty[HexString, Block]
 
   def receive: Receive = {
     case GetBlocks => onGetBlocks()
@@ -50,7 +51,7 @@ class BlockPoolActor extends ActorSupport {
    */
   private[this] def onGetBlocks(): Unit = sender() ! blocksPool.values.toSeq
 
-  private[this] def onGetBlocks(hashes: Set[String]): Unit =
+  private[this] def onGetBlocks(hashes: Set[HexString]): Unit =
     sender() ! blocksPool.filterKeys(hashes.contains).values.toSeq
 
   private[this] def onAddBlock(block: Block): Unit = {
@@ -62,20 +63,20 @@ class BlockPoolActor extends ActorSupport {
     }
   }
 
-  private[this] def onGetBlock(hash: String): Unit = sender() ! blocksPool.get(hash)
+  private[this] def onGetBlock(hash: HexString): Unit = sender() ! blocksPool.get(hash)
 
-  private[this] def onDeleteBlock(hash: String): Unit =
+  private[this] def onDeleteBlock(hash: HexString): Unit =
     if (blocksPool.contains(hash)) {
       blocksPool -= hash
       sender() ! SuccessMsg(s"Block $hash deleted from the Pool.")
     } else sender() ! FailureMsg(s"Block $hash does not exist in the Pool.")
 
-  private def onGetTxOfBlock(id: String, hash: String): Unit = blocksPool.get(hash) match {
+  private def onGetTxOfBlock(id: HexString, hash: HexString): Unit = blocksPool.get(hash) match {
     case Some(block) => sender() ! block.transactions.find(_.id == id)
     case None => sender() ! None
   }
 
-  private def onMineAndAddNextBlock(data: String, ids: Seq[String]): Unit = {
+  private def onMineAndAddNextBlock(data: String, ids: Seq[HexString]): Unit = {
     val theSender: ActorRef = sender()
     (blockchainActor ? BlockchainActor.MineNextBlock(data, ids))
       .mapTo[Option[Block]]

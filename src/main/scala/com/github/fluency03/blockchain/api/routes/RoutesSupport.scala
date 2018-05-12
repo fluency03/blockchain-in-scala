@@ -1,8 +1,9 @@
-package com.github.fluency03.blockchain.api.routes
+package com.github.fluency03.blockchain
+package api.routes
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.{RequestContext, StandardRoute}
+import akka.http.scaladsl.server.StandardRoute
 import akka.http.scaladsl.server.directives.RouteDirectives.complete
 import akka.util.Timeout
 import com.github.fluency03.blockchain.api.{FailureMsg, JsonSupport, Message, SuccessMsg}

@@ -9,27 +9,18 @@ object SHA256 {
    * Generate SHA256 Hash from a input String.
    * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
    */
-  def hash(text: String) : String = hash(text.getBytes)
+  def hash(text: String) : HexString = hash(text.getBytes)
 
-  /**
-   * Generate SHA256 Hash from a input Array of Byte.
-   */
-  def hash(bytes: Bytes) : String = String.format("%064x",
-    new java.math.BigInteger(1, hashToDigest(bytes)))
+  def hash(bytes: Bytes) : HexString = String.format("%064x",
+    new java.math.BigInteger(1, hashDigest(bytes)))
 
-  /**
-   * Generate digest from a input Array of Byte.
-   */
-  def hashToDigest(bytes: Bytes): Bytes =
+  def hashDigest(bytes: Bytes): Bytes =
     MessageDigest.getInstance("SHA-256").digest(bytes)
 
-  /**
-   * Calculate the hash of concatenation a Seq of Strings.
-   */
-  def hashAll(strings: String*): String = hash(strings mkString "")
+  def hashAll(strings: String*): HexString = hash(strings mkString "")
 
-  def hash256(bytes: Bytes): String = hash(hashToDigest(bytes))
+  def hash256(bytes: Bytes): HexString = hash(hashDigest(bytes))
 
-  def hash256ToDigest(bytes: Bytes): Bytes = hashToDigest(hashToDigest(bytes))
+  def hash256ToDigest(bytes: Bytes): Bytes = hashDigest(hashDigest(bytes))
 
 }

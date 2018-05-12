@@ -10,11 +10,11 @@ object Base58 {
   lazy val ALPHABET: Array[Char] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray
   private val ENCODED_ZERO = ALPHABET(0)
 
-  def encodeString(str: String): String = encode(str.getBytes)
+  def encodeString(str: String): Base58 = encode(str.getBytes)
 
-  def encodeHex(hex: String): String = encode(hex.hex2Bytes)
+  def encodeHex(hex: HexString): Base58 = encode(hex.hex2Bytes)
 
-  def encode(bytes: Bytes): String = {
+  def encode(bytes: Bytes): Base58 = {
     @tailrec
     def buildBase58(res: String, bi: BigInt): String =
       if (bi <= 0) res
@@ -28,7 +28,7 @@ object Base58 {
     confirmZeroByte(buildBase58("", bytes.toBigInt), bytes, 0)
   }
 
-  def decode(str: String): Bytes = {
+  def decode(str: Base58): Bytes = {
     @tailrec
     def restoreBigInt(chars: Array[Char], bi: BigInt, idx: Int): BigInt =
       if (idx >= chars.length) bi
@@ -44,9 +44,9 @@ object Base58 {
     zeroes ++ Hex.decode(bi.toString(16))
   }
 
-  def decodeToHex(str: String): String = new String(decode(str))
+  def decodeToHex(str: Base58): HexString = new String(decode(str))
 
-  def checkEncode(bytes: Bytes): String =
+  def checkEncode(bytes: Bytes): Base58 =
     encode(bytes ++ bytes.toSha256Digest.toSha256Digest.slice(0, 4))
 
 

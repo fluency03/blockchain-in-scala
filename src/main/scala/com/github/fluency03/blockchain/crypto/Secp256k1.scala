@@ -60,9 +60,9 @@ object Secp256k1 {
     KeyFactory.getInstance(KEY_ALGORITHM).generatePrivate(
       new ECPrivateKeySpec(new BigInteger(hex, 16), ecSpec))
 
-  def publicKeyToHex(publicKey: PublicKey): String = publicKeyToBytes(publicKey).toHex
+  def publicKeyToHex(publicKey: PublicKey): HexString = publicKeyToBytes(publicKey).toHex
 
-  def privateKeyToHex(privateKey: PrivateKey): String =
+  def privateKeyToHex(privateKey: PrivateKey): HexString =
     privateKey.asInstanceOf[ECPrivateKey].getD.toString(16)
 
   def publicKeyToBytes(publicKey: PublicKey): Bytes =
@@ -71,7 +71,7 @@ object Secp256k1 {
   def privateKeyToBytes(privateKey: PrivateKey): Bytes =
     privateKey.asInstanceOf[ECPrivateKey].getD.toByteArray
 
-  def publicKeyHexToAddress(publicKey: String, networkBytes: String = "00"): String =
+  def publicKeyHexToAddress(publicKey: HexString, networkBytes: String = "00"): String =
     Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.toHash160Digest)
 
   /**
@@ -87,15 +87,15 @@ object Secp256k1 {
    * 8 - Adding 7 at the end of 4
    * 9 - Base58 encoding of 8
    */
-  def publicKeyToAddress(publicKey: PublicKey, networkBytes: String = "00"): String =
+  def publicKeyToAddress(publicKey: PublicKey, networkBytes: String = "00"): Base58 =
     Base58.checkEncode(networkBytes.hex2Bytes ++ publicKeyToBytes(publicKey).toHash160Digest)
 
-  def hash160ToAddress(hash160: String, networkBytes: String = "00"): String =
+  def hash160ToAddress(hash160: HexString, networkBytes: String = "00"): Base58 =
     Base58.checkEncode(networkBytes.hex2Bytes ++ hash160.hex2Bytes)
 
-  def addressToHash160(address: String, networkBytes: String = "00"): (String, String) = {
+  def addressToHash160(address: Base58, networkBytes: String = "00"): (HexString, HexString) = {
     val decoded: Bytes = Base58.decode(address)
-    val (preBytes, fourBytes) = decoded.splitAt(decoded.length - 4)
+    val (preBytes, _) = decoded.splitAt(decoded.length - 4)
     preBytes.toHex.splitAt(2)
   }
 

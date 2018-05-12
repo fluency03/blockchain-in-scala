@@ -22,7 +22,7 @@ class PeerActor extends ActorSupport {
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
   // TODO (Chang): need persistence
-  val wallet: mutable.Map[String, KeyContainer] = mutable.Map.empty[String, KeyContainer]
+  val wallet: mutable.Map[HexString, KeyContainer] = mutable.Map.empty[HexString, KeyContainer]
   val others: mutable.Map[String, Peer] = mutable.Map.empty[String, Peer]
 
   /**
@@ -38,7 +38,7 @@ class PeerActor extends ActorSupport {
     case _ => unhandled _
   }
 
-  private def addWallet(): String = {
+  private def addWallet(): HexString = {
     val kc = KeyContainer()
     wallet += (kc.address -> kc)
     kc.address

@@ -1,6 +1,8 @@
-package com.github.fluency03.blockchain
+package com.github.fluency03.blockchain.misc
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, ObjectInputStream, ObjectOutputStream}
+
+import com.github.fluency03.blockchain.Bytes
 
 /**
  * Ser(ialization) and De(serialization)

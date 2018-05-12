@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.actors
+package com.github.fluency03.blockchain
+package api.actors
 
 import akka.actor.{ActorSelection, Props}
 import com.github.fluency03.blockchain.api.actors.TxPoolActor._
@@ -10,10 +11,10 @@ import scala.collection.mutable
 
 object TxPoolActor {
   final case object GetTransactions
-  final case class GetTransactions(ids: Seq[String])
+  final case class GetTransactions(ids: Seq[HexString])
   final case class AddTransaction(tx: Transaction)
-  final case class GetTransaction(id: String)
-  final case class DeleteTransaction(id: String)
+  final case class GetTransaction(id: HexString)
+  final case class DeleteTransaction(id: HexString)
   final case class UpdateTransaction(tx: Transaction)
   def props: Props = Props[TxPoolActor]
 }
@@ -23,7 +24,7 @@ class TxPoolActor extends ActorSupport {
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
   // TODO (Chang): need persistence
-  val transPool: mutable.Map[String, Transaction] = mutable.Map.empty[String, Transaction]
+  val transPool: mutable.Map[HexString, Transaction] = mutable.Map.empty[HexString, Transaction]
   val uTxOs: mutable.Map[Outpoint, TxOut] = mutable.Map.empty[Outpoint, TxOut]
 
   val blockchainActor: ActorSelection = context.actorSelection(PARENT_UP + BLOCKCHAIN_ACTOR_NAME)
@@ -51,7 +52,7 @@ class TxPoolActor extends ActorSupport {
    */
   private def onGetTransactions(): Unit = sender() ! transPool.values.toSeq
 
-  private def onGetTransactions(ids: Seq[String]): Unit =
+  private def onGetTransactions(ids: Seq[HexString]): Unit =
     sender() ! ids.map(transPool.get).filter(_.isDefined).map(_.get)
 
   private def onAddTransaction(tx: Transaction): Unit =
@@ -62,9 +63,9 @@ class TxPoolActor extends ActorSupport {
       sender() ! SuccessMsg(s"Transaction ${tx.id} created in the Pool.")
     }
 
-  private def onGetTransaction(id: String): Unit = sender() ! transPool.get(id)
+  private def onGetTransaction(id: HexString): Unit = sender() ! transPool.get(id)
 
-  private def onDeleteTransaction(id: String): Unit =
+  private def onDeleteTransaction(id: HexString): Unit =
     if (transPool.contains(id)) {
       transPool -= id
       sender() ! SuccessMsg(s"Transaction $id deleted from the Pool.")

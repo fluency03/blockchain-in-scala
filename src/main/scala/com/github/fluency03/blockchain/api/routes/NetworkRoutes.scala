@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.routes
+package com.github.fluency03.blockchain
+package api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
@@ -35,10 +36,10 @@ trait NetworkRoutes extends RoutesSupport {
     path(PEERS) {
       get {
         parameters( 'names.as(CsvSeq[String]).? ) { namesOpt =>
-          val peers: Future[Map[String, Set[String]]] = namesOpt match {
+          val peers: Future[Map[String, Set[HexString]]] = namesOpt match {
             case Some(names) =>
-              (networkActor ? GetPeers(names.toSet)).mapTo[Map[String, Set[String]]]
-            case None => (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
+              (networkActor ? GetPeers(names.toSet)).mapTo[Map[String, Set[HexString]]]
+            case None => (networkActor ? GetPeers).mapTo[Map[String, Set[HexString]]]
           }
           complete(peers)
         }

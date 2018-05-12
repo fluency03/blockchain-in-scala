@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.actors
+package com.github.fluency03.blockchain
+package api.actors
 
 import akka.actor.{ActorSelection, Props}
 import akka.pattern.{ask, pipe}
@@ -56,7 +57,7 @@ class NetworkActor extends ActorSupport {
 
   private def onGetPeers(): Unit = {
     val peers = context.children.map { p =>
-      (p ? GetPublicKeys).mapTo[Set[String]].map(p.path.name -> _)
+      (p ? GetPublicKeys).mapTo[Set[HexString]].map(p.path.name -> _)
     }
     Future.sequence(peers).map(_.toMap).pipeTo(sender())
   }
@@ -64,7 +65,7 @@ class NetworkActor extends ActorSupport {
   private def onGetPeers(names: Set[String]): Unit = {
     val peers = context.children
       .filter { p => names.contains(p.path.name) }
-      .map { p => (p ? GetPublicKeys).mapTo[Set[String]].map(p.path.name -> _) }
+      .map { p => (p ? GetPublicKeys).mapTo[Set[HexString]].map(p.path.name -> _) }
     Future.sequence(peers).map(_.toMap).pipeTo(sender())
   }
 
@@ -77,7 +78,7 @@ class NetworkActor extends ActorSupport {
 
   private def onGetPeer(name: String): Unit = context.child(name) match {
     case Some(_) => (context.child(name).get ? GetPublicKeys)
-      .mapTo[Set[String]]
+      .mapTo[Set[HexString]]
       .map { keys => Some(Peer(name, keys)) }
       .pipeTo(sender())
     case None => sender() ! None

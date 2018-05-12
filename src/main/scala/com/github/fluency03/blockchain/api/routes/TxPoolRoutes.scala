@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.routes
+package com.github.fluency03.blockchain
+package api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
@@ -30,7 +31,7 @@ trait TxPoolRoutes extends RoutesSupport {
   lazy val txPoolRoutes: Route =
     pathPrefix(TX_POOL) {
       path(TRANSACTIONS) {
-        parameters('ids.as(CsvSeq[String]).?) { idsOpt =>
+        parameters('ids.as(CsvSeq[HexString]).?) { idsOpt =>
           val transactions: Future[Transactions] = idsOpt match {
             case Some(ids) => (txPoolActor ? GetTransactions(ids)).mapTo[Transactions]
             case None => (txPoolActor ? GetTransactions).mapTo[Transactions]

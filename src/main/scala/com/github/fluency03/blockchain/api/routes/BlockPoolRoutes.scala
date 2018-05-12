@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.routes
+package com.github.fluency03.blockchain
+package api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
@@ -22,7 +23,7 @@ trait BlockPoolRoutes extends RoutesSupport {
   lazy val blockPoolRoutes: Route =
     pathPrefix(BLOCK_POOL) {
       path(BLOCKS) {
-        parameters('hashes.as(CsvSeq[String]).?) { hashesOpt: Option[Seq[String]] =>
+        parameters('hashes.as(CsvSeq[HexString]).?) { hashesOpt: Option[Seq[HexString]] =>
           val blocks: Future[Blocks] = hashesOpt match {
             case Some(hashes) => (blockPoolActor ? GetBlocks(hashes.toSet)).mapTo[Blocks]
             case None => (blockPoolActor ? GetBlocks).mapTo[Blocks]
@@ -32,9 +33,9 @@ trait BlockPoolRoutes extends RoutesSupport {
       } ~
       path(NEXT_BLOCK) {
         post {
-          parameters('ids.as(CsvSeq[String]).?) { idsOpt: Option[Seq[String]] =>
+          parameters('ids.as(CsvSeq[HexString]).?) { idsOpt: Option[Seq[HexString]] =>
             entity(as[Input]) { in =>
-              val action = MineAndAddNextBlock(in.content, idsOpt.getOrElse(Seq.empty[String]))
+              val action = MineAndAddNextBlock(in.content, idsOpt.getOrElse(Seq.empty[HexString]))
               val maybeNextBlock: Future[Option[Block]] =
                 (blockPoolActor ? action).mapTo[Option[Block]]
               rejectEmptyResponse {

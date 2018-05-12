@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.actors
+package com.github.fluency03.blockchain
+package api.actors
 
 import akka.actor.{ActorRef, ActorSelection, Props}
 import akka.pattern.ask
@@ -18,15 +19,15 @@ object BlockchainActor {
   final case object DeleteBlockchain extends BlockchainMsg
   final case object CheckBlockchainValidity extends BlockchainMsg
 
-  final case class GetBlockByHash(hash: String) extends BlockMsg
-  final case class GetBlocksByHashesAndIndices(hashes: Set[String], indices: Set[Int]) extends BlockMsg
+  final case class GetBlockByHash(hash: HexString) extends BlockMsg
+  final case class GetBlocksByHashesAndIndices(hashes: Set[HexString], indices: Set[Int]) extends BlockMsg
   final case object GetLastBlock extends BlockMsg
-  final case class GetTxOfBlock(id: String, hash: String) extends BlockMsg
+  final case class GetTxOfBlock(id: HexString, hash: HexString) extends BlockMsg
   final case class AppendBlock(block: Block) extends BlockMsg
-  final case class AppendBlockFromPool(hash: String) extends BlockMsg
+  final case class AppendBlockFromPool(hash: HexString) extends BlockMsg
   final case object RemoveLastBlock extends BlockMsg
-  final case class MineNextBlock(data: String, ids: Seq[String]) extends BlockMsg
-  final case class GetBlockFromPool(hash: String) extends BlockMsg
+  final case class MineNextBlock(data: String, ids: Seq[HexString]) extends BlockMsg
+  final case class GetBlockFromPool(hash: HexString) extends BlockMsg
 
   def props: Props = Props[BlockchainActor]
 }
@@ -43,7 +44,7 @@ class BlockchainActor extends ActorSupport {
 
   // TODO (Chang): need persistence
   var blockchainOpt: Option[Blockchain] = None
-  val hashIndexMapping: mutable.Map[String, Int] = mutable.Map.empty[String, Int]
+  val hashIndexMapping: mutable.Map[HexString, Int] = mutable.Map.empty[HexString, Int]
 
   def receive: Receive = {
     case msg: BlockchainMsg => inCaseOfBlockchainMsg(msg)
@@ -105,9 +106,9 @@ class BlockchainActor extends ActorSupport {
   /**
    * Handlers for each of the BlockMsg.
    */
-  private def onGetBlockByHash(hash: String): Unit = sender() ! getBlockByHash(hash)
+  private def onGetBlockByHash(hash: HexString): Unit = sender() ! getBlockByHash(hash)
 
-  private def onGetBlocksByHashesAndIndices(hashes: Set[String], indices: Set[Int]): Unit =
+  private def onGetBlocksByHashesAndIndices(hashes: Set[HexString], indices: Set[Int]): Unit =
     sender() ! getBlocksByHashesAndIndices(hashes, indices)
 
   private def onGetLastBlock(): Unit = blockchainOpt match {
@@ -117,7 +118,7 @@ class BlockchainActor extends ActorSupport {
       sender() ! None
   }
 
-  private def onGetTxOfBlock(id: String, hash: String): Unit = getBlockByHash(hash) match {
+  private def onGetTxOfBlock(id: HexString, hash: HexString): Unit = getBlockByHash(hash) match {
     case Some(block) => sender() ! block.transactions.find(_.id == id)
     case None => sender() ! None
   }
@@ -131,7 +132,7 @@ class BlockchainActor extends ActorSupport {
       sender() ! FailureMsg("Blockchain does not exist.")
   }
 
-  private def onAppendBlockFromPool(hash: String): Unit = blockchainOpt match {
+  private def onAppendBlockFromPool(hash: HexString): Unit = blockchainOpt match {
     case Some(blockchain) =>
       val theSender: ActorRef = sender()
       (blockPoolActor ? BlockPoolActor.GetBlock(hash))
@@ -162,7 +163,7 @@ class BlockchainActor extends ActorSupport {
       sender() ! FailureMsg("Blockchain does not exist.")
   }
 
-  private def onMineNextBlock(data: String, ids: Seq[String]): Unit = blockchainOpt match {
+  private def onMineNextBlock(data: String, ids: Seq[HexString]): Unit = blockchainOpt match {
     case Some(blockchain) =>
       if (ids.isEmpty) sender() ! Some(blockchain.mineNextBlock(data, Seq.empty[Transaction]))
       else {
@@ -179,13 +180,13 @@ class BlockchainActor extends ActorSupport {
       sender() ! None
   }
 
-  private def onGetBlockFromPool(hash: String): Unit =
+  private def onGetBlockFromPool(hash: HexString): Unit =
     blockPoolActor forward BlockPoolActor.GetBlock(hash)
 
   /**
    * Private helper methods.
    */
-  private def getBlockByHash(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
+  private def getBlockByHash(hash: HexString): Option[Block] = hashIndexMapping.get(hash) match {
     case Some(index) => blockchainOpt match {
       case Some(blockchain) => Some(blockchain.chain(index))
       case None =>
@@ -195,7 +196,7 @@ class BlockchainActor extends ActorSupport {
     case None => None
   }
 
-  private def getBlocksByHashesAndIndices(hashes: Set[String], indices: Set[Int]): Set[Block] = {
+  private def getBlocksByHashesAndIndices(hashes: Set[HexString], indices: Set[Int]): Set[Block] = {
     ???
   }
 

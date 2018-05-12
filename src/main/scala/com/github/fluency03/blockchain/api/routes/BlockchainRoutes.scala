@@ -1,4 +1,5 @@
-package com.github.fluency03.blockchain.api.routes
+package com.github.fluency03.blockchain
+package api.routes
 
 import akka.actor.ActorRef
 import akka.event.Logging
@@ -55,10 +56,10 @@ trait BlockchainRoutes extends RoutesSupport {
       } ~
       path(NEXT_BLOCK) {
         post {
-          parameters('id.as(CsvSeq[String]).?) { idsOpt: Option[Seq[String]] =>
+          parameters('id.as(CsvSeq[HexString]).?) { idsOpt: Option[Seq[HexString]] =>
             entity(as[Input]) { in =>
               val maybeNextBlock: Future[Option[Block]] =
-                (blockchainActor ? MineNextBlock(in.content, idsOpt.getOrElse(Seq.empty[String])))
+                (blockchainActor ? MineNextBlock(in.content, idsOpt.getOrElse(Seq.empty[HexString])))
                   .mapTo[Option[Block]]
               rejectEmptyResponse {
                 complete(maybeNextBlock)
@@ -86,9 +87,9 @@ trait BlockchainRoutes extends RoutesSupport {
       } ~
       path(BLOCKS) {
         get {
-          parameters('hashes.as(CsvSeq[String]).?, 'indices.as(CsvSeq[Int]).?) {
-            (hashesOpt: Option[Seq[String]], indicesOpt: Option[Seq[Int]]) =>
-              val (hashes, indices) = (hashesOpt.getOrElse(Seq.empty[String]).toSet,
+          parameters('hashes.as(CsvSeq[HexString]).?, 'indices.as(CsvSeq[Int]).?) {
+            (hashesOpt: Option[Seq[HexString]], indicesOpt: Option[Seq[Int]]) =>
+              val (hashes, indices) = (hashesOpt.getOrElse(Seq.empty[HexString]).toSet,
                 indicesOpt.getOrElse(Seq.empty[Int]).toSet)
               val blocks: Future[Set[Block]] =
                 (blockchainActor ? GetBlocksByHashesAndIndices(hashes, indices)).mapTo[Set[Block]]
