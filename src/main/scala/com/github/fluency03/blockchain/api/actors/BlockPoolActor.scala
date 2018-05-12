@@ -57,7 +57,8 @@ class BlockPoolActor extends ActorSupport {
   ).values.toSeq
 
   private[this] def onAddBlock(block: Block): Unit = {
-    if (blocksPool.contains(block.hash)) sender() ! FailureMsg(s"Block ${block.hash} already exists in the Pool.")
+    if (blocksPool.contains(block.hash))
+      sender() ! FailureMsg(s"Block ${block.hash} already exists in the Pool.")
     else {
       blocksPool += (block.hash -> block)
       sender() ! SuccessMsg(s"Block ${block.hash} created in the Pool.")

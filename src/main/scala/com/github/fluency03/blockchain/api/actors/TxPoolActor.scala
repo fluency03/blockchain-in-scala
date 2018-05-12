@@ -56,7 +56,8 @@ class TxPoolActor extends ActorSupport {
     sender() ! ids.map(id => transPool.get(id)).filter(_.isDefined).map(_.get)
 
   private def onAddTransaction(tx: Transaction): Unit =
-    if (transPool.contains(tx.id)) sender() ! FailureMsg(s"Transaction ${tx.id} already exists in the Pool.")
+    if (transPool.contains(tx.id))
+      sender() ! FailureMsg(s"Transaction ${tx.id} already exists in the Pool.")
     else {
       transPool += (tx.id -> tx)
       sender() ! SuccessMsg(s"Transaction ${tx.id} created in the Pool.")
@@ -77,8 +78,10 @@ class TxPoolActor extends ActorSupport {
       val notExistBefore =  !transPool.contains(actualId)
       transPool += (actualId -> tx)
       sender() ! {
-        if (notExistBefore) SuccessMsg(s"Transaction $actualId does not exist. New transaction created in the Pool.")
-        else SuccessMsg(s"Transaction $actualId updated in the Pool.")
+        if (notExistBefore)
+          SuccessMsg(s"Transaction $actualId does not exist. New transaction created in the Pool.")
+        else
+          SuccessMsg(s"Transaction $actualId updated in the Pool.")
       }
     } else sender() ! FailureMsg(s"Transaction does not have valid ID. Should be: $expectedId; actually is: $actualId")
   }
