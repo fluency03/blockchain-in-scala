@@ -56,7 +56,7 @@ class NetworkActor extends ActorSupport {
 
   private def onGetPeers(): Unit = {
     val peers = context.children.map { p =>
-      (p ? GetPublicKeys).mapTo[Set[String]].map(keys => p.path.name -> keys)
+      (p ? GetPublicKeys).mapTo[Set[String]].map(p.path.name -> _)
     }
     Future.sequence(peers).map(_.toMap).pipeTo(sender())
   }
@@ -64,7 +64,7 @@ class NetworkActor extends ActorSupport {
   private def onGetPeers(names: Set[String]): Unit = {
     val peers = context.children
       .filter { p => names.contains(p.path.name) }
-      .map { p => (p ? GetPublicKeys).mapTo[Set[String]].map(keys => p.path.name -> keys) }
+      .map { p => (p ? GetPublicKeys).mapTo[Set[String]].map(p.path.name -> _) }
     Future.sequence(peers).map(_.toMap).pipeTo(sender())
   }
 

@@ -52,7 +52,7 @@ class TxPoolActor extends ActorSupport {
   private def onGetTransactions(): Unit = sender() ! transPool.values.toSeq
 
   private def onGetTransactions(ids: Seq[String]): Unit =
-    sender() ! ids.map(id => transPool.get(id)).filter(_.isDefined).map(_.get)
+    sender() ! ids.map(transPool.get).filter(_.isDefined).map(_.get)
 
   private def onAddTransaction(tx: Transaction): Unit =
     if (transPool.contains(tx.id))
@@ -65,24 +65,24 @@ class TxPoolActor extends ActorSupport {
   private def onGetTransaction(id: String): Unit = sender() ! transPool.get(id)
 
   private def onDeleteTransaction(id: String): Unit =
-    if (transPool contains id) {
+    if (transPool.contains(id)) {
       transPool -= id
       sender() ! SuccessMsg(s"Transaction $id deleted from the Pool.")
     } else sender() ! FailureMsg(s"Transaction $id does not exist in the Pool.")
 
   private def onUpdateTransaction(tx: Transaction): Unit = {
-    val actualId = tx.id
-    val expectedId = hashOfTransaction(tx)
-    if (actualId == expectedId) {
-      val notExistBefore =  !transPool.contains(actualId)
+    val (actualId, expectedId) = (tx.id, hashOfTransaction(tx))
+    if (actualId != expectedId)
+      sender() ! FailureMsg(
+        s"Transaction does not have valid ID. Should be: $expectedId; actually is: $actualId")
+    else {
+      val msg = if (!transPool.contains(actualId))
+        SuccessMsg(s"Transaction $actualId does not exist. New transaction created in the Pool.")
+      else
+        SuccessMsg(s"Transaction $actualId updated in the Pool.")
       transPool += (actualId -> tx)
-      sender() ! {
-        if (notExistBefore)
-          SuccessMsg(s"Transaction $actualId does not exist. New transaction created in the Pool.")
-        else
-          SuccessMsg(s"Transaction $actualId updated in the Pool.")
-      }
-    } else sender() ! FailureMsg(s"Transaction does not have valid ID. Should be: $expectedId; actually is: $actualId")
+      sender() ! msg
+    }
   }
 
 
