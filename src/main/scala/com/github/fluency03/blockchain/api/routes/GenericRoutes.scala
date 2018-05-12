@@ -22,29 +22,39 @@ trait GenericRoutes extends RoutesSupport {
       pathPrefix(GENERIC) {
         path(TO_SHA256) {
           post {
-            entity(as[Input]) { in => complete( failsafeResp { in.content.toSha256 } ) }
+            entity(as[Input]) { in =>
+              complete(failsafeResp(in.content.toSha256))
+            }
           }
         } ~
-        path(TO_BASE64) {
-          post {
-            entity(as[Input]) { in => complete( failsafeResp { in.content.toBase64 } ) }
+          path(TO_BASE64) {
+            post {
+              entity(as[Input]) { in =>
+                complete(failsafeResp(in.content.toBase64))
+              }
+            }
+          } ~
+          path(FROM_BASE64) {
+            post {
+              entity(as[Input]) { in =>
+                complete(failsafeResp(fromBase64(in.content)))
+              }
+            }
+          } ~
+          path(TO_EPOCH_TIME) {
+            post {
+              entity(as[Input]) { in =>
+                complete(failsafeResp(epochTimeOf(in.content).toString))
+              }
+            }
+          } ~
+          path(TIME_FROM_EPOCH) {
+            post {
+              entity(as[Input]) { in =>
+                complete(failsafeResp(Instant.ofEpochSecond(in.content.toLong).toString))
+              }
+            }
           }
-        } ~
-        path(FROM_BASE64) {
-          post {
-            entity(as[Input]) { in => complete( failsafeResp { fromBase64(in.content) } ) }
-          }
-        } ~
-        path(TO_EPOCH_TIME) {
-          post {
-            entity(as[Input]) { in => complete( failsafeResp { epochTimeOf(in.content).toString } ) }
-          }
-        } ~
-        path(TIME_FROM_EPOCH) {
-          post {
-            entity(as[Input]) { in => complete( failsafeResp { Instant.ofEpochSecond(in.content.toLong).toString } ) }
-          }
-        }
       }
 
 }

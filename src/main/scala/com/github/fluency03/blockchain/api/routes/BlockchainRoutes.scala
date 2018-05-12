@@ -23,28 +23,33 @@ trait BlockchainRoutes extends RoutesSupport {
     pathPrefix(BLOCKCHAIN) {
       path(VALIDITY) {
         get {
-          val validity: Future[Message] = (blockchainActor ? CheckBlockchainValidity).mapTo[Message]
-          onSuccess(validity) { respondOnUpdate }
+          onSuccess((blockchainActor ? CheckBlockchainValidity).mapTo[Message]) {
+            respondOnUpdate
+          }
         }
       } ~
       path(LAST_BLOCK) {
         get {
-          val maybeLastBlock: Future[Option[Block]] = (blockchainActor ? GetLastBlock).mapTo[Option[Block]]
-          rejectEmptyResponse { complete(maybeLastBlock) }
+          rejectEmptyResponse {
+            complete((blockchainActor ? GetLastBlock).mapTo[Option[Block]])
+          }
         } ~
         delete {
-          val blockchainUpdated: Future[Message] = (blockchainActor ? RemoveLastBlock).mapTo[Message]
-          onSuccess(blockchainUpdated) { respondOnUpdate }
+          onSuccess((blockchainActor ? RemoveLastBlock).mapTo[Message]) {
+            respondOnUpdate
+          }
         }
       } ~
       path(NEW_BLOCK) {
         parameters('hash.?) {
           case Some(hash) =>
-            val blockchainUpdated: Future[Message] = (blockchainActor ? AppendBlockFromPool(hash)).mapTo[Message]
-            onSuccess(blockchainUpdated) { respondOnUpdate }
+            onSuccess((blockchainActor ? AppendBlockFromPool(hash)).mapTo[Message]) {
+              respondOnUpdate
+            }
           case None => entity(as[Block]) { block =>
-            val blockchainUpdated: Future[Message] = (blockchainActor ? AppendBlock(block)).mapTo[Message]
-            onSuccess(blockchainUpdated) { respondOnUpdate }
+            onSuccess((blockchainActor ? AppendBlock(block)).mapTo[Message]) {
+              respondOnUpdate
+            }
           }
         }
       } ~
@@ -53,50 +58,59 @@ trait BlockchainRoutes extends RoutesSupport {
           parameters('id.as(CsvSeq[String]).?) { idsOpt: Option[Seq[String]] =>
             entity(as[Input]) { in =>
               val maybeNextBlock: Future[Option[Block]] =
-                (blockchainActor ? MineNextBlock(in.content, idsOpt.getOrElse(Seq.empty[String]))).mapTo[Option[Block]]
-              rejectEmptyResponse { complete(maybeNextBlock) }
+                (blockchainActor ? MineNextBlock(in.content, idsOpt.getOrElse(Seq.empty[String])))
+                  .mapTo[Option[Block]]
+              rejectEmptyResponse {
+                complete(maybeNextBlock)
+              }
             }
           }
         }
       } ~
       pathEnd {
         get {
-          val blockchain: Future[Option[Blockchain]] = (blockchainActor ? GetBlockchain).mapTo[Option[Blockchain]]
-          rejectEmptyResponse { complete(blockchain) }
+          rejectEmptyResponse {
+            complete((blockchainActor ? GetBlockchain).mapTo[Option[Blockchain]])
+          }
         } ~
         post {
-          val blockchainCreated: Future[Message] = (blockchainActor ? CreateBlockchain).mapTo[Message]
-          onSuccess(blockchainCreated) { respondOnCreation }
+          onSuccess((blockchainActor ? CreateBlockchain).mapTo[Message]) {
+            respondOnCreation
+          }
         } ~
         delete {
-          val blockchainDeleted: Future[Message] = (blockchainActor ? DeleteBlockchain).mapTo[Message]
-          onSuccess(blockchainDeleted) { respondOnDeletion }
+          onSuccess((blockchainActor ? DeleteBlockchain).mapTo[Message]) {
+            respondOnDeletion
+          }
         }
       } ~
       path(BLOCKS) {
         get {
           parameters('hashes.as(CsvSeq[String]).?, 'indices.as(CsvSeq[Int]).?) {
             (hashesOpt: Option[Seq[String]], indicesOpt: Option[Seq[Int]]) =>
-              val blocks: Future[Set[Block]] = (blockchainActor ?
-                GetBlocksByHashesAndIndices(
-                  hashesOpt.getOrElse(Seq.empty[String]).toSet,
-                  indicesOpt.getOrElse(Seq.empty[Int]).toSet))
-                .mapTo[Set[Block]]
-              rejectEmptyResponse { complete(blocks) }
+              val (hashes, indices) = (hashesOpt.getOrElse(Seq.empty[String]).toSet,
+                indicesOpt.getOrElse(Seq.empty[Int]).toSet)
+              val blocks: Future[Set[Block]] =
+                (blockchainActor ? GetBlocksByHashesAndIndices(hashes, indices)).mapTo[Set[Block]]
+              rejectEmptyResponse {
+                complete(blocks)
+              }
           }
         }
       } ~
       pathPrefix(BLOCK / Segment) { hash =>
         pathEnd {
           get {
-            val maybeBlock: Future[Option[Block]] = (blockchainActor ? GetBlockByHash(hash)).mapTo[Option[Block]]
-            rejectEmptyResponse { complete(maybeBlock) }
+            rejectEmptyResponse {
+              complete((blockchainActor ? GetBlockByHash(hash)).mapTo[Option[Block]])
+            }
           }
         } ~
         path(TRANSACTION / Segment) { id =>
           get {
-            val maybeTx: Future[Option[Transaction]] = (blockchainActor ? GetTxOfBlock(id, hash)).mapTo[Option[Transaction]]
-            rejectEmptyResponse { complete(maybeTx) }
+            rejectEmptyResponse {
+              complete((blockchainActor ? GetTxOfBlock(id, hash)).mapTo[Option[Transaction]])
+            }
           }
         }
       }

@@ -29,15 +29,15 @@ trait NetworkRoutes extends RoutesSupport {
   lazy val networkRoutes: Route =
     path(NETWORK) {
       get {
-        val network: Future[Set[String]] = (networkActor ? GetNetwork).mapTo[Set[String]]
-        complete(network)
+        complete((networkActor ? GetNetwork).mapTo[Set[String]])
       }
     } ~
     path(PEERS) {
       get {
         parameters( 'names.as(CsvSeq[String]).? ) { namesOpt =>
           val peers: Future[Map[String, Set[String]]] = namesOpt match {
-            case Some(names) => (networkActor ? GetPeers(names.toSet)).mapTo[Map[String, Set[String]]]
+            case Some(names) =>
+              (networkActor ? GetPeers(names.toSet)).mapTo[Map[String, Set[String]]]
             case None => (networkActor ? GetPeers).mapTo[Map[String, Set[String]]]
           }
           complete(peers)
@@ -48,19 +48,22 @@ trait NetworkRoutes extends RoutesSupport {
       pathEnd {
         post {
           entity(as[PeerSimple]) { peer =>
-            val peerCreated: Future[Message] = (networkActor ? CreatePeer(peer.name)).mapTo[Message]
-            onSuccess(peerCreated) { respondOnCreation }
+            onSuccess((networkActor ? CreatePeer(peer.name)).mapTo[Message]) {
+              respondOnCreation
+            }
           }
         }
       } ~
       path(Segment) { name =>
         get {
-          val maybePeer: Future[Option[Peer]] = (networkActor ? GetPeer(name)).mapTo[Option[Peer]]
-          rejectEmptyResponse { complete(maybePeer) }
+          rejectEmptyResponse {
+            complete((networkActor ? GetPeer(name)).mapTo[Option[Peer]])
+          }
         } ~
         delete {
-          val peerDeleted: Future[Message] = (networkActor ? DeletePeer(name)).mapTo[Message]
-          onSuccess(peerDeleted) { respondOnDeletion }
+          onSuccess((networkActor ? DeletePeer(name)).mapTo[Message]) {
+            respondOnDeletion
+          }
         }
       }
     }

@@ -34,9 +34,12 @@ trait BlockPoolRoutes extends RoutesSupport {
         post {
           parameters('ids.as(CsvSeq[String]).?) { idsOpt: Option[Seq[String]] =>
             entity(as[Input]) { in =>
+              val action = MineAndAddNextBlock(in.content, idsOpt.getOrElse(Seq.empty[String]))
               val maybeNextBlock: Future[Option[Block]] =
-                (blockPoolActor ? MineAndAddNextBlock(in.content, idsOpt.getOrElse(Seq.empty[String]))).mapTo[Option[Block]]
-              rejectEmptyResponse { complete(maybeNextBlock) }
+                (blockPoolActor ? action).mapTo[Option[Block]]
+              rejectEmptyResponse {
+                complete(maybeNextBlock)
+              }
             }
           }
         }
@@ -45,26 +48,30 @@ trait BlockPoolRoutes extends RoutesSupport {
         pathEnd {
           post {
             entity(as[Block]) { block =>
-              val blockCreated: Future[Message] = (blockPoolActor ? AddBlock(block)).mapTo[Message]
-              onSuccess(blockCreated) { respondOnCreation }
+              onSuccess((blockPoolActor ? AddBlock(block)).mapTo[Message]) {
+                respondOnCreation
+              }
             }
           }
         } ~
         pathPrefix(Segment) { hash =>
           pathEnd {
             get {
-              val maybeBlock: Future[Option[Block]] = (blockPoolActor ? GetBlock(hash)).mapTo[Option[Block]]
-              rejectEmptyResponse { complete(maybeBlock) }
+              rejectEmptyResponse {
+                complete((blockPoolActor ? GetBlock(hash)).mapTo[Option[Block]])
+              }
             } ~
             delete {
-              val blockDeleted: Future[Message] = (blockPoolActor ? DeleteBlock(hash)).mapTo[Message]
-              onSuccess(blockDeleted) { respondOnDeletion }
+              onSuccess((blockPoolActor ? DeleteBlock(hash)).mapTo[Message]) {
+                respondOnDeletion
+              }
             }
           } ~
           path(TRANSACTION / Segment) { id =>
             get {
-              val maybeTx: Future[Option[Transaction]] = (blockPoolActor ? GetTxOfBlock(id, hash)).mapTo[Option[Transaction]]
-              rejectEmptyResponse { complete(maybeTx) }
+              rejectEmptyResponse {
+                complete((blockPoolActor ? GetTxOfBlock(id, hash)).mapTo[Option[Transaction]])
+              }
             }
           }
         }

@@ -42,27 +42,31 @@ trait TxPoolRoutes extends RoutesSupport {
         pathEnd {
           post {
             entity(as[Transaction]) { tx =>
-              val msgOnCreate: Future[Message] = (txPoolActor ? AddTransaction(tx)).mapTo[Message]
-              onSuccess(msgOnCreate) { respondOnCreation }
+              onSuccess((txPoolActor ? AddTransaction(tx)).mapTo[Message]) {
+                respondOnCreation
+              }
             }
           }
         } ~
         path(Segment) { id =>
           get {
-            val maybeTx: Future[Option[Transaction]] = (txPoolActor ? GetTransaction(id)).mapTo[Option[Transaction]]
-            rejectEmptyResponse { complete(maybeTx) }
+            rejectEmptyResponse {
+              complete((txPoolActor ? GetTransaction(id)).mapTo[Option[Transaction]])
+            }
           } ~
           delete {
-            val txDeleted: Future[Message] = (txPoolActor ? DeleteTransaction(id)).mapTo[Message]
-            onSuccess(txDeleted) { respondOnDeletion }
+            onSuccess((txPoolActor ? DeleteTransaction(id)).mapTo[Message]) {
+              respondOnDeletion
+            }
           } ~
           put {
             entity(as[Transaction]) { tx =>
-              if (tx.id != id)
-                complete((StatusCodes.InternalServerError, FailureMsg("Transaction ID in the data does not match ID on the path.")))
-              else {
-                val msgOnUpdate: Future[Message] = (txPoolActor ? UpdateTransaction(tx)).mapTo[Message]
-                onSuccess(msgOnUpdate) { respondOnUpdate }
+              if (tx.id != id) {
+                val code = StatusCodes.InternalServerError
+                val msg = FailureMsg("Transaction ID in the data does not match ID on the path.")
+                complete((code, msg))
+              } else onSuccess((txPoolActor ? UpdateTransaction(tx)).mapTo[Message]) {
+                respondOnUpdate
               }
             }
           }

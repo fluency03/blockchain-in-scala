@@ -85,5 +85,4 @@ class TxPoolActor extends ActorSupport {
     }
   }
 
-
 }

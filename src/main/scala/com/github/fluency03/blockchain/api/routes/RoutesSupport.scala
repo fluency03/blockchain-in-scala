@@ -15,7 +15,8 @@ trait RoutesSupport extends JsonSupport {
   implicit def system: ActorSystem
 
   // Required by the `ask` (?) method
-  implicit lazy val timeout: Timeout = Timeout(5.seconds) // usually we'd obtain the timeout from the system's configuration
+  // usually we'd obtain the timeout from the system's configuration
+  implicit lazy val timeout: Timeout = Timeout(5.seconds)
 
   def respondOnCreation(m: Message): StandardRoute = m match {
     case s: SuccessMsg => complete((StatusCodes.Created, s))
