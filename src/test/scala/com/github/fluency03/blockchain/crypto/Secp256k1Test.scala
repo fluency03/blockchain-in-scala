@@ -36,8 +36,17 @@ class Secp256k1Test extends FlatSpec with Matchers {
       "4A2541129368D7D9BB05CD8AFBDF7705A6540D98028236965553F91BF1C5B4F70073F55B55D").address shouldEqual
       "1DU8Hi1sbHTpEP9vViBEkEw6noeUrgKkJH"
 
+    Secp256k1.hash160ToAddress("45590A0195EB451711B9D076E4C0CD04675AAD55") shouldEqual
+      "17KgHnGbu49vhav3ck7tjnBm9Lk9tpeLhX"
+
+    Secp256k1.hash160ToAddress("88C2D2FA846282C870A76CADECBE45C4ACD72BB6") shouldEqual
+      "1DU8Hi1sbHTpEP9vViBEkEw6noeUrgKkJH"
+
     Secp256k1.addressToHash160("1DU8Hi1sbHTpEP9vViBEkEw6noeUrgKkJH") shouldEqual
       ("00", "88C2D2FA846282C870A76CADECBE45C4ACD72BB6".toLowerCase)
+
+    Secp256k1.addressToHash160("17KgHnGbu49vhav3ck7tjnBm9Lk9tpeLhX") shouldEqual
+      ("00", "45590A0195EB451711B9D076E4C0CD04675AAD55".toLowerCase)
 
     Secp256k1.privateKeyToBytes(pair.getPrivate).toBigInt shouldEqual Secp256k1.privateKeyToHex(pair.getPrivate).hex2BigInt
 
