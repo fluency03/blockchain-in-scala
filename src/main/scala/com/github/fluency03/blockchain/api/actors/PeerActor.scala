@@ -22,8 +22,8 @@ class PeerActor extends ActorSupport {
   override def postStop(): Unit = log.info("{} stopped!", this.getClass.getSimpleName)
 
   // TODO (Chang): need persistence
-  val wallet = mutable.Map.empty[String, KeyContainer]
-  val others = mutable.Map.empty[String, Peer]
+  val wallet: mutable.Map[String, KeyContainer] = mutable.Map.empty[String, KeyContainer]
+  val others: mutable.Map[String, Peer] = mutable.Map.empty[String, Peer]
 
   /**
    * TODO (Chang):

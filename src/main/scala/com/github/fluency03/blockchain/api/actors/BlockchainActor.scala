@@ -74,7 +74,6 @@ class BlockchainActor extends ActorSupport {
   /**
    * Handlers for each of the BlockchainMsg.
    */
-
   private def onGetBlockchain(): Unit = sender() ! blockchainOpt
 
   private def onCreateBlockchain(): Unit = blockchainOpt match {
@@ -97,9 +96,7 @@ class BlockchainActor extends ActorSupport {
   }
 
   private def onCheckBlockchainValidity(): Unit = blockchainOpt match {
-    case Some(blockchain) => sender() ! {
-      if (blockchain.isValid) SuccessMsg("true") else SuccessMsg("false")
-    }
+    case Some(blockchain) => sender() ! SuccessMsg(blockchain.isValid.toString)
     case None =>
       clearMappingOnNoBlockchain()
       sender() ! FailureMsg("Blockchain does not exist.")
@@ -108,7 +105,6 @@ class BlockchainActor extends ActorSupport {
   /**
    * Handlers for each of the BlockMsg.
    */
-
   private def onGetBlockByHash(hash: String): Unit = sender() ! getBlockByHash(hash)
 
   private def onGetBlocksByHashesAndIndices(hashes: Set[String], indices: Set[Int]): Unit =
@@ -144,7 +140,7 @@ class BlockchainActor extends ActorSupport {
           case Success(blockOpt) => blockOpt match {
             case Some(block) =>
               appendBlock(block, blockchain)
-              sender ! SuccessMsg(s"New Block ${block.hash} added on the chain.")
+              theSender ! SuccessMsg(s"New Block ${block.hash} added on the chain.")
             case None => theSender ! FailureMsg(s"Did not find Block $hash in the poll.")
           }
           case Failure(e) =>
@@ -186,7 +182,9 @@ class BlockchainActor extends ActorSupport {
   private def onGetBlockFromPool(hash: String): Unit =
     blockPoolActor forward BlockPoolActor.GetBlock(hash)
 
-
+  /**
+   * Private helper methods.
+   */
   private def getBlockByHash(hash: String): Option[Block] = hashIndexMapping.get(hash) match {
     case Some(index) => blockchainOpt match {
       case Some(blockchain) => Some(blockchain.chain(index))
@@ -210,6 +208,5 @@ class BlockchainActor extends ActorSupport {
     log.error("Blockchain does not exist! Clear the hash-to-index mapping!")
     hashIndexMapping.clear()
   }
-
 
 }

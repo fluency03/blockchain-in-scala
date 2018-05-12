@@ -7,7 +7,6 @@ import com.github.fluency03.blockchain.api._
 import com.github.fluency03.blockchain.core.Block
 
 import scala.collection.mutable
-import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object BlockPoolActor {
@@ -33,7 +32,7 @@ class BlockPoolActor extends ActorSupport {
   val txPoolActor: ActorSelection = context.actorSelection(PARENT_UP + TX_POOL_ACTOR_NAME)
 
   // TODO (Chang): need persistence
-  var blocksPool = mutable.Map.empty[String, Block]
+  var blocksPool: mutable.Map[String, Block] = mutable.Map.empty[String, Block]
 
   def receive: Receive = {
     case GetBlocks => onGetBlocks()
@@ -49,12 +48,10 @@ class BlockPoolActor extends ActorSupport {
   /**
    * Handlers for each of the Messages.
    */
-
   private[this] def onGetBlocks(): Unit = sender() ! blocksPool.values.toSeq
 
-  private[this] def onGetBlocks(hashes: Set[String]): Unit = sender() ! blocksPool.filterKeys(
-    k => hashes.contains(k)
-  ).values.toSeq
+  private[this] def onGetBlocks(hashes: Set[String]): Unit =
+    sender() ! blocksPool.filterKeys(hashes.contains).values.toSeq
 
   private[this] def onAddBlock(block: Block): Unit = {
     if (blocksPool.contains(block.hash))
@@ -79,18 +76,18 @@ class BlockPoolActor extends ActorSupport {
   }
 
   private def onMineAndAddNextBlock(data: String, ids: Seq[String]): Unit = {
-    val maybeBlock: Future[Option[Block]] =
-      (blockchainActor ? BlockchainActor.MineNextBlock(data, ids)).mapTo[Option[Block]]
     val theSender: ActorRef = sender()
-    maybeBlock onComplete {
-      case Success(blockOpt) => blockOpt match {
-        case Some(block) =>
-          blocksPool += (block.hash -> block)
-          theSender ! Some(block)
-        case None => theSender ! None
+    (blockchainActor ? BlockchainActor.MineNextBlock(data, ids))
+      .mapTo[Option[Block]]
+      .onComplete {
+        case Success(blockOpt) => blockOpt match {
+          case Some(block) =>
+            blocksPool += (block.hash -> block)
+            theSender ! Some(block)
+          case None => theSender ! None
+        }
+        case Failure(_) => theSender ! None
       }
-      case Failure(_) => theSender ! None
-    }
   }
 
 

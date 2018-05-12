@@ -52,37 +52,42 @@ class NetworkActor extends ActorSupport {
   /**
    * Handlers for each of the Messages.
    */
-
   private def onGetNetwork(): Unit = sender() ! context.children.map(_.path.name).toSet
 
-  private def onGetPeers(): Unit = Future.sequence(context.children.map(p => {
-    (p ? GetPublicKeys).mapTo[Set[String]].map(keys => p.path.name -> keys)
-  })).map(_.toMap).pipeTo(sender())
+  private def onGetPeers(): Unit = {
+    val peers = context.children.map { p =>
+      (p ? GetPublicKeys).mapTo[Set[String]].map(keys => p.path.name -> keys)
+    }
+    Future.sequence(peers).map(_.toMap).pipeTo(sender())
+  }
 
-  private def onGetPeers(names: Set[String]): Unit = Future.sequence(context.children
-    .filter(p => names.contains(p.path.name))
-    .map(p => { (p ? GetPublicKeys).mapTo[Set[String]].map(keys => p.path.name -> keys) })
-  ).map(_.toMap).pipeTo(sender())
+  private def onGetPeers(names: Set[String]): Unit = {
+    val peers = context.children
+      .filter { p => names.contains(p.path.name) }
+      .map { p => (p ? GetPublicKeys).mapTo[Set[String]].map(keys => p.path.name -> keys) }
+    Future.sequence(peers).map(_.toMap).pipeTo(sender())
+  }
 
-  private def onCreatePeer(name: String): Unit =
-    if (context.child(name).isDefined) sender() ! FailureMsg(s"Peer $name has been created.")
-    else {
+  private def onCreatePeer(name: String): Unit = context.child(name) match {
+    case Some(_) => sender() ! FailureMsg(s"Peer $name has been created.")
+    case None =>
       val _ = context.actorOf(Props[PeerActor], name)
       sender() ! SuccessMsg(s"Peer $name created.")
-    }
+  }
 
-  private def onGetPeer(name: String): Unit =
-    if (context.child(name).isDefined) {
-      (context.child(name).get ? GetPublicKeys)
-        .mapTo[Set[String]]
-        .map(keys => Some(Peer(name, keys)))
-        .pipeTo(sender())
-    } else sender() ! None
+  private def onGetPeer(name: String): Unit = context.child(name) match {
+    case Some(_) => (context.child(name).get ? GetPublicKeys)
+      .mapTo[Set[String]]
+      .map { keys => Some(Peer(name, keys)) }
+      .pipeTo(sender())
+    case None => sender() ! None
+  }
 
-  private def onDeletePeer(name: String): Unit =
-    if (context.child(name).isDefined) {
+  private def onDeletePeer(name: String): Unit = context.child(name) match {
+    case Some(_) =>
       context stop context.child(name).get
       sender() ! SuccessMsg(s"Peer $name deleted.")
-    } else sender() ! FailureMsg(s"Peer $name does not exist.")
+    case None => sender() ! FailureMsg(s"Peer $name does not exist.")
+  }
 
 }
