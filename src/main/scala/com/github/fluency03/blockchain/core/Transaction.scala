@@ -12,6 +12,7 @@ import org.json4s.{Extraction, JValue}
 import scala.collection.mutable
 
 case class Outpoint(id: String, index: Int)
+// TODO (Chang): add public key into TxIn
 case class TxIn(previousOut: Outpoint, signature: String)
 case class TxOut(address: String, amount: Long)
 

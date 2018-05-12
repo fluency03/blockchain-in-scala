@@ -92,6 +92,7 @@ object Block {
     0, ZERO64, "Welcome to Blockchain in Scala!", genesisTimestamp, difficulty,
     Seq(createCoinbaseTx(0, genesisMiner, genesisTimestamp)))
 
+  // TODO (Chang): implement parallel version
   def mineNextBlock(
       nextIndex: Int,
       prevHash: String,

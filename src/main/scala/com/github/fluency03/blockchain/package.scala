@@ -4,7 +4,7 @@ import java.nio.charset.Charset
 import java.security.{PrivateKey, PublicKey}
 import java.time.Instant
 
-import com.github.fluency03.blockchain.crypto.Secp256k1.{privateKeyToHex, publicKeyToHex}
+import com.github.fluency03.blockchain.crypto.Secp256k1
 import com.github.fluency03.blockchain.core.{Peer, PeerSimple, TxIn, TxOut}
 import com.github.fluency03.blockchain.crypto.{RIPEMD160, SHA256, Secp256k1}
 import org.bouncycastle.util.encoders.{Base64, Hex}
@@ -59,17 +59,20 @@ package object blockchain {
     def toSha256Digest: Bytes = SHA256.hashToDigest(bytes)
     def toRipemd160: String = RIPEMD160.hash(bytes)
     def toRipemd160ODigest: Bytes = RIPEMD160.hashToDigest(bytes)
-    def toHash160: String = RIPEMD160.doubleHash(bytes)
-    def toHash160Digest: Bytes = RIPEMD160.doubleHashToDigest(bytes)
+    def toHash160: String = RIPEMD160.hash160(bytes)
+    def toHash160Digest: Bytes = RIPEMD160.hash160ToDigest(bytes)
   }
 
   implicit class PublicKeyImplicit(val publicKey: PublicKey) {
-    def toHex: String = publicKeyToHex(publicKey)
+    def toHex: String = Secp256k1.publicKeyToHex(publicKey)
+    def toBytes: Bytes = Secp256k1.publicKeyToBytes(publicKey)
+    def toHash160: String = Secp256k1.publicKeyToBytes(publicKey).toHash160
     def address: String = Secp256k1.publicKeyToAddress(publicKey)
   }
 
   implicit class PrivateKeyImplicit(val privateKey: PrivateKey) {
-    def toHex: String = privateKeyToHex(privateKey)
+    def toHex: String = Secp256k1.privateKeyToHex(privateKey)
+    def toBytes: Bytes = Secp256k1.privateKeyToBytes(privateKey)
   }
 
   implicit class PeerImplicit(val peer: Peer) {

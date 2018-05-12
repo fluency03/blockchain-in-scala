@@ -28,5 +28,8 @@ object SHA256 {
    */
   def hashAll(strings: String*): String = hash(strings mkString "")
 
+  def hash256(bytes: Bytes): String = hash(hashToDigest(bytes))
+
+  def hash256ToDigest(bytes: Bytes): Bytes = hashToDigest(hashToDigest(bytes))
 
 }

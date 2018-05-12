@@ -17,9 +17,8 @@ object RIPEMD160 {
     out
   }
 
-  def doubleHash(bytes: Bytes): String = hash(SHA256.hashToDigest(bytes))
+  def hash160(bytes: Bytes): String = hash(SHA256.hashToDigest(bytes))
 
-  def doubleHashToDigest(bytes: Bytes): Bytes = hashToDigest(SHA256.hashToDigest(bytes))
-
+  def hash160ToDigest(bytes: Bytes): Bytes = hashToDigest(SHA256.hashToDigest(bytes))
 
 }
