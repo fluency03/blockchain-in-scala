@@ -28,7 +28,8 @@ case class Transaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long, id
 
   def removeTxIn(txIn: TxIn): Transaction = Transaction(txIns.filter(_ != txIn), txOuts, timestamp)
 
-  def removeTxOut(txOut: TxOut): Transaction = Transaction(txIns, txOuts.filter(_ != txOut), timestamp)
+  def removeTxOut(txOut: TxOut): Transaction =
+    Transaction(txIns, txOuts.filter(_ != txOut), timestamp)
 
   def hasValidId: Boolean = id == hashOfTransaction(this)
 
@@ -69,20 +70,28 @@ object Transaction {
     tx.txOuts.map(tx => tx.address + tx.amount).mkString,
     tx.timestamp.toString)
 
-  def hashOfTransaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): String = SHA256.hashAll(
-    txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
-    txOuts.map(tx => tx.address + tx.amount).mkString,
-    timestamp.toString)
+  def hashOfTransaction(txIns: Seq[TxIn], txOuts: Seq[TxOut], timestamp: Long): String =
+    SHA256.hashAll(
+      txIns.map(tx => tx.previousOut.id + tx.previousOut.index).mkString,
+      txOuts.map(tx => tx.address + tx.amount).mkString,
+      timestamp.toString)
 
   // sign TxIn
-  def signTxIn(txId: String, txIn: TxIn, keyPair: KeyPair, uTxOs: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
+  def signTxIn(
+      txId: String,
+      txIn: TxIn,
+      keyPair: KeyPair,
+      uTxOs: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
     signTxIn(txId.hex2Bytes, txIn, keyPair, uTxOs)
 
-  def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, uTxOs: mutable.Map[Outpoint, TxOut]): Option[TxIn] =
-    uTxOs.get(txIn.previousOut) match {
-      case Some(uTxO) => signTxIn(txId, txIn, keyPair, uTxO)
-      case None => None
-    }
+  def signTxIn(
+      txId: Bytes,
+      txIn: TxIn,
+      keyPair: KeyPair,
+      uTxOs: mutable.Map[Outpoint, TxOut]): Option[TxIn] = uTxOs.get(txIn.previousOut) match {
+    case Some(uTxO) => signTxIn(txId, txIn, keyPair, uTxO)
+    case None => None
+  }
 
   def signTxIn(txId: Bytes, txIn: TxIn, keyPair: KeyPair, uTxO: TxOut): Option[TxIn] =
     if (keyPair.getPublic.toHex != uTxO.address) None
@@ -105,7 +114,10 @@ object Transaction {
   def validateTxOutValues(transaction: Transaction, uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
     validateTxOutValues(transaction.txIns, transaction.txOuts, uTxOs)
 
-  def validateTxOutValues(txIns: Seq[TxIn], txOuts: Seq[TxOut], uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+  def validateTxOutValues(
+      txIns: Seq[TxIn],
+      txOuts: Seq[TxOut],
+      uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
     txIns.map(txIn => uTxOs.get(txIn.previousOut) match {
       case Some(txOut) => txOut.amount
       case None => 0
@@ -125,7 +137,9 @@ object Transaction {
    *  1. Remove all consumed unspent transaction outputs
    *  2. Append all new unspent transaction outputs
    */
-  def updateUTxOs(transactions: Seq[Transaction], uTxOs: Map[Outpoint, TxOut]): Map[Outpoint, TxOut] = {
+  def updateUTxOs(
+      transactions: Seq[Transaction],
+      uTxOs: Map[Outpoint, TxOut]): Map[Outpoint, TxOut] = {
     val consumedTxOuts = getConsumedUTxOs(transactions)
     uTxOs.filterNot {
       case (i, _) => consumedTxOuts.contains(i)
@@ -134,15 +148,15 @@ object Transaction {
 
   def getNewUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
     transactions
-      .map(t => t.txOuts.zipWithIndex.map {
+      .map { t => t.txOuts.zipWithIndex.map {
         case (txOut, index) => Outpoint(t.id, index) -> txOut
-      }.toMap)
+      }.toMap }
       .foldLeft(Map.empty[Outpoint, TxOut])(_ ++ _)
 
   def getConsumedUTxOs(transactions: Seq[Transaction]): Map[Outpoint, TxOut] =
     transactions.map(_.txIns)
       .foldLeft(Seq.empty[TxIn])(_ ++ _)
-      .map(txIn => Outpoint(txIn.previousOut.id, txIn.previousOut.index) -> TxOut("", 0))
+      .map { txIn => Outpoint(txIn.previousOut.id, txIn.previousOut.index) -> TxOut("", 0) }
       .toMap
 
   def noDuplicateTxInOf(transactions: Seq[Transaction]): Boolean = {

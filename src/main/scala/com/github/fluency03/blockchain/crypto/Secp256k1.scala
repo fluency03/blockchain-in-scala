@@ -49,16 +49,16 @@ object Secp256k1 {
   }
 
   def generatePublicKey(privateKey: PrivateKey): PublicKey =
-    KeyFactory.getInstance(KEY_ALGORITHM)
-      .generatePublic(new ECPublicKeySpec(ecSpec.getG.multiply(privateKey.asInstanceOf[ECPrivateKey].getD), ecSpec))
+    KeyFactory.getInstance(KEY_ALGORITHM).generatePublic(
+      new ECPublicKeySpec(ecSpec.getG.multiply(privateKey.asInstanceOf[ECPrivateKey].getD), ecSpec))
 
   def recoverPublicKey(hex: String): PublicKey =
-    KeyFactory.getInstance(KEY_ALGORITHM)
-      .generatePublic(new ECPublicKeySpec(ecSpec.getCurve.decodePoint(hex.hex2Bytes), ecSpec))
+    KeyFactory.getInstance(KEY_ALGORITHM).generatePublic(
+      new ECPublicKeySpec(ecSpec.getCurve.decodePoint(hex.hex2Bytes), ecSpec))
 
   def recoverPrivateKey(hex: String): PrivateKey =
-    KeyFactory.getInstance(KEY_ALGORITHM)
-      .generatePrivate(new ECPrivateKeySpec(new BigInteger(hex, 16), ecSpec))
+    KeyFactory.getInstance(KEY_ALGORITHM).generatePrivate(
+      new ECPrivateKeySpec(new BigInteger(hex, 16), ecSpec))
 
   def publicKeyToHex(publicKey: PublicKey): String = publicKeyToBytes(publicKey).toHex
 

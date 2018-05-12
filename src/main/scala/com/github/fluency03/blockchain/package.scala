@@ -98,7 +98,8 @@ package object blockchain {
   /**
    * Check whether the given hash is with valid difficulty.
    */
-  def isWithValidDifficulty(hash: String, difficulty: Int): Boolean = hash startsWith ("0" * difficulty)
+  def isWithValidDifficulty(hash: String, difficulty: Int): Boolean =
+    hash.startsWith("0" * difficulty)
 
   /**
    * Encode a String to Base64.

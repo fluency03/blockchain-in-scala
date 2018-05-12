@@ -2,7 +2,7 @@ package com.github.fluency03.blockchain
 package core
 
 import com.github.fluency03.blockchain.core.Block.validLinkBetween
-import com.github.fluency03.blockchain.core.Blockchain._
+import com.github.fluency03.blockchain.core.Blockchain.isValidChain
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -25,13 +25,13 @@ case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesis
 
   def lastBlock(): Option[Block] = chain.headOption
 
-  def mineNextBlock(newBlockData: String, transactions: Seq[Transaction]): Block = {
-    val lastBlockOpt: Option[Block] = this.lastBlock()
-    if (lastBlockOpt.isEmpty) throw new NoSuchElementException("Last Block does not exist!")
-    val lastHeader = lastBlockOpt.get.header
-    Block.mineNextBlock(lastHeader.index + 1, lastHeader.hash, newBlockData, getCurrentTimestamp, difficulty,
-      transactions)
-  }
+  def mineNextBlock(newBlockData: String, transactions: Seq[Transaction]): Block =
+    this.lastBlock() match {
+      case Some(block) =>
+        Block.mineNextBlock(
+          block.index + 1, block.hash, newBlockData, getCurrentTimestamp, difficulty, transactions)
+      case None => throw new NoSuchElementException("Last Block does not exist!")
+    }
 
   def isValid: Boolean = chain match {
     case Nil => throw new NoSuchElementException("Blockchain is Empty!")
@@ -48,7 +48,8 @@ case class Blockchain(difficulty: Int = 4, chain: Seq[Block] = Seq(Block.genesis
 
 object Blockchain {
 
-  def apply(difficulty: Int): Blockchain = new Blockchain(difficulty, Seq(Block.genesis(difficulty)))
+  def apply(difficulty: Int): Blockchain =
+    new Blockchain(difficulty, Seq(Block.genesis(difficulty)))
 
   // TODO (Chang): return both the validity and highest valid Block index
   @tailrec

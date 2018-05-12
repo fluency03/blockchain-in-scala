@@ -3,7 +3,8 @@ package core
 
 import com.github.fluency03.blockchain.core.Block.allTransValidOf
 import com.github.fluency03.blockchain.core.BlockHeader.hashOfHeaderFields
-import com.github.fluency03.blockchain.core.Transaction.{createCoinbaseTx, validateCoinbaseTx, noDuplicateTxInOf}
+import com.github.fluency03.blockchain.core.Transaction.{
+  createCoinbaseTx, noDuplicateTxInOf, validateCoinbaseTx}
 import org.json4s.native.JsonMethods.{compact, render}
 import org.json4s.{Extraction, JValue}
 
@@ -34,13 +35,15 @@ case class Block(header: BlockHeader, transactions: Seq[Transaction], hash: Stri
   def removeTransaction(tx: Transaction): Block =
     Block(index, previousHash, data, timestamp, difficulty, nonce, transactions.filter(_ != tx))
 
-  def hasValidHash: Boolean = hasValidHeaderHash && isWithValidDifficulty(hash, difficulty) && hasValidMerkleHash
+  def hasValidHash: Boolean =
+    hasValidHeaderHash && isWithValidDifficulty(hash, difficulty) && hasValidMerkleHash
 
   def hasValidMerkleHash: Boolean = merkleHash == Merkle.computeRoot(transactions)
 
   def hasValidHeaderHash: Boolean = hash == header.hash
 
-  def allTransAreValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = allTransValidOf(transactions, index, uTxOs)
+  def allTransAreValid(uTxOs: mutable.Map[Outpoint, TxOut]): Boolean =
+    allTransValidOf(transactions, index, uTxOs)
 
   def noDuplicateTxIn(): Boolean = noDuplicateTxInOf(transactions)
 
@@ -71,9 +74,12 @@ object Block {
       timestamp: Long,
       difficulty: Int,
       nonce: Int,
-      transactions: Seq[Transaction]): Block =
-    Block(BlockHeader(index, previousHash, data, Merkle.computeRoot(transactions), timestamp, difficulty, nonce),
-      transactions)
+      transactions: Seq[Transaction]): Block = {
+    val merkleRoot = Merkle.computeRoot(transactions)
+    val header = BlockHeader(index, previousHash, data, merkleRoot, timestamp, difficulty, nonce)
+    Block(header, transactions)
+  }
+
 
   def apply(
       index: Int,
@@ -83,13 +89,19 @@ object Block {
       timestamp: Long,
       difficulty: Int,
       nonce: Int,
-      transactions: Seq[Transaction]): Block =
-    Block(BlockHeader(index, previousHash, data, merkleHash, timestamp, difficulty, nonce), transactions)
+      transactions: Seq[Transaction]): Block = {
+    val header = BlockHeader(index, previousHash, data, merkleHash, timestamp, difficulty, nonce)
+    Block(header, transactions)
+  }
 
   lazy val genesisBlock: Block = genesis()
 
   def genesis(difficulty: Int = 4): Block = mineNextBlock(
-    0, ZERO64, "Welcome to Blockchain in Scala!", genesisTimestamp, difficulty,
+    0,
+    ZERO64,
+    "Welcome to Blockchain in Scala!",
+    genesisTimestamp,
+    difficulty,
     Seq(createCoinbaseTx(0, genesisMiner, genesisTimestamp)))
 
   // TODO (Chang): implement parallel version
@@ -104,9 +116,12 @@ object Block {
     var nextHash = ""
     val merkleHash = Merkle.computeRoot(transactions)
 
+    val hashOnNonce: Int => String =
+      hashOfHeaderFields(nextIndex, prevHash, newBlockData, merkleHash, timestamp, difficulty, _)
+
     while (!isWithValidDifficulty(nextHash, difficulty)) {
       nonce += 1
-      nextHash = hashOfHeaderFields(nextIndex, prevHash, newBlockData, merkleHash, timestamp, difficulty, nonce)
+      nextHash = hashOnNonce(nonce)
     }
 
     Block(nextIndex, prevHash, newBlockData, merkleHash, timestamp, difficulty, nonce, transactions)
@@ -118,15 +133,16 @@ object Block {
       timestamp: Long,
       difficulty: Int,
       transactions: Seq[Transaction]): Block =
-    mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty, transactions)
+    mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty,
+      transactions)
 
   def mineNextBlock(
-    currentBlock: Block,
-    newBlockData: String,
-    timestamp: Long,
-    difficulty: Int,
-    transactions: Seq[Transaction],
-    miner: String): Block =
+      currentBlock: Block,
+      newBlockData: String,
+      timestamp: Long,
+      difficulty: Int,
+      transactions: Seq[Transaction],
+      miner: String): Block =
     mineNextBlock(currentBlock.index + 1, currentBlock.hash, newBlockData, timestamp, difficulty,
       transactions :+ createCoinbaseTx(currentBlock.index + 1, miner, timestamp))
 
@@ -134,19 +150,21 @@ object Block {
    * Check whether transactions of a Block are valid:
    * 1. Coinbase transaction is valid
    * 2. Rest of the transactions are valid
-   * 3. if the Seq is empty, then it is not valid, because it has to at least contain one coinbase transaction
+   * 3. if the Seq is empty, then it is not valid, because it has to at least contain one
+   *    coinbase transaction
    */
   def allTransValidOf(
       transactions: Seq[Transaction],
       blockIndex: Int,
-      uTxOs: mutable.Map[Outpoint, TxOut])
-    : Boolean = transactions match {
+      uTxOs: mutable.Map[Outpoint, TxOut]): Boolean = transactions match {
     case Nil => false
-    case init :+ last => validateCoinbaseTx(last, blockIndex) && init.forall(tx => tx.isValid(uTxOs))
+    case init :+ last =>
+      validateCoinbaseTx(last, blockIndex) && init.forall(tx => tx.isValid(uTxOs))
   }
 
   /**
-   * Check whether a new Block can be chained to the last Block of a Blockchain (previousBlock of newBlock):
+   * Check whether a new Block can be chained to the last Block of a Blockchain
+   * (previousBlock of newBlock):
    * 1. New Block's index should be the previous index plus one
    * 2. New Block's previousHash should be the hash of previous Block
    * 3. New Block should have valid hash (that means, valid header hash and merkle hash)

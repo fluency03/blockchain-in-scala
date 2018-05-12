@@ -25,11 +25,14 @@ object Merkle {
   def hashViaMerklePath(init: String, path: Seq[String], index: Int): String =
     if (path.isEmpty) init
     else {
-      val newHash = if (index % 2 == 0) SHA256.hashAll(init, path.head) else SHA256.hashAll(path.head, init)
+      val newHash = if (index % 2 == 0)
+        SHA256.hashAll(init, path.head)
+      else
+        SHA256.hashAll(path.head, init)
       hashViaMerklePath(newHash, path.tail, index/2)
     }
 
-  def simplifiedPaymentVerification(init: String, root: String, path: Seq[String], index: Int): Boolean =
+  def verifySimplified(init: String, root: String, path: Seq[String], index: Int): Boolean =
     hashViaMerklePath(init, path, index) == root
 
 
