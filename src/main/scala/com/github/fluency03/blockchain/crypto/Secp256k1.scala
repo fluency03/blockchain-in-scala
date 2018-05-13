@@ -20,11 +20,11 @@ object Secp256k1 {
 
   val ecSpec: ECParameterSpec = ECNamedCurveTable.getParameterSpec(SPECP256K1)
 
-  def sign(data: Bytes, privateKey: Bytes): Bytes = {
-    val keySpec: PKCS8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKey)
+  def sign(data: Bytes, privateKeyBytes: Bytes): Bytes = {
+    val keySpec: PKCS8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes)
     val keyFactory: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM)
-    val key: PrivateKey = keyFactory.generatePrivate(keySpec)
-    sign(data, key)
+    val privateKey: PrivateKey = keyFactory.generatePrivate(keySpec)
+    sign(data, privateKey)
   }
 
   def sign(data: Bytes, privateKey: PrivateKey): Bytes = {
@@ -34,11 +34,11 @@ object Secp256k1 {
     sig.sign()
   }
 
-  def verify(data: Bytes, publicKey: Bytes, signature: Bytes): Boolean =  {
-    val keySpec: X509EncodedKeySpec = new X509EncodedKeySpec(publicKey)
+  def verify(data: Bytes, publicKeyBytes: Bytes, signature: Bytes): Boolean =  {
+    val keySpec: X509EncodedKeySpec = new X509EncodedKeySpec(publicKeyBytes)
     val keyFactory: KeyFactory = KeyFactory.getInstance(KEY_ALGORITHM)
-    val key: PublicKey = keyFactory.generatePublic(keySpec)
-    verify(data, key, signature)
+    val publicKey: PublicKey = keyFactory.generatePublic(keySpec)
+    verify(data, publicKey, signature)
   }
 
   def verify(data: Bytes, publicKey: PublicKey, signature: Bytes): Boolean =  {
@@ -77,8 +77,8 @@ object Secp256k1 {
   def privateKeyToBytes(privateKey: PrivateKey): Bytes =
     privateKey.asInstanceOf[ECPrivateKey].getD.toByteArray
 
-  def publicKeyHexToAddress(publicKey: HexString, networkBytes: String = "00"): String =
-    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKey.hex2Bytes.hash160Digest)
+  def publicKeyHexToAddress(publicKeyHex: HexString, networkBytes: String = "00"): String =
+    Base58.checkEncode(networkBytes.hex2Bytes ++ publicKeyHex.hex2Bytes.hash160Digest)
 
   /**
    * Convert a Public Key to its Base58 Address.

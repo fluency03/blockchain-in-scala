@@ -8,7 +8,7 @@ import scala.annotation.tailrec
 object Base58 {
 
   lazy val ALPHABET: Array[Char] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray
-  private val ENCODED_ZERO = ALPHABET(0)
+  lazy val ENCODED_ZERO = ALPHABET(0)
 
   def encodeString(text: String): Base58 = encode(text.getBytes)
 
