@@ -51,4 +51,6 @@ object Base58 {
   def checkEncode(bytes: Bytes): Base58 =
     encode(bytes ++ bytes.sha256Digest.sha256Digest.slice(0, 4))
 
+  def checkDecode(str: Base58): Bytes = decode(str).dropRight(4)
+
 }
