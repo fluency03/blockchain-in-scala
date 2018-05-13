@@ -51,6 +51,7 @@ package object blockchain {
   }
 
   implicit class BytesImplicit(val bytes: Bytes) {
+    def toText: String = new String(bytes)
     def toHex: HexString = Hex.toHexString(bytes)
     def toBigInt: BigInt = BigInt(bytes)
     def toBase64: Base64 = base64Of(bytes)

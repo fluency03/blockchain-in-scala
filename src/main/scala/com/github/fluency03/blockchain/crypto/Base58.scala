@@ -44,10 +44,11 @@ object Base58 {
     zeroes ++ Hex.decode(bi.toString(16))
   }
 
-  def decodeToHex(str: Base58): HexString = new String(decode(str))
+  def decodeToString(str: Base58): String = decode(str).toText
+
+  def decodeToHex(str: Base58): HexString = decode(str).toHex
 
   def checkEncode(bytes: Bytes): Base58 =
     encode(bytes ++ bytes.sha256Digest.sha256Digest.slice(0, 4))
-
 
 }
