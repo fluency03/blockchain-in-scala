@@ -10,7 +10,7 @@ object Base58 {
   lazy val ALPHABET: Array[Char] = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray
   private val ENCODED_ZERO = ALPHABET(0)
 
-  def encodeString(str: String): Base58 = encode(str.getBytes)
+  def encodeString(text: String): Base58 = encode(text.getBytes)
 
   def encodeHex(hex: HexString): Base58 = encode(hex.hex2Bytes)
 

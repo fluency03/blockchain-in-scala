@@ -9,7 +9,9 @@ object SHA256 {
    * Generate SHA256 Hash from a input String.
    * https://gist.github.com/navicore/6234040bbfce3aa58f866db314c07c15
    */
-  def hash(text: String) : HexString = hash(text.getBytes)
+  def hashString(text: String) : HexString = hash(text.getBytes)
+
+  def hashHex(hex: HexString) : HexString = hash(hex.hex2Bytes)
 
   def hash(bytes: Bytes) : HexString = String.format("%064x",
     new java.math.BigInteger(1, hashDigest(bytes)))
@@ -17,7 +19,11 @@ object SHA256 {
   def hashDigest(bytes: Bytes): Bytes =
     MessageDigest.getInstance("SHA-256").digest(bytes)
 
-  def hashAll(strings: String*): HexString = hash(strings mkString "")
+  def hashStrings(strings: String*): HexString =
+    hash(strings.map(_.getBytes).foldLeft(Array.empty[Byte])(_ ++ _))
+
+  def hashHexs(hexs: HexString*): HexString =
+    hash(hexs.map(_.hex2Bytes).foldLeft(Array.empty[Byte])(_ ++ _))
 
   def hash256(bytes: Bytes): HexString = hash(hashDigest(bytes))
 

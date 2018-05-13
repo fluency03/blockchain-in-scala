@@ -5,7 +5,9 @@ import org.bouncycastle.crypto.digests.RIPEMD160Digest
 
 object RIPEMD160 {
 
-  def hash(str: String): HexString = hash(str.getBytes)
+  def hashString(text: String): HexString = hash(text.getBytes)
+
+  def hashHex(hex: HexString): HexString = hash(hex.hex2Bytes)
 
   def hash(bytes: Bytes): HexString = hashDigest(bytes).map("%02x".format(_)).mkString
 
@@ -16,6 +18,12 @@ object RIPEMD160 {
     messageDigest.doFinal(out, 0)
     out
   }
+
+  def hashStrings(strings: String*): HexString =
+    hash(strings.map(_.getBytes).foldLeft(Array.empty[Byte])(_ ++ _))
+
+  def hashHexs(hexs: HexString*): HexString =
+    hash(hexs.map(_.hex2Bytes).foldLeft(Array.empty[Byte])(_ ++ _))
 
   def hash160(bytes: Bytes): HexString = hash(SHA256.hashDigest(bytes))
 

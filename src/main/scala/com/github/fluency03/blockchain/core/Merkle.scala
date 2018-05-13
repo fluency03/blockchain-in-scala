@@ -18,7 +18,7 @@ object Merkle {
     case 0 => ZERO64
     case 1 => hashes.head
     case n if n % 2 != 0 => computeRootOfHashes(hashes :+ hashes.last) // append last element again
-    case _ => computeRootOfHashes(hashes.grouped(2).map { a => SHA256.hashAll(a(0), a(1)) } .toList)
+    case _ => computeRootOfHashes(hashes.grouped(2).map { a => SHA256.hashStrings(a(0), a(1)) } .toList)
   }
 
   @tailrec
@@ -26,9 +26,9 @@ object Merkle {
     if (path.isEmpty) init.toLowerCase()
     else {
       val newHash = if (index % 2 == 0)
-        SHA256.hashAll(init, path.head)
+        SHA256.hashStrings(init, path.head)
       else
-        SHA256.hashAll(path.head, init)
+        SHA256.hashStrings(path.head, init)
       hashViaMerklePath(newHash, path.tail, index/2)
     }
 

@@ -46,8 +46,8 @@ package object blockchain {
     def hex2Bytes: Bytes = Hex.decode(str)
     def hex2Binary: BinaryString = binaryOfHex(str)
     def toBase64: Base64 = base64Of(str.getBytes)
-    def sha256: HexString = SHA256.hash(str)
-    def ripemd160: HexString = RIPEMD160.hash(str)
+    def sha256: HexString = SHA256.hashString(str)
+    def ripemd160: HexString = RIPEMD160.hashString(str)
   }
 
   implicit class BytesImplicit(val bytes: Bytes) {
